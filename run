@@ -1,2 +1,0 @@
-#!/bin/bash
-java -jar target/cnsim-0.0.1-SNAPSHOT.jar -c src/main/resources/bitcoin-config/bitcoin.lowrate2.application.properties
