@@ -6,19 +6,27 @@ editor: visual
 
 # Index
 
-+-----------------------------------+-----------------------------------------------------------------------------+
-| Configuration                     | Description                                                                 |
-+===================================+=============================================================================+
-| `bitcoin.application.properties`  | Realistic Bitcoin Simulation with                                           |
-|                                   |                                                                             |
-| ([Standard Bitcoin Network])      | -   30 nodes                                                                |
-|                                   |                                                                             |
-|                                   | -   Difficulty, power, arrival rate, tx size, parameters as of `2024-11-25` |
-+-----------------------------------+-----------------------------------------------------------------------------+
-|                                   |                                                                             |
-+-----------------------------------+-----------------------------------------------------------------------------+
-|                                   |                                                                             |
-+-----------------------------------+-----------------------------------------------------------------------------+
++--------------------------------------+------------------------------------------------------------------------------------+
+| Configuration                        | Description                                                                        |
++======================================+====================================================================================+
+| `bitcoin.application.properties`     | Realistic Bitcoin Simulation with                                                  |
+|                                      |                                                                                    |
+| ([Standard Bitcoin Network])         | -   30 nodes                                                                       |
+|                                      |                                                                                    |
+|                                      | -   Difficulty, power, arrival rate, tx size, parameters as of `2024-11-25`        |
++--------------------------------------+------------------------------------------------------------------------------------+
+| `light1.application.properties`      | As above but with:                                                                 |
+|                                      |                                                                                    |
+| ([Lightweight Bitcoin Simulation 1]) | -   $\lambda$ = 1 (instead of realistic)                                           |
+|                                      |                                                                                    |
+|                                      | -   Mean tx size = `1461.15` to make up for the fewer transactions.                |
+|                                      |                                                                                    |
+|                                      | -   This results for about 3600 arrivals per hour allowing for faster simulations. |
+|                                      |                                                                                    |
+|                                      | -   Target transactions are now {10,11,...20}                                      |
++--------------------------------------+------------------------------------------------------------------------------------+
+|                                      |                                                                                    |
++--------------------------------------+------------------------------------------------------------------------------------+
 
 : Configuration Files
 
@@ -94,4 +102,4 @@ net.throughputSD = 2500f
 
 We use 10 (10) transactions (200, 210, ..., 300) as the sample of transactions on which to perform the analysis.
 
-# Lightweight Bitcoin Simulation
+# Lightweight Bitcoin Simulation 1
