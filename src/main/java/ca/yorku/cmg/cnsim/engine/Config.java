@@ -1,6 +1,9 @@
 package ca.yorku.cmg.cnsim.engine;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
@@ -9,11 +12,17 @@ public class Config {
     static Properties prop = new Properties();
     static boolean initialized = false;
     
-    public static void init(String propFileName) {
-        try (InputStream inputStream = new FileInputStream(propFileName)) {
-        	prop.load(inputStream);
-        	initialized = true;
-        } catch (Exception e) {
+    public static void init(String propFileName) throws FileNotFoundException {
+    	
+        File file = new File(propFileName);
+        if (!file.exists()) {
+            throw new FileNotFoundException(propFileName + " not found");
+        }
+
+        try (InputStream in = new FileInputStream(file)) {
+            prop.load(in);
+            initialized = true;
+        } catch (IOException e) {
             System.err.println("Exception (Config): " + e);
             e.printStackTrace();
             System.exit(-1);
@@ -37,7 +46,9 @@ public class Config {
 		}
     }
     
-    
+    public static boolean propertyExists(String propertyKey) {
+    	return (prop.getProperty(propertyKey) != null);
+    }
 
     public static String getProperty(String propertyKey, boolean returnNull) {
     	if (returnNull) {

@@ -104,7 +104,7 @@ public class Event {
  
     	// Every little while ask node if it wants to print any period reports.
     	// TODO: the periodic printing should (also) be based on simulation time.
-    	if ((currID % Config.getPropertyLong("sim.reporting.window")) == 0) {
+    	if ((currID % Config.getPropertyLong("reporter.reportingWindow")) == 0) {
     		for (INode n : sim.getNodeSet().getNodes()) {
     			n.periodicReport();
     		}

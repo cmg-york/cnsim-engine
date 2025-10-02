@@ -25,7 +25,7 @@ class StandardTransactionSamplerTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		String[] args = {"-c", "src/test/resources/application.properties"};
-		
+		//String[] args = {"-c", "application.properties"};
         try{
             ConfigInitializer.initialize(args);
         } catch (IOException e){

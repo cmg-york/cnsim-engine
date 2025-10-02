@@ -8,7 +8,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 /**
  * Event that signifies the arrival of a container (e.g. block) that has been validated by someone else.
  * 
- * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  * 
  *  
  */
@@ -23,7 +23,7 @@ public class Event_ContainerArrival extends Event {
     /**
      * Constructs a new Event_ContainerArrival.
      *
-     * @param txc   The container that arrives at the node.
+     * @param txc   The {@linkplain ITxContainer} object that arrives at the node.
      * @param n     The node at which the container arrives.
      * @param time  The simulation time at which the event occurs.
      */
@@ -38,7 +38,7 @@ public class Event_ContainerArrival extends Event {
     /**
      * Executes the event in the simulation, by calling the {@linkplain INode::event_NodeReceivesPropagatedContainer}
      *
-     * @param sim The simulation instance.
+     * @param sim The ({@linkplain Simulation} instance.
      */
     @Override
     public void happen(Simulation sim) {

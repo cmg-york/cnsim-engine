@@ -157,7 +157,5 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 		return(alternativeSampler.seedUpdateEnabled());
 	}
     
-    
-    
 
 }

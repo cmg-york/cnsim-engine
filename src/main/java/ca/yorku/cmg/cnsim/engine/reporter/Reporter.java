@@ -20,7 +20,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
  * 3. Nodes: adds a new line for every node known to the simulator. This happens at the end of the simulator.
  * Additional measurements and files can be produced by other classes (e.g., Nodes, Structures).
  * 
- * @author Sotirios Liaskos for the Enterprise Systems Group @ York University`
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University`
  * 
  */
 public class Reporter {
@@ -30,8 +30,11 @@ public class Reporter {
 	protected static ArrayList<String> nodeLog = new ArrayList<String>();
 	protected static ArrayList<String> netLog = new ArrayList<String>();
 	protected static ArrayList<String> beliefLog = new ArrayList<String>();
+	protected static ArrayList<String> beliefLogShort = new ArrayList<String>();
 	protected static ArrayList<String> errorLog = new ArrayList<String>();
 
+	protected static BeliefEntryCounter beliefCounter = new BeliefEntryCounter();
+	
 	protected static String runId;
 	protected static String path;
 	protected static String root = "./log/";
@@ -42,6 +45,7 @@ public class Reporter {
 	protected static boolean reportNodes;
 	protected static boolean reportNetEvents;
 	protected static boolean reportBeliefs;
+	protected static boolean reportBeliefsShort;
 
 
 	public static void reportEvents(boolean reportEvents) {
@@ -64,15 +68,33 @@ public class Reporter {
 		Reporter.reportBeliefs = reportBeliefs;
 	}
 
+	public static void reportBeliefsShort(boolean reportBeliefsShort) {
+		Reporter.reportBeliefsShort = reportBeliefsShort;
+	}
+	
+	public static boolean reportsBeliefs() {
+		return Reporter.reportBeliefs;
+	}
+
+	public static boolean reportsBeliefsShort() {
+		return Reporter.reportBeliefsShort;
+	}
+	
+	
 	
 	
 	static {
 		root = Config.getPropertyString("sim.output.directory");
 
+		String label = "";
+		if (Config.hasProperty("sim.experimentalLabel")) {
+			label = Config.getPropertyString("sim.experimentalLabel") + " - ";
+		}
+		
 		//ID the run
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH.mm.ss");  
 		LocalDateTime now = LocalDateTime.now();
-		runId = dtf.format(now);
+		runId = label + dtf.format(now);
 		path = root + runId + "/";
 		new File(path).mkdirs();
 		FileWriter writer;
@@ -88,6 +110,7 @@ public class Reporter {
 		nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
 		netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
 		beliefLog.add("SimID, Node ID, Transaction ID, Believes, Time (ms from start)");
+		beliefLogShort.add("SimID, Transaction ID, Time (ms from start), Belief");
 	}
 	
 	public static String getRunId() {
@@ -192,12 +215,19 @@ public class Reporter {
 	 * @param simTime The time at which the report is produced.
 	 */
 	public static void addBeliefEntry(int simID, int node, long tx, boolean believes, long simTime) {
-		if (Reporter.reportBeliefs)
+		if (Reporter.reportBeliefs) {
 			beliefLog.add(simID + "," +
 					node + "," + 
 					tx + "," +
 					believes + "," +
 					simTime);
+		}
+		
+		if (Reporter.reportBeliefsShort) {
+			if (believes) {
+				beliefCounter.increment(simID, tx, simTime);
+			}
+		}
 	}
 	
 	
@@ -216,16 +246,18 @@ public class Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void flushEvtReport() {
-		FileWriter writer;
-		try {
-			writer = new FileWriter(path + "EventLog - " + runId + ".csv");
-			for(String str: eventLog) {
-				  writer.write(str + System.lineSeparator());
-				}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+		if (Reporter.reportEvents) {
+			FileWriter writer;
+			try {
+				writer = new FileWriter(path + "EventLog - " + runId + ".csv");
+				for(String str: eventLog) {
+					  writer.write(str + System.lineSeparator());
+					}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
@@ -233,16 +265,18 @@ public class Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void flushInputReport() {
-		FileWriter writer;
-		try {
-			writer = new FileWriter(path + "Input - " + runId + ".csv");
-			for(String str: inputTxLog) {
-				  writer.write(str + System.lineSeparator());
-				}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+		if (Reporter.reportTransactions) {
+			FileWriter writer;
+			try {
+				writer = new FileWriter(path + "Input - " + runId + ".csv");
+				for(String str: inputTxLog) {
+					  writer.write(str + System.lineSeparator());
+					}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
+		}
 	}
 	
 	
@@ -252,16 +286,18 @@ public class Reporter {
 	 */
 
 	public static void flushNodeReport() {
-		FileWriter writer;
-		try {
-			writer = new FileWriter(path + "Nodes - " + runId + ".csv");
-			for(String str: nodeLog) {
-				  writer.write(str + System.lineSeparator());
-				}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+		if (Reporter.reportNodes) {
+			FileWriter writer;
+			try {
+				writer = new FileWriter(path + "Nodes - " + runId + ".csv");
+				for(String str: nodeLog) {
+					  writer.write(str + System.lineSeparator());
+					}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
@@ -270,16 +306,18 @@ public class Reporter {
 	 * @author Sotirios Liaskos
 	 */
 	public static void flushNetworkReport() {
-		FileWriter writer;
-		try {
-			writer = new FileWriter(path + "NetLog - " + runId + ".csv");
-			for(String str: netLog) {
-				  writer.write(str + System.lineSeparator());
-				}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+		if (Reporter.reportNetEvents) {
+			FileWriter writer;
+			try {
+				writer = new FileWriter(path + "NetLog - " + runId + ".csv");
+				for(String str: netLog) {
+					  writer.write(str + System.lineSeparator());
+					}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
@@ -289,15 +327,34 @@ public class Reporter {
 	 */
 	public static void flushBeliefReport() {
 		FileWriter writer;
-		try {
-			writer = new FileWriter(path + "BeliefLog - " + runId + ".csv");
-			for(String str: beliefLog) {
-				  writer.write(str + System.lineSeparator());
+		
+		if (Reporter.reportBeliefs) {
+			try {
+				writer = new FileWriter(path + "BeliefLog - " + runId + ".csv");
+				for(String str: beliefLog) {
+					  writer.write(str + System.lineSeparator());
+					}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (Reporter.reportBeliefsShort) {
+			try {
+				writer = new FileWriter(path + "BeliefLogShort - " + runId + ".csv");
+				for(String str: beliefLogShort) {
+					  writer.write(str + System.lineSeparator());
 				}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+				for(String str: beliefCounter.getEntries()) {
+					  writer.write(str + System.lineSeparator());
+				}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	

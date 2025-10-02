@@ -5,7 +5,7 @@
 
   <groupId>ca.yorku.cmg</groupId>
   <artifactId>cnsim-engine</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>cnsim-engine</name>
   <!-- FIXME change it to the project's website -->
@@ -83,6 +83,14 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.4.2</version>
+               <configuration>
+        			<archive>
+          				<manifest>
+            				<!-- automatically include Implementation-Version, Implementation-Title, etc. -->
+            				<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+          				</manifest>
+        			</archive>
+      			</configuration>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
@@ -103,6 +111,16 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    
+    
+      <resources>
+    <resource>
+      <directory>src/main/resources</directory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </resource>
+   </resources>
     
     
 <plugins>

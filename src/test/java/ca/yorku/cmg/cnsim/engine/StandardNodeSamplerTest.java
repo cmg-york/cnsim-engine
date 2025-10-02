@@ -17,6 +17,7 @@ class StandardNodeSamplerTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		String[] args = {"-c", "src/test/resources/application.properties"};
+		//String[] args = {"-c", "application.properties"};
 		long[] seedArray = {123};
 		boolean[] flagArray = {false};	
 		

@@ -66,6 +66,9 @@ public class ConfigInitializer {
         Reporter.reportNodes(Config.getPropertyBoolean("reporter.reportNodes"));
         Reporter.reportNetEvents(Config.getPropertyBoolean("reporter.reportNetEvents"));
         Reporter.reportBeliefs(Config.getPropertyBoolean("reporter.reportBeliefs"));
+        if (Config.propertyExists("reporter.reportBeliefsShort")) {
+        	Reporter.reportBeliefsShort(Config.getPropertyBoolean("reporter.reportBeliefsShort"));
+        }
         
     }
 
