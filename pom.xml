@@ -138,6 +138,8 @@
         <outputDirectory>${basedir}/docs</outputDirectory>
       </configuration>
 		</plugin>
+		
+		
 		 <plugin>
             <groupId>org.apache.maven.doxia</groupId>
             <artifactId>doxia-module-markdown</artifactId>
