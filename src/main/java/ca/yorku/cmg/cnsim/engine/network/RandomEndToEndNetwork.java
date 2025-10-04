@@ -1,9 +1,8 @@
 package ca.yorku.cmg.cnsim.engine.network;
 
-import ca.yorku.cmg.cnsim.engine.AbstractSampler;
-import ca.yorku.cmg.cnsim.engine.Config;
-import ca.yorku.cmg.cnsim.engine.Sampler;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
 
 /**

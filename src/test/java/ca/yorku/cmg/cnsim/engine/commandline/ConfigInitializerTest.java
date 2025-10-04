@@ -1,15 +1,15 @@
 // 2 Failures
 package ca.yorku.cmg.cnsim.engine.commandline;
 
-import ca.yorku.cmg.cnsim.engine.Config;
-import ca.yorku.cmg.cnsim.engine.ConfigInitializer;
-
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+
+import ca.yorku.cmg.cnsim.engine.config.Config;
+import ca.yorku.cmg.cnsim.engine.config.ConfigInitializer;
 
 import java.io.FileWriter;
 import java.io.IOException;

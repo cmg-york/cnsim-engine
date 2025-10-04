@@ -1,6 +1,13 @@
 package ca.yorku.cmg.cnsim.engine;
 
+
+/*
+ * TODO: complete and reformat commenting
+ * TODO: make bar-length configurable 
+ */
+
 public class ProgressBar {
+	
     public static void printProgress(int progress, int total, int offset) {
         int barLength = 50;  // Length of the progress bar
         int progressLength = (int) ((double) progress / total * barLength);

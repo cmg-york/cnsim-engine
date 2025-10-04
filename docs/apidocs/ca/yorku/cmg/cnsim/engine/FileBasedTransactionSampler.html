@@ -69,7 +69,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#constructor-detail" tabindex="0">Constructor Details</a>
 <ol class="toc-list">
 <li><a href="#%3Cinit%3E(java.lang.String)" tabindex="0">FileBasedTransactionSampler(String)</a></li>
-<li><a href="#%3Cinit%3E(java.lang.String,ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler)" tabindex="0">FileBasedTransactionSampler(String, AbstractTransactionSampler)</a></li>
+<li><a href="#%3Cinit%3E(java.lang.String,ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler)" tabindex="0">FileBasedTransactionSampler(String, AbstractTransactionSampler)</a></li>
 </ol>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
@@ -90,8 +90,8 @@ loadScripts(document, 'script');</script>
 <h1 title="Class FileBasedTransactionSampler" class="title">Class FileBasedTransactionSampler</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler</a>
-<div class="inheritance">ca.yorku.cmg.cnsim.engine.FileBasedTransactionSampler</div>
+<div class="inheritance"><a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler</a>
+<div class="inheritance">ca.yorku.cmg.cnsim.engine.sampling.filesamplers.FileBasedTransactionSampler</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
@@ -112,7 +112,7 @@ loadScripts(document, 'script');</script>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler">Fields inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a></h3>
+<h3 id="fields-inherited-from-class-ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler">Fields inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a></h3>
 <code><a href="AbstractTransactionSampler.html#random">random</a>, <a href="AbstractTransactionSampler.html#randomSeed">randomSeed</a>, <a href="AbstractTransactionSampler.html#sampler">sampler</a>, <a href="AbstractTransactionSampler.html#txArrivalIntervalRate">txArrivalIntervalRate</a>, <a href="AbstractTransactionSampler.html#txSizeMean">txSizeMean</a>, <a href="AbstractTransactionSampler.html#txSizeSD">txSizeSD</a>, <a href="AbstractTransactionSampler.html#txValueMean">txValueMean</a>, <a href="AbstractTransactionSampler.html#txValueSD">txValueSD</a></code></div>
 </section>
 </li>
@@ -126,7 +126,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">FileBasedTransactionSampler</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;transactionsFilePath)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler)" class="member-name-link">FileBasedTransactionSampler</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;transactionsFilePath,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler)" class="member-name-link">FileBasedTransactionSampler</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;transactionsFilePath,
  <a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a>&nbsp;randomSampler)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
@@ -174,8 +174,8 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler">Methods inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a></h3>
-<code><a href="AbstractTransactionSampler.html#_______________Transactions()">_______________Transactions</a>, <a href="AbstractTransactionSampler.html#getRandom()">getRandom</a>, <a href="AbstractTransactionSampler.html#getSampler()">getSampler</a>, <a href="AbstractTransactionSampler.html#getTxArrivalIntervalRate()">getTxArrivalIntervalRate</a>, <a href="AbstractTransactionSampler.html#getTxFeeValueMean()">getTxFeeValueMean</a>, <a href="AbstractTransactionSampler.html#getTxFeeValueSD()">getTxFeeValueSD</a>, <a href="AbstractTransactionSampler.html#getTxSizeMean()">getTxSizeMean</a>, <a href="AbstractTransactionSampler.html#getTxSizeSD()">getTxSizeSD</a>, <a href="AbstractTransactionSampler.html#LoadConfig()">LoadConfig</a>, <a href="AbstractTransactionSampler.html#setRandom(java.util.Random)">setRandom</a>, <a href="AbstractTransactionSampler.html#setSampler(ca.yorku.cmg.cnsim.engine.Sampler)">setSampler</a>, <a href="AbstractTransactionSampler.html#setSeed(long)">setSeed</a>, <a href="AbstractTransactionSampler.html#setTxArrivalIntervalRate(float)">setTxArrivalIntervalRate</a>, <a href="AbstractTransactionSampler.html#setTxFeeValueMean(float)">setTxFeeValueMean</a>, <a href="AbstractTransactionSampler.html#setTxFeeValueSD(float)">setTxFeeValueSD</a>, <a href="AbstractTransactionSampler.html#setTxSizeMean(float)">setTxSizeMean</a>, <a href="AbstractTransactionSampler.html#setTxSizeSD(float)">setTxSizeSD</a></code></div>
+<h3 id="methods-inherited-from-class-ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler">Methods inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a></h3>
+<code><a href="AbstractTransactionSampler.html#_______________Transactions()">_______________Transactions</a>, <a href="AbstractTransactionSampler.html#getRandom()">getRandom</a>, <a href="AbstractTransactionSampler.html#getSampler()">getSampler</a>, <a href="AbstractTransactionSampler.html#getTxArrivalIntervalRate()">getTxArrivalIntervalRate</a>, <a href="AbstractTransactionSampler.html#getTxFeeValueMean()">getTxFeeValueMean</a>, <a href="AbstractTransactionSampler.html#getTxFeeValueSD()">getTxFeeValueSD</a>, <a href="AbstractTransactionSampler.html#getTxSizeMean()">getTxSizeMean</a>, <a href="AbstractTransactionSampler.html#getTxSizeSD()">getTxSizeSD</a>, <a href="AbstractTransactionSampler.html#LoadConfig()">LoadConfig</a>, <a href="AbstractTransactionSampler.html#setRandom(java.util.Random)">setRandom</a>, <a href="AbstractTransactionSampler.html#setSampler(ca.yorku.cmg.cnsim.engine.sampling.Sampler)">setSampler</a>, <a href="AbstractTransactionSampler.html#setSeed(long)">setSeed</a>, <a href="AbstractTransactionSampler.html#setTxArrivalIntervalRate(float)">setTxArrivalIntervalRate</a>, <a href="AbstractTransactionSampler.html#setTxFeeValueMean(float)">setTxFeeValueMean</a>, <a href="AbstractTransactionSampler.html#setTxFeeValueSD(float)">setTxFeeValueSD</a>, <a href="AbstractTransactionSampler.html#setTxSizeMean(float)">setTxSizeMean</a>, <a href="AbstractTransactionSampler.html#setTxSizeSD(float)">setTxSizeSD</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -199,7 +199,7 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String,ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler)">
+<section class="detail" id="&lt;init&gt;(java.lang.String,ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler)">
 <h3>FileBasedTransactionSampler</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">FileBasedTransactionSampler</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;transactionsFilePath,

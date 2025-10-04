@@ -10,6 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import ca.yorku.cmg.cnsim.engine.config.ConfigInitializer;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
+import ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardNodeSampler;
+
 class StandardNodeSamplerTest {
 	private StandardNodeSampler s;
 	private Sampler s0;

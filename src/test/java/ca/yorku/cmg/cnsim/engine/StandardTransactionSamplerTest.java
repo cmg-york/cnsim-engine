@@ -9,10 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import ca.yorku.cmg.cnsim.engine.StandardTransactionSampler;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
-import ca.yorku.cmg.cnsim.engine.Sampler;
-import ca.yorku.cmg.cnsim.engine.ConfigInitializer;
+import ca.yorku.cmg.cnsim.engine.config.ConfigInitializer;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
+import ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardTransactionSampler;
 
 class StandardTransactionSamplerTest {
 	private StandardTransactionSampler s;

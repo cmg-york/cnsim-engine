@@ -73,11 +73,11 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#getTransactionSampler()" tabindex="0">getTransactionSampler()</a></li>
-<li><a href="#setTransactionSampler(ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler)" tabindex="0">setTransactionSampler(AbstractTransactionSampler)</a></li>
+<li><a href="#setTransactionSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler)" tabindex="0">setTransactionSampler(AbstractTransactionSampler)</a></li>
 <li><a href="#getNodeSampler()" tabindex="0">getNodeSampler()</a></li>
-<li><a href="#setNodeSampler(ca.yorku.cmg.cnsim.engine.AbstractNodeSampler)" tabindex="0">setNodeSampler(AbstractNodeSampler)</a></li>
+<li><a href="#setNodeSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNodeSampler)" tabindex="0">setNodeSampler(AbstractNodeSampler)</a></li>
 <li><a href="#getNetworkSampler()" tabindex="0">getNetworkSampler()</a></li>
-<li><a href="#setNetworkSampler(ca.yorku.cmg.cnsim.engine.AbstractNetworkSampler)" tabindex="0">setNetworkSampler(AbstractNetworkSampler)</a></li>
+<li><a href="#setNetworkSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNetworkSampler)" tabindex="0">setNetworkSampler(AbstractNetworkSampler)</a></li>
 <li><a href="#getPoissonInterval(float,java.util.Random)" tabindex="0">getPoissonInterval(float, Random)</a></li>
 <li><a href="#getGaussian(float,float,java.util.Random)" tabindex="0">getGaussian(float, float, Random)</a></li>
 <li><a href="#getRandomNum(int,int,java.util.Random)" tabindex="0">getRandomNum(int, int, Random)</a></li>
@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <h1 title="Class Sampler" class="title">Class Sampler</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">ca.yorku.cmg.cnsim.engine.Sampler</div>
+<div class="inheritance">ca.yorku.cmg.cnsim.engine.sampling.Sampler</div>
 </div>
 <section class="class-description" id="class-description">
 <div class="horizontal-scroll">
@@ -155,13 +155,13 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTransactionSampler()" class="member-name-link">getTransactionSampler</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setNetworkSampler(ca.yorku.cmg.cnsim.engine.AbstractNetworkSampler)" class="member-name-link">setNetworkSampler</a><wbr>(<a href="AbstractNetworkSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNetworkSampler</a>&nbsp;netSampler)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setNetworkSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNetworkSampler)" class="member-name-link">setNetworkSampler</a><wbr>(<a href="AbstractNetworkSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNetworkSampler</a>&nbsp;netSampler)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setNodeSampler(ca.yorku.cmg.cnsim.engine.AbstractNodeSampler)" class="member-name-link">setNodeSampler</a><wbr>(<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a>&nbsp;nodeSampler)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setNodeSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNodeSampler)" class="member-name-link">setNodeSampler</a><wbr>(<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a>&nbsp;nodeSampler)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTransactionSampler(ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler)" class="member-name-link">setTransactionSampler</a><wbr>(<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a>&nbsp;txSampler)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTransactionSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler)" class="member-name-link">setTransactionSampler</a><wbr>(<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a>&nbsp;txSampler)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -205,7 +205,7 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="setTransactionSampler(ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler)">
+<section class="detail" id="setTransactionSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractTransactionSampler)">
 <h3>setTransactionSampler</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setTransactionSampler</span><wbr><span class="parameters">(<a href="AbstractTransactionSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractTransactionSampler</a>&nbsp;txSampler)</span></div>
@@ -221,7 +221,7 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="setNodeSampler(ca.yorku.cmg.cnsim.engine.AbstractNodeSampler)">
+<section class="detail" id="setNodeSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNodeSampler)">
 <h3>setNodeSampler</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setNodeSampler</span><wbr><span class="parameters">(<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a>&nbsp;nodeSampler)</span></div>
@@ -237,7 +237,7 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="setNetworkSampler(ca.yorku.cmg.cnsim.engine.AbstractNetworkSampler)">
+<section class="detail" id="setNetworkSampler(ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNetworkSampler)">
 <h3>setNetworkSampler</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setNetworkSampler</span><wbr><span class="parameters">(<a href="AbstractNetworkSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNetworkSampler</a>&nbsp;netSampler)</span></div>

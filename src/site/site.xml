@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>2.1.0</version>
+    </skin>
+  <body>
+    <menu name="Documentation">
+      <item name="Introduction" href="markdown/units.md"/>
+      <item name="API" href="apidocs/index.html"/> <!-- link to javadocs -->
+    </menu>
+  </body>
+</site>

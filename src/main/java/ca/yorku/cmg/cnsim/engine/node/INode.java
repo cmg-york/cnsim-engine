@@ -251,5 +251,4 @@ public interface INode {
     public void event_NodeStatusReport(long time);
     
     
-
 }

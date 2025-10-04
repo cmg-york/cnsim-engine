@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import ca.yorku.cmg.cnsim.engine.Config;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.Node;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
@@ -126,8 +126,6 @@ public class Reporter {
 	 * @param sysTime Real time in which the event is happening.
 	 * @param evtType The Type of the event.
 	 * @param nodeInvolved The {@linkplain Node} involved in the event.
-	 * @param objInvolved The object ID involved in the event (transaction, block, etc).
-	 * @author Sotirios Liaskos
 	 */
 	public static void addEvent(int simID, long evtID, long simTime, long sysTime, 
 			String evtType, int nodeInvolved, long objInvolved) {
@@ -149,7 +147,6 @@ public class Reporter {
 	 * @param size Transaction size in bytes
 	 * @param value Transaction value in local tokens.
 	 * @param simTime Time transaction arrived in system
-	 * @author Sotirios Liaskos
 	 */
 	public static void addTx(int simID, long txID, float size, float value, long simTime) {
 		if (Reporter.reportTransactions)
@@ -168,7 +165,6 @@ public class Reporter {
 	 * @param electricPower The power consumed by the node (Watts)
 	 * @param electricityCost The electricity cost per kWh of the node
 	 * @param totalCycles The total hashes the node performed
-	 * @author Sotirios Liaskos
 	 */
 	public static void addNode(int simID, int nodeID, float hashPower, float electricPower, 
 		float electricityCost, double totalCycles) {
@@ -243,7 +239,6 @@ public class Reporter {
 	
 	/**
 	 * Save reporter's event log to file. File name is "EventLog - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 	public static void flushEvtReport() {
 		if (Reporter.reportEvents) {
@@ -262,7 +257,6 @@ public class Reporter {
 	
 	/**
 	 * Save reporter's transaction log to file. File name is "Input - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 	public static void flushInputReport() {
 		if (Reporter.reportTransactions) {
@@ -282,7 +276,6 @@ public class Reporter {
 	
 	/**
 	 * Save reporter's node log to file. File name is "Nodes - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 
 	public static void flushNodeReport() {
@@ -303,7 +296,6 @@ public class Reporter {
 	
 	/**
 	 * Save reporter's network log to file. File name is "NetLog - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 	public static void flushNetworkReport() {
 		if (Reporter.reportNetEvents) {
@@ -323,7 +315,6 @@ public class Reporter {
 	
 	/**
 	 * Save reporter's belief log to file. File name is "BeliefLog - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 	public static void flushBeliefReport() {
 		FileWriter writer;
@@ -360,7 +351,6 @@ public class Reporter {
 	
 	/**
 	 * Save reporter's error log to file. File name is "ErrorLog - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 	public static void flushErrorReport() {
 		FileWriter writer;
@@ -384,7 +374,6 @@ public class Reporter {
 	
 	/**
 	 * Export configuration. File name is "Config - [Simulation Date Time].csv"
-	 * @author Sotirios Liaskos
 	 */
 	public static void flushConfig() {
 		FileWriter writer;

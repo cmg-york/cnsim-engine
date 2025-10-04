@@ -1,7 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.event;
 
-import ca.yorku.cmg.cnsim.engine.Config;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -37,7 +37,6 @@ public class Event {
 	 * Retrieves the next unique event ID.
 	 *
 	 * @return The next event ID.
-	 * @author Sotirios Liaskos
 	 */
 	public static long getNextEventID() {
 		return(currID++);

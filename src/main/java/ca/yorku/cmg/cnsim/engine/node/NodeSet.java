@@ -37,7 +37,6 @@ public class NodeSet {
 	/**
 	 * Adds a new node to the NodeSet using the configured node factory.
 	 * @throws Exception if an error occurs while creating a new node.
-	 * @author Sotirios Liaskos
 	 */
 	public void addNode() throws Exception {
         INode o = nodeFactory.createNewNode();
@@ -80,7 +79,6 @@ public class NodeSet {
 	/**
 	 * Returns the total honest hash power of the nodes in the NodeSet.
 	 * @return The total honest hash power.
-	 * @author Sotirios Liaskos
 	 */
 	public float getTotalHonestHP() {
 		return totalHonestHP;
@@ -107,7 +105,6 @@ public class NodeSet {
 	
 	/**
 	 * Perform any closing reporting to all nodes.
-	 * @author Sotirios Liaskos
 	 */
 	public void closeNodes() {
 		for (INode n:this.getNodes()) {
@@ -147,7 +144,6 @@ public class NodeSet {
 	 * Each element of the array represents a node in the NodeSet and includes the node's ID, electric power,
 	 * hashpower, electricity cost, cost per GH, average connectedness, and total cycles.
 	 * @return An array of strings representing the NodeSet.
-	 * @author Sotirios Liaskos
 	 */
 	public String[] printNodeSet() {
 	    String s[] = new String[nodes.size()];

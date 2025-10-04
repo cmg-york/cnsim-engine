@@ -1,8 +1,8 @@
 package ca.yorku.cmg.cnsim.engine.event;
 
-import ca.yorku.cmg.cnsim.engine.IMultiSowable;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.IMultiSowable;
 
 
 public class Event_SeedUpdate extends Event {
@@ -18,7 +18,7 @@ public class Event_SeedUpdate extends Event {
     
 
     /**
-     * Executes the event in the simulation, by calling the {@linkplain }
+     * Executes the event in the simulation, by calling the {@linkplain Event#happen(Simulation)} method.
      *
      * @param sim The simulation instance.
      */

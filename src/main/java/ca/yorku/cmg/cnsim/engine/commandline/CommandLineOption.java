@@ -23,7 +23,7 @@ public @interface CommandLineOption {
     String key();
 
     /**
-     * @return A description of the argument expected for this option, e.g., "<file>".
+	 * @return A description of the argument expected for this option, e.g., {@code "<file>"}.
      */
     String argument();
 

@@ -1,8 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.node;
 
-import ca.yorku.cmg.cnsim.engine.AbstractSampler;
-import ca.yorku.cmg.cnsim.engine.Sampler;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
 public abstract class AbstractNodeFactory {
 	

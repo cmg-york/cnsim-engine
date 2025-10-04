@@ -1,7 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.network;
 
-import ca.yorku.cmg.cnsim.engine.Config;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 
@@ -41,7 +41,6 @@ public abstract class AbstractNetwork {
 	
 	/**
 	 * @return The NodeSet based on which the network is constructed. 
-	 * @author Sotirios Liaskos
 	 */
 	public NodeSet getNodeSet() {
 		return ns;

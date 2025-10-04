@@ -45,7 +45,7 @@ public class TransactionGroup implements ITxContainer {
      * Loads a transaction group from a text file. Each line in the file is a separate transaction.
      * Each transaction is a comma separated string containing the following information:
      * Transaction ID, Time Created, Total Value, Total Size, First Arrival NodeID.
-     * Transaction ID must run from <tt>1</tt> to <tt>n</tt> strictly increasing by 1 at each step  (error otherwise). Time must not decrease as transactions IDs increase.
+     * Transaction ID must run from {@code 1} to {@code n} strictly increasing by 1 at each step  (error otherwise). Time must not decrease as transactions IDs increase.
      * Time Created: a long integer representing the number of milliseconds (ms) from a fixed time 0.
      * Total Value: in user defined tokens depending on network.
      * TODO: Is this bytes?
@@ -99,7 +99,7 @@ public class TransactionGroup implements ITxContainer {
     /**
      * Replace transaction group with a new one.
      *
-     * @param initial An array list of <tt>Transaction</tt> objects, to replace the existing one.
+     * @param initial An array list of {@linkplain Transaction} objects, to replace the existing one.
      */
     public void updateTransactionGroup(List<Transaction> initial) {
         totalValue = 0;
@@ -201,8 +201,8 @@ public class TransactionGroup implements ITxContainer {
      * Check if the group overlaps with another transaction group, i.e.,
      * there is a transaction in {@code p} that also exists in the current group.
      *
-     * @param p The <tt>TransactionGroup</tt> in question.
-     * @return <tt>true</tt> of there is at least one transaction in <tt>p</tt> that is contained in the group, <tt>false</tt>, otherwise.
+     * @param p The {@linkplain TransactionGroup} in question.
+     * @return {@code true} of there is at least one transaction in {@code p} that is contained in the group, {@code false}, otherwise.
      */
     public boolean overlapsWithByObj(TransactionGroup p) {
         boolean result = false;
@@ -220,7 +220,7 @@ public class TransactionGroup implements ITxContainer {
      * transaction ID.
      *
      * @param g The {@link TransactionGroup} object in question.
-     * @return <tt>true</tt> of there is at least one transaction in <tt>g</tt> that is contained in the group, <tt>false</tt>, otherwise.
+     * @return {@code true} of there is at least one transaction in {@code g} that is contained in the group, {@code false}, otherwise.
      */
     public boolean overlapsWith(TransactionGroup g) {
         for (Transaction r : group) {
@@ -300,7 +300,7 @@ public class TransactionGroup implements ITxContainer {
     /**
      * Return the ArrayList of transactions in the group
      *
-     * @return An <tt>ArrayList</tt> of <tt>Transaction</tt> objects representing the transactions in the group.
+     * @return An ArrayList of {@linkplain Transaction} objects representing the transactions in the group.
      */
     @Override
     public List<Transaction> getTransactions() {
@@ -308,10 +308,10 @@ public class TransactionGroup implements ITxContainer {
     }
 
     /**
-     * Get the transaction of the group at index <tt>index</tt>. Does not check if index exists.
+     * Get the transaction of the group at index {@code index}. Does not check if index exists.
      *
-     * @param index The index from <tt>0</tt> to <tt>n-1</tt>
-     * @return A reference to the <tt>Transaction</tt> object.
+     * @param index The index from {@code 0} to {@code n-1}
+     * @return A reference to the {@linkplain Transaction} at index {@code index}
      */
     public Transaction getTransaction(int index) {
         return group.get(index);

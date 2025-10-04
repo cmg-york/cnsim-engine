@@ -1,7 +1,7 @@
 package ca.yorku.cmg.cnsim.engine;
 
 /**
- * Interface for finality structure. E.g. a blockchain or a DAG.
+ * Interface for ledger structure, e.g. a blockchain or a DAG.
  *  
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  */

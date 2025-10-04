@@ -1,11 +1,18 @@
 package ca.yorku.cmg.cnsim.engine.transaction;
 
-import ca.yorku.cmg.cnsim.engine.AbstractTransactionSampler;
-import ca.yorku.cmg.cnsim.engine.Sampler;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a workload of transactions, which can be generated either from a file or using a sampler.
+ * This class extends TransactionGroup and provides methods to add and manage transactions.
+ * 
+ * @author Sotirios Liaskos, Nahid Alimohammadi
+ * @see TransactionGroup
+ */
 public class TransactionWorkload extends TransactionGroup {
 
     private Sampler sampler;
@@ -30,7 +37,6 @@ public class TransactionWorkload extends TransactionGroup {
      * @param num The number of transactions to add.
      * @param startTime The start time of the first transaction.
      * @throws ArithmeticException If the start time or number of transactions is less than 0.
-     * @author Sotirios Liaskos, Nahid Alimohammadi
      * @throws Exception 
      */
     private void addTransactions(long num, long startTime) throws Exception{
@@ -57,7 +63,6 @@ public class TransactionWorkload extends TransactionGroup {
      * Appends a specified number of transactions after the last transaction in the workload.
      * @param num The number of transactions to append.
      * @throws ArithmeticException If the number of transactions is less than 0.
-     * @author Sotirios Liaskos, Nahid Alimohammadi
      * @throws Exception  
      */
     public void appendTransactions(long num) throws Exception {
@@ -69,7 +74,6 @@ public class TransactionWorkload extends TransactionGroup {
     /**
      * Adds a transaction with the given current time.
      * @param currTime The current time of the transaction.
-     * @author Sotirios Liaskos
      * @throws Exception 
      */
     public void addTransaction(long currTime) throws Exception{
@@ -100,7 +104,6 @@ public class TransactionWorkload extends TransactionGroup {
 	 * 100 transactions with indexes 1..100, percentile 0.25 will return samples from the first 25 transactions 
 	 * (indexes 1..25)  
 	 * @return An ArrayList of randomly picked transactions possibly with duplicates.
-	 * @author Sotirios Liaskos
 	 */
 	public ArrayList<Transaction> pickRandomTransactions(int transNo,float percentile) {
 		ArrayList<Transaction> rtx = new ArrayList<Transaction>();

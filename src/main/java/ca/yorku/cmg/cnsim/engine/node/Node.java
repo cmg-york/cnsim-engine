@@ -1,7 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.node;
 
-import ca.yorku.cmg.cnsim.engine.Config;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.event.Event;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerArrival;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerValidation;
@@ -17,10 +17,6 @@ import java.util.ArrayList;
  * Abstract class representing a node in a blockchain network.
  * 
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
- */
-/**
- * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
  * 
  */
 public abstract class Node implements INode {
@@ -66,7 +62,6 @@ public abstract class Node implements INode {
 	/**
 	 * Gets the next available ID for a node and increments the counter.
 	 * @return The next available ID for a node.
-	 * @author Sotirios Liaskos
 	 */
 	public static int getNextNodeID() {
 	    return(currID++);
@@ -75,7 +70,6 @@ public abstract class Node implements INode {
 
 	/**
 	 * Resets the next available ID to 1. To be used for moving to the next experiment.
-	 * @author Sotirios Liaskos
 	 */
 	public static void resetCurrID() {
 	    currID = 1;
@@ -109,7 +103,6 @@ public abstract class Node implements INode {
 	/**
 	 * Gets the simulation associated with the node.
 	 * @return The Simulation object associated with the node.
-	 * @author Sotirios Liaskos
 	 */
 	public Simulation getSim() {
 	    return sim;
@@ -118,7 +111,6 @@ public abstract class Node implements INode {
 	/**
 	 * Gets the transaction pool of the node.
 	 * @return The transaction pool of the node.
-	 * @author Sotirios Liaskos
 	 */
 	public TransactionGroup getPool() {
 	    return pool;
@@ -212,7 +204,6 @@ public abstract class Node implements INode {
 	 * Starts mining with the specified expected mining interval. 
 	 * The interval may be based on when the next validation event takes place.  
 	 * @param interval The mining interval (in seconds).
-	 * @author Sotirios Liaskos
 	 */
 	public void startMining(double interval) {
 		prospectiveMiningCycles = interval*this.getHashPower();
@@ -221,7 +212,6 @@ public abstract class Node implements INode {
 
 	/**
 	 * Starts mining without specifying an expected mining interval.
-	 * @author Sotirios Liaskos
 	 */
 	public void startMining() {
 		isMining = true;
@@ -231,7 +221,6 @@ public abstract class Node implements INode {
 	/**
 	 * Checks if the node is currently mining.
 	 * @return true if the node is mining, false otherwise.
-	 * @author Sotirios Liaskos
 	 */
 	public boolean isMining() {
 	    return isMining;
@@ -240,7 +229,6 @@ public abstract class Node implements INode {
 
 	/**
 	 * Stops mining
-	 * @author Sotirios Liaskos
 	 */
 	public void stopMining() {
 		isMining = false;
@@ -256,7 +244,6 @@ public abstract class Node implements INode {
 	/**
 	 * Adds a new transaction to the pool of unprocessed transactions
 	 * @param t The Transaction to be added.
-	 * @author Sotirios Liaskos
 	 */
 	public void addTransactionToPool(Transaction t) {
 		getPool().addTransaction(t);
@@ -267,7 +254,6 @@ public abstract class Node implements INode {
 	/**
 	 * Removes the transactions included in transaction container from the pool.
 	 * @param removeThese The transaction container whose transactions are to be removed.
-	 * @author Sotirios Liaskos
 	 */
 	public void removeFromPool(ITxContainer removeThese) {
 		if ( (!pool.getTransactions().isEmpty()) && (!removeThese.getTransactions().isEmpty()) )
@@ -291,7 +277,6 @@ public abstract class Node implements INode {
 	 * TODO: All time references should be on a global time parameter. 
 	 * @param txc The transaction container to be propagated.
 	 * @param time The current simulation time.
-	 * @author Sotirios Liaskos
 	 */
 	public void propagateContainer(ITxContainer txc, long time) {
 	    NodeSet nodes = sim.getNodeSet();
@@ -310,7 +295,6 @@ public abstract class Node implements INode {
 	 * Propagates the specified transaction to other nodes in the simulation.
 	 * @param t The transaction to be propagated.
 	 * @param time The current time in the simulation.
-	 * @author Sotirios Liaskos
 	 */
 	public void propagateTransaction(Transaction t, long time) {
 	    NodeSet nodes = sim.getNodeSet();
@@ -338,7 +322,6 @@ public abstract class Node implements INode {
 	/**
 	 * Adds the specified number of cycles to the total cycles of the node.
 	 * @param c The number of cycles to be added. 
-	 * @author Sotirios Liaskos
 	 */
 	public void addCycles(double c) {
 		totalCycles += c;
@@ -390,7 +373,6 @@ public abstract class Node implements INode {
     /**
      * Returns the next validation event associated with this node. Useful for removing the event when necessary.
      * @return The next validation Event.
-     * @author Sotirios Liaskos
      */
     public Event getNextValidationEvent() {
     	return this.nextValidationEvent;
@@ -399,7 +381,6 @@ public abstract class Node implements INode {
     /**
      * Deletes the next validation event associated with this node.
      * TODO: how does this affect cycle counting statistics?
-     * @author Sotirios Liaskos
      */
     public void resetNextValidationEvent() {
     	this.nextValidationEvent = null;
@@ -410,7 +391,6 @@ public abstract class Node implements INode {
 	 * @param txc The transaction container to be validated.
 	 * @param time The simulation time when the scheduling occurs. The even will be scheduled at `time + mining interval`. 
 	 * @return The scheduled mining interval in seconds.
-	 * @author Sotirios Liaskos
 	 */
 	public long scheduleValidationEvent(ITxContainer txc, long time) {
 		long h = sim.getSampler().getNodeSampler().getNextMiningInterval(getHashPower());
@@ -449,7 +429,7 @@ public abstract class Node implements INode {
 
 
 	/**
-	 * See {@linkplain INode#event_PrintBeliefReport(long)}
+	 * See {@linkplain INode#event_PrintBeliefReport(long[], long)}
 	 */
 	@Override
 	public void event_PrintBeliefReport(long[] sample, long time) {

@@ -68,8 +68,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
 <li><a href="#constructor-detail" tabindex="0">Constructor Details</a>
 <ol class="toc-list">
-<li><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.Sampler)" tabindex="0">StandardNodeSampler(Sampler)</a></li>
-<li><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.Sampler,long%5B%5D,boolean%5B%5D,ca.yorku.cmg.cnsim.engine.Simulation)" tabindex="0">StandardNodeSampler(Sampler, long[], boolean[], Simulation)</a></li>
+<li><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.sampling.Sampler)" tabindex="0">StandardNodeSampler(Sampler)</a></li>
+<li><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.sampling.Sampler,long%5B%5D,boolean%5B%5D,ca.yorku.cmg.cnsim.engine.Simulation)" tabindex="0">StandardNodeSampler(Sampler, long[], boolean[], Simulation)</a></li>
 </ol>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
@@ -95,8 +95,8 @@ loadScripts(document, 'script');</script>
 <h1 title="Class StandardNodeSampler" class="title">Class StandardNodeSampler</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">ca.yorku.cmg.cnsim.engine.AbstractNodeSampler</a>
-<div class="inheritance">ca.yorku.cmg.cnsim.engine.StandardNodeSampler</div>
+<div class="inheritance"><a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNodeSampler</a>
+<div class="inheritance">ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardNodeSampler</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
@@ -117,7 +117,7 @@ loadScripts(document, 'script');</script>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-ca.yorku.cmg.cnsim.engine.AbstractNodeSampler">Fields inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a></h3>
+<h3 id="fields-inherited-from-class-ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNodeSampler">Fields inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a></h3>
 <code><a href="AbstractNodeSampler.html#currentDifficulty">currentDifficulty</a>, <a href="AbstractNodeSampler.html#nodeElectricCostMean">nodeElectricCostMean</a>, <a href="AbstractNodeSampler.html#nodeElectricCostSD">nodeElectricCostSD</a>, <a href="AbstractNodeSampler.html#nodeElectricPowerMean">nodeElectricPowerMean</a>, <a href="AbstractNodeSampler.html#nodeElectricPowerSD">nodeElectricPowerSD</a>, <a href="AbstractNodeSampler.html#nodeHashPowerMean">nodeHashPowerMean</a>, <a href="AbstractNodeSampler.html#nodeHashPowerSD">nodeHashPowerSD</a>, <a href="AbstractNodeSampler.html#sampler">sampler</a></code></div>
 </section>
 </li>
@@ -129,9 +129,9 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.Sampler)" class="member-name-link">StandardNodeSampler</a><wbr>(<a href="Sampler.html" title="class in ca.yorku.cmg.cnsim.engine">Sampler</a>&nbsp;s)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.sampling.Sampler)" class="member-name-link">StandardNodeSampler</a><wbr>(<a href="Sampler.html" title="class in ca.yorku.cmg.cnsim.engine">Sampler</a>&nbsp;s)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.Sampler,long%5B%5D,boolean%5B%5D,ca.yorku.cmg.cnsim.engine.Simulation)" class="member-name-link">StandardNodeSampler</a><wbr>(<a href="Sampler.html" title="class in ca.yorku.cmg.cnsim.engine">Sampler</a>&nbsp;s,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(ca.yorku.cmg.cnsim.engine.sampling.Sampler,long%5B%5D,boolean%5B%5D,ca.yorku.cmg.cnsim.engine.Simulation)" class="member-name-link">StandardNodeSampler</a><wbr>(<a href="Sampler.html" title="class in ca.yorku.cmg.cnsim.engine">Sampler</a>&nbsp;s,
  long[]&nbsp;seedArray,
  boolean[]&nbsp;flagArray,
  <a href="Simulation.html" title="class in ca.yorku.cmg.cnsim.engine">Simulation</a>&nbsp;sim)</code></div>
@@ -202,8 +202,8 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-ca.yorku.cmg.cnsim.engine.AbstractNodeSampler">Methods inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a></h3>
-<code><a href="AbstractNodeSampler.html#getCurrentDifficulty()">getCurrentDifficulty</a>, <a href="AbstractNodeSampler.html#getNodeElectricCostMean()">getNodeElectricCostMean</a>, <a href="AbstractNodeSampler.html#getNodeElectricCostSD()">getNodeElectricCostSD</a>, <a href="AbstractNodeSampler.html#getNodeElectricPowerMean()">getNodeElectricPowerMean</a>, <a href="AbstractNodeSampler.html#getNodeElectricPowerSD()">getNodeElectricPowerSD</a>, <a href="AbstractNodeSampler.html#getNodeHashPowerMean()">getNodeHashPowerMean</a>, <a href="AbstractNodeSampler.html#getNodeHashPowerSD()">getNodeHashPowerSD</a>, <a href="AbstractNodeSampler.html#getSampler()">getSampler</a>, <a href="AbstractNodeSampler.html#LoadConfig()">LoadConfig</a>, <a href="AbstractNodeSampler.html#setCurrentDifficulty(double)">setCurrentDifficulty</a>, <a href="AbstractNodeSampler.html#setNodeElectricCostMean(float)">setNodeElectricCostMean</a>, <a href="AbstractNodeSampler.html#setNodeElectricCostSD(float)">setNodeElectricCostSD</a>, <a href="AbstractNodeSampler.html#setNodeElectricPowerMean(float)">setNodeElectricPowerMean</a>, <a href="AbstractNodeSampler.html#setNodeElectricPowerSD(float)">setNodeElectricPowerSD</a>, <a href="AbstractNodeSampler.html#setNodeHashPowerMean(float)">setNodeHashPowerMean</a>, <a href="AbstractNodeSampler.html#setNodeHashPowerSD(float)">setNodeHashPowerSD</a>, <a href="AbstractNodeSampler.html#setSampler(ca.yorku.cmg.cnsim.engine.Sampler)">setSampler</a></code></div>
+<h3 id="methods-inherited-from-class-ca.yorku.cmg.cnsim.engine.sampling.abstractsamplers.AbstractNodeSampler">Methods inherited from class&nbsp;ca.yorku.cmg.cnsim.engine.<a href="AbstractNodeSampler.html" title="class in ca.yorku.cmg.cnsim.engine">AbstractNodeSampler</a></h3>
+<code><a href="AbstractNodeSampler.html#getCurrentDifficulty()">getCurrentDifficulty</a>, <a href="AbstractNodeSampler.html#getNodeElectricCostMean()">getNodeElectricCostMean</a>, <a href="AbstractNodeSampler.html#getNodeElectricCostSD()">getNodeElectricCostSD</a>, <a href="AbstractNodeSampler.html#getNodeElectricPowerMean()">getNodeElectricPowerMean</a>, <a href="AbstractNodeSampler.html#getNodeElectricPowerSD()">getNodeElectricPowerSD</a>, <a href="AbstractNodeSampler.html#getNodeHashPowerMean()">getNodeHashPowerMean</a>, <a href="AbstractNodeSampler.html#getNodeHashPowerSD()">getNodeHashPowerSD</a>, <a href="AbstractNodeSampler.html#getSampler()">getSampler</a>, <a href="AbstractNodeSampler.html#LoadConfig()">LoadConfig</a>, <a href="AbstractNodeSampler.html#setCurrentDifficulty(double)">setCurrentDifficulty</a>, <a href="AbstractNodeSampler.html#setNodeElectricCostMean(float)">setNodeElectricCostMean</a>, <a href="AbstractNodeSampler.html#setNodeElectricCostSD(float)">setNodeElectricCostSD</a>, <a href="AbstractNodeSampler.html#setNodeElectricPowerMean(float)">setNodeElectricPowerMean</a>, <a href="AbstractNodeSampler.html#setNodeElectricPowerSD(float)">setNodeElectricPowerSD</a>, <a href="AbstractNodeSampler.html#setNodeHashPowerMean(float)">setNodeHashPowerMean</a>, <a href="AbstractNodeSampler.html#setNodeHashPowerSD(float)">setNodeHashPowerSD</a>, <a href="AbstractNodeSampler.html#setSampler(ca.yorku.cmg.cnsim.engine.sampling.Sampler)">setSampler</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -219,7 +219,7 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(ca.yorku.cmg.cnsim.engine.Sampler)">
+<section class="detail" id="&lt;init&gt;(ca.yorku.cmg.cnsim.engine.sampling.Sampler)">
 <h3>StandardNodeSampler</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">StandardNodeSampler</span><wbr><span class="parameters">(<a href="Sampler.html" title="class in ca.yorku.cmg.cnsim.engine">Sampler</a>&nbsp;s)</span></div>
@@ -227,7 +227,7 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(ca.yorku.cmg.cnsim.engine.Sampler,long[],boolean[],ca.yorku.cmg.cnsim.engine.Simulation)">
+<section class="detail" id="&lt;init&gt;(ca.yorku.cmg.cnsim.engine.sampling.Sampler,long[],boolean[],ca.yorku.cmg.cnsim.engine.Simulation)">
 <h3>StandardNodeSampler</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">StandardNodeSampler</span><wbr><span class="parameters">(<a href="Sampler.html" title="class in ca.yorku.cmg.cnsim.engine">Sampler</a>&nbsp;s,

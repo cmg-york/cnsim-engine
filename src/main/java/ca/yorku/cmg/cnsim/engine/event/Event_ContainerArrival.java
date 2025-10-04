@@ -36,7 +36,7 @@ public class Event_ContainerArrival extends Event {
     
 
     /**
-     * Executes the event in the simulation, by calling the {@linkplain INode::event_NodeReceivesPropagatedContainer}
+     * Executes the event in the simulation, by calling the {@linkplain INode#event_NodeReceivesPropagatedContainer}
      *
      * @param sim The ({@linkplain Simulation} instance.
      */

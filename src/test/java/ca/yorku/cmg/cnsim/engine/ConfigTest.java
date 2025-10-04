@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import ca.yorku.cmg.cnsim.engine.Config;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 
 public class ConfigTest {
 
