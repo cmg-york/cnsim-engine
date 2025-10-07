@@ -1,0 +1,213 @@
+# Commit Conventions
+
+<!-- TOC -->
+* [Commit Conventions](#commit-conventions)
+    * [Structure](#structure)
+        * [Type](#type)
+        * [Scope](#scope)
+        * [Breaking change](#breaking-change)
+        * [Description](#description)
+        * [Body](#body)
+        * [Footer(s)](#footer--s-)
+        * [Examples](#examples)
+    * [References](#references)
+<!-- TOC -->
+
+## Structure
+
+Based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/),
+the standard commit structure is:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+For multi-line commit messages, it's highly recommended to open an editor  
+(e.g., Vim, Nano, VS Code) via: `git commit`
+
+To change default editor, run:
+
+```bash
+# Nano 
+git config --global core.editor "nano"
+
+# Vim
+git config --global core.editor "vim"
+
+# Visual Studio Code
+git config --global core.editor "code --wait"
+```
+
+If you only want to commit the subject line (`<type>[optional scope]: <description>`),
+then `git commit -m "..."` is fine.
+
+The subject line should ideally be 50 characters or less.
+Each line of the body and footer should wrap at 72 characters.
+
+### Type
+
+- What kind of change is it
+
+| Type       | Purpose                                              |
+|------------|------------------------------------------------------|
+| `feat`     | Introduces a new feature                             |
+| `fix`      | Fixes a bug                                          |
+| `docs`     | Documentation-only changes                           |
+| `style`    | Formatting, spacing, semicolons (no logic changes)   |
+| `refactor` | Code restructuring without behavior change           |
+| `perf`     | Performance improvement                              |
+| `test`     | Adds or corrects tests                               |
+| `chore`    | Miscellaneous maintenance (e.g., `.gitignore`)       |
+| `build`    | Build system or dependency changes (`pom.xml`, etc.) |
+| `ci`       | CI/CD configuration changes (e.g., GitHub Actions)   |
+| `revert`   | Reverts a previous commit                            |
+
+### Scope
+
+- The location, component, or module affected by the commit
+- Scope can be omitted if the change is global or too difficult to assign to a component
+- Avoid issue identifiers as scopes
+
+> Some tools support multiple or nested scopes:
+> - Single: (ui)
+> - Multiple: (auth,api)
+> - Hierarchical: (ui/docs)
+>
+> The official spec only defines single scopes.
+
+### Breaking change
+
+- Marks a change that breaks backward compatibility
+    - Someone upgrades to the new version without changing anything, and their code breaks
+- Add `!` after the type/scope
+    - `fix!: ...`
+    - `feat(api)!: ...`
+
+### Description
+
+- Summary or high-level overview of what the commit accomplishes
+- Imperative, present tense: "change" not "changed" nor "changes"
+
+### Body
+
+- Provides context and rationale for the change
+- Avoid explaining how it was implemented as diff already does
+- Can have multiple paragraphs
+- Bullet points are fine if they help clarity
+
+### Footer(s)
+
+- Additional info such as references, links, or metadata
+- Follows a token format:
+    - `<token>: <value>`
+    - `<token> <value>`
+
+Common tokens:
+
+| Token                            | Description                                                           |
+|----------------------------------|-----------------------------------------------------------------------|
+| `BREAKING CHANGE: <description>` | Indicates an incompatible or backward-incompatible change             |
+| `Fixes: <issue number>`          | Fixes a bug                                                           |
+| `Closes: <issue number>`         | Closes an issue or PR                                                 |
+| `Resolves: <issue number>`       | Alternative to `Closes:`                                              |
+| `Related: <issue number>`        | References a related issue or pull request                            |
+| `Refs: <issue number>`           | Points to related work or dependencies                                |
+| `Co-authored-by: <name> <email>` | Indicates a co-author of the commit                                   |
+| `Reviewed-by: <name> <email>`    | Indicates the reviewer of the commit                                  |
+| `Signed-off-by: <name> <email>`  | Used for Developer Certificate of Origin (DCO) compliance or sign-off |
+| `See-also: <issue or PR>`        | Links to additional related issues, PRs, or external references       |
+
+> A footer’s token MUST use - in place of whitespace characters,
+> e.g., Acked-by (this helps differentiate the footer section from a multi-paragraph body).
+> An exception is made for BREAKING CHANGE, which MAY also be used as a token.
+
+> If included in the type/scope prefix, breaking changes MUST be indicated by a `!` immediately before the `:`.
+> If `!` is used, `BREAKING CHANGE:` MAY be omitted from the footer section, and the commit description
+> SHALL be used to describe the breaking change.
+
+### Examples
+
+Subject line with type, scope, and description:
+
+```
+fix(parser): handle unexpected end-of-file error
+```
+
+Subject line without scope:
+
+```text
+feat: add login functionality
+```
+
+Breaking changes:
+
+```
+feat!: send an email to the customer when a product is shipped
+```
+
+```
+feat(api)!: send an email to the customer when a product is shipped
+```
+
+```
+feat(api)!: update customer object schema
+
+BREAKING CHANGE: fields `first_name` and `last_name` replace `full_name`.
+```
+
+Multi-line commits:
+
+```text
+fix(ui): handle missing images on profile cards
+
+Fallback to placeholder image when avatar URL returns 404.
+Add lazy loading for profile pictures.
+
+Fixes: UX-332
+Refs: API-110, CDN-57
+See-also: https://www.example.com
+```
+
+```
+feat(ui): add dark mode to the user interface
+
+Introduce dark mode using CSS variables.
+Include toggle in settings menu for manual override.
+
+Related: UX-221
+```
+
+```text
+style: fix formatting inconsistencies across multiple files
+
+Ensure consistent 2-space indentation and newline endings.
+```
+
+```text
+docs: update README to include installation steps
+
+Add clear setup instructions for new contributors,
+including environment variable examples.
+
+Closes: #17
+```
+
+## References
+
+Conventional Commits 1.0.0: https://www.conventionalcommits.org/en/v1.0.0/
+
+Cheatsheet: https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13
+
+Types help: https://www.bavaga.com/blog/2025/01/27/my-ultimate-conventional-commit-types-cheatsheet/
+
+https://eagerworks.com/blog/conventional-commits
+
+https://github.com/angular/angular/blob/68a6a07/CONTRIBUTING.md
+
+Benefits of Conventional Commits: https://julien.ponge.org/blog/the-power-of-conventional-commits/
+
+Commit message guide: https://axolo.co/blog/p/git-commit-messages-best-practices-examples
