@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
 
@@ -29,59 +30,59 @@ import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
  * @see AbstractNodeSampler
  */
 public class FileBasedNodeSampler extends AbstractNodeSampler {
-		
-    /** Optional alternative node sampler for additional nodes if the file is too short */
-    private AbstractNodeSampler alternativeSampler = null;
 
-    /** Path to the CSV file containing node data */
-    private String nodesFilePath;
+	/** Optional alternative node sampler for additional nodes if the file is too short */
+	private AbstractNodeSampler alternativeSampler = null;
 
-    /** Queue of node electric power samples (Watts) read from the file */
-    private Queue<Float> nodeElectricPowers = new LinkedList<>();
+	/** Path to the CSV file containing node data */
+	private String nodesFilePath;
 
-    /** Queue of node hash power samples (hashes/sec) read from the file */
-    private Queue<Float> nodeHashPowers = new LinkedList<>();
+	/** Queue of node electric power samples (Watts) read from the file */
+	private Queue<Float> nodeElectricPowers = new LinkedList<>();
 
-    /** Queue of node electricity cost samples (currency per kWh) read from the file */
-    private Queue<Float> nodeElectricityCosts = new LinkedList<>();
+	/** Queue of node hash power samples (hashes/sec) read from the file */
+	private Queue<Float> nodeHashPowers = new LinkedList<>();
 
-    /** Number of nodes required according to configuration */
-    private int requiredNodeLines = Config.getPropertyInt("net.numOfNodes");
+	/** Queue of node electricity cost samples (currency per kWh) read from the file */
+	private Queue<Float> nodeElectricityCosts = new LinkedList<>();
 
-    
-    
-    // -----------------------------------------------------------------
-    // CONSTRUCTORS
-    // -----------------------------------------------------------------
+	/** Number of nodes required according to configuration */
+	private int requiredNodeLines = Config.getPropertyInt("net.numOfNodes");
 
-    /**
-     * Creates a {@linkplain FileBasedNodeSampler} that reads node data from a file.
-     * 
-     * @param nodesFilePath Path to the CSV file containing node data
-     * @param nodeSampler   Alternative {@linkplain AbstractNodeSampler} for additional nodes if file specifies fewer nodes than required as per configuration
-     */
+
+
+	// -----------------------------------------------------------------
+	// CONSTRUCTORS
+	// -----------------------------------------------------------------
+
+	/**
+	 * Creates a {@linkplain FileBasedNodeSampler} that reads node data from a file.
+	 * 
+	 * @param nodesFilePath Path to the CSV file containing node data
+	 * @param nodeSampler   Alternative {@linkplain AbstractNodeSampler} for additional nodes if file specifies fewer nodes than required as per configuration
+	 */
 	public FileBasedNodeSampler(String nodesFilePath, AbstractNodeSampler nodeSampler) {
 		this.nodesFilePath = nodesFilePath;
 		this.alternativeSampler = nodeSampler;
 		loadNodeConfig();
 	}
 
-    // -----------------------------------------------------------------
-    // FILE LOADING
-    // -----------------------------------------------------------------
+	// -----------------------------------------------------------------
+	// FILE LOADING
+	// -----------------------------------------------------------------
 
-    /**
-     * Loads node data from the file, assuming the first line is a header.
-     */
+	/**
+	 * Loads node data from the file, assuming the first line is a header.
+	 */
 	public void loadNodeConfig() {
 		loadNodeConfig(true);
 	}
-	
-    /**
-     * Loads node data from the file, optionally skipping the first line if it is a header.
-     * 
-     * @param hasHeaders True if the first line is a header
-     */
+
+	/**
+	 * Loads node data from the file, optionally skipping the first line if it is a header.
+	 * 
+	 * @param hasHeaders True if the first line is a header
+	 */
 	public void loadNodeConfig(boolean hasHeaders) {
 		int lineCount = 0;
 		try (BufferedReader br = new BufferedReader(new FileReader(nodesFilePath))) {
@@ -100,7 +101,7 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 					nodeElectricPowers.add(Float.parseFloat(values[2].trim()));
 					nodeElectricityCosts.add(Float.parseFloat(values[3].trim()));
 				} catch (NumberFormatException e) {
-					System.err.println("Error parsing node line: " + line);
+					Debug.e(this,"loadNodeConfig: Error parsing node line: " + line);
 				}
 			}
 		} catch (IOException e) {
@@ -108,36 +109,34 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 		}
 		if (hasHeaders) lineCount--;
 		if (lineCount < requiredNodeLines) {
-						System.out.println("    The nodes file does not contain enough lines as per configuration file. Required: "
-						+ requiredNodeLines + ", Found: " + lineCount + ". Additional nodes to be drawn from alternative sampler.");
+			Debug.p(1, this, "The nodes file does not contain enough lines as per configuration file. Required: " + requiredNodeLines + ", Found: " + lineCount + ". Additional nodes to be drawn from alternative sampler.");
 		} else if (lineCount > requiredNodeLines) {
-			System.out.println("    Warning: Nodes file contains more lines than required nodes as per configuration file. Required: "
-					+ requiredNodeLines + ", Found: " + lineCount);
+			Debug.w(this,"Warning: Nodes file contains more lines than required nodes as per configuration file. Required: " + requiredNodeLines + ", Found: " + lineCount);
 		}
 	}
 
 
-    // -----------------------------------------------------------------
-    // SAMPLING ROUTINES
-    // -----------------------------------------------------------------
+	// -----------------------------------------------------------------
+	// SAMPLING ROUTINES
+	// -----------------------------------------------------------------
 
-    /**
-     * Returns the mining interval for a node with the given hash power.
-     * <p>
-     * Delegates to the alternative sampler.
-     * </p>
-     * @see AbstractNodeSampler#getNextMiningInterval(double)
-     */
+	/**
+	 * Returns the mining interval for a node with the given hash power.
+	 * <p>
+	 * Delegates to the alternative sampler.
+	 * </p>
+	 * @see AbstractNodeSampler#getNextMiningInterval(double)
+	 */
 	@Override
 	public long getNextMiningInterval(double hashPower) {
 		return alternativeSampler.getNextMiningInterval(hashPower);
 	}
 
-    /**
-     * Returns the next node electric power sample (Watts) from the file,
-     * or from the alternative sampler if the file queue is empty.
-     * @see AbstractNodeSampler#getNextNodeElectricPower()
-     */
+	/**
+	 * Returns the next node electric power sample (Watts) from the file,
+	 * or from the alternative sampler if the file queue is empty.
+	 * @see AbstractNodeSampler#getNextNodeElectricPower()
+	 */
 	@Override
 	public float getNextNodeElectricPower() {
 		if (!nodeElectricPowers.isEmpty()) {
@@ -147,12 +146,12 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 		}
 	}
 
-	
-    /**
-     * Returns the next node hash power sample from the file,
-     * or from the alternative sampler if the file queue is empty.
-     * @see AbstractNodeSampler#getNextNodeHashPower()
-     */
+
+	/**
+	 * Returns the next node hash power sample from the file,
+	 * or from the alternative sampler if the file queue is empty.
+	 * @see AbstractNodeSampler#getNextNodeHashPower()
+	 */
 	@Override
 	public float getNextNodeHashPower() {
 		if (!nodeHashPowers.isEmpty()) {
@@ -162,11 +161,11 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 		}
 	}
 
-    /**
-     * Returns the next node electricity cost sample (currency per kWh) from the file,
-     * or from the alternative sampler if the file queue is empty.
-     * @see AbstractNodeSampler#getNextNodeElectricityCost()
-     */
+	/**
+	 * Returns the next node electricity cost sample (currency per kWh) from the file,
+	 * or from the alternative sampler if the file queue is empty.
+	 * @see AbstractNodeSampler#getNextNodeElectricityCost()
+	 */
 	@Override
 	public float getNextNodeElectricityCost() {
 		if (!nodeElectricityCosts.isEmpty()) {
@@ -176,29 +175,29 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 		}
 	}
 
-    /**
-     * Returns a random node index.
-     * <p>
-     * Delegates to the alternative sampler.
-     * </p>
-     * @see AbstractNodeSampler#getNextRandomNode(int)
-     */
+	/**
+	 * Returns a random node index.
+	 * <p>
+	 * Delegates to the alternative sampler.
+	 * </p>
+	 * @see AbstractNodeSampler#getNextRandomNode(int)
+	 */
 	@Override
 	public int getNextRandomNode(int nNodes) {
 		return (alternativeSampler.getNextRandomNode(nNodes));
 	}
-	
-	
-    // -----------------------------------------------------------------
-    // SEED MANAGEMENT
-    // -----------------------------------------------------------------
-	
-    /**
-     * Updates the seed of the alternative sampler.
-     * <p>
-     * Prints an error if the alternative sampler is not defined.
-     * </p>
-     */
+
+
+	// -----------------------------------------------------------------
+	// SEED MANAGEMENT
+	// -----------------------------------------------------------------
+
+	/**
+	 * Updates the seed of the alternative sampler.
+	 * <p>
+	 * Prints an error if the alternative sampler is not defined.
+	 * </p>
+	 */
 	public void updateSeed() {
 		if (alternativeSampler != null) {
 			alternativeSampler.updateSeed();
@@ -206,7 +205,7 @@ public class FileBasedNodeSampler extends AbstractNodeSampler {
 			System.err.print("Error in update seed: alternativeSampler not defined.");
 		}
 	}
-	
-	
-	
+
+
+
 }

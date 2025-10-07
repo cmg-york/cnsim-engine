@@ -3,7 +3,6 @@ package ca.yorku.cmg.cnsim.engine.sampling;
 import java.util.Arrays;
 import java.util.Random;
 
-
 /**
  * Manages a circular sequence of random seeds for simulations.
  * <p>

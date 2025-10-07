@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
 
@@ -69,8 +70,8 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 			loadTransactionWorkload();
 		} catch (Exception e) {
 			//TODO-JIRA: unified error reporting
-			System.err.println("[FileBasedTransactionSampler]: Error loading workload: " + e.getMessage());
-			System.exit(-1);
+			Debug.e(this, "Error loading workload: " + e.getMessage());
+			throw new RuntimeException(e);
 		}
     }
  
@@ -138,21 +139,18 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 				}
 			}
 		} catch (IOException e) {
-			System.err.println("Error loading workload: no such file or directory.");
-			System.exit(-1);
+			Debug.e(this,"Error loading workload: no such file or directory.");
+			throw e;
 		}
 		if (hasHeaders) lineCount--;
 		if (lineCount < requiredTransactionLines) {
 			if (alternativeSampler == null) {
-				throw new Exception("    The transaction file does not contain enough lines as per configuration file. Required: "
-						+ requiredTransactionLines + ", Found: " + lineCount + ". Define alternative sampler for the additional intervals or update config file.");
+				throw new Exception("The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Define alternative sampler for the additional intervals or update config file.");
 			} else {
-				System.out.println("    The transaction file does not contain enough lines as per configuration file. Required: "
-						+ requiredTransactionLines + ", Found: " + lineCount + ". Additional arrrivals to be drawn from alternative sampler.");
+				Debug.p(1,this,"The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Additional arrrivals to be drawn from alternative sampler.");
 			}
 		} else if (lineCount > requiredTransactionLines) {
-			System.out.println("Warning: Transaction file contains more lines than required transactions as per configuration file. Required: "
-					+ requiredTransactionLines + ", Found: " + lineCount);
+			Debug.w(this,"Transaction file contains more lines than required transactions as per configuration file. Required: "	+ requiredTransactionLines + ", Found: " + lineCount);
 		}
 	}
 	
@@ -183,6 +181,7 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     	} else if (alternativeSampler != null) {
     		interval = alternativeSampler.getNextTransactionArrivalInterval();
     	} else {
+    		Debug.e(this,"getNextTransactionArrivalInterval(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
     		throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
     	}
         return (interval); 
@@ -204,6 +203,7 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     	} else if (alternativeSampler != null) {
     		return(alternativeSampler.getNextTransactionFeeValue());
     	} else {
+    		Debug.e(this,"getNextTransactionFeeValue(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
     		throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
     	}
     }
@@ -224,6 +224,7 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     	} else if (alternativeSampler != null) {
     		return(alternativeSampler.getNextTransactionSize());
     	} else {
+    		Debug.e(this,"getNextTransactionSize(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
     		throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
     	}
     }

@@ -1,5 +1,6 @@
 package ca.yorku.cmg.cnsim.engine.sampling.standardsamplers;
 
+import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
@@ -155,9 +156,10 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      * </p>
      *
      * @return a sampled transaction size (long)
+     * @throws Exception 
      */
     @Override
-    public long getNextTransactionSize() {
+    public long getNextTransactionSize()  {
     	long result; 
     	long minSize = 10;
     	
@@ -170,8 +172,8 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
     	} while ((result < minSize) && (tries < maxTries));
     	
     	if (tries == maxTries) {
-    		System.err.println("Failed to generate appropriate transaction size after " + tries + " tries. Please check workload.txSizeMean and workload.txSizeSD.");
-    		System.exit(-1);
+    		Debug.e("StandardTransactionSampler: Failed to generate appropriate transaction size after " + tries + " tries. Please check workload.txSizeMean and workload.txSizeSD.");
+    		throw new RuntimeException("StandardTransactionSampler: Failed to generate appropriate transaction size after " + tries + " tries. Please check workload.txSizeMean and workload.txSizeSD.");
     	}
         return(result);
     }
