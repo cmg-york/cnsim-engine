@@ -94,7 +94,7 @@
 
 [body]
 
-FOOTER:
+% FOOTER %
 [footers]
 </code></pre>
 <p>where</p>
@@ -110,6 +110,7 @@ FOOTER:
 <li><code>[footers]</code> as follows:
 <ul>
 
+<li><code>&lt;type-of&gt;</code>: <code>&lt;type&gt;</code></li>
 <li><code>&lt;action&gt;</code>: [Jira Issue URI]</li>
 <li><code>&lt;action&gt;</code>-desc: [copy/paste title/description of issue]</li>
 <li><code>BREAKING CHANGE:</code> description</li>
@@ -175,7 +176,9 @@ FOOTER:
 - Site now under /src/site/.
 - mvn clean site now copies generates /target/site and apidocs within it, then copies to /docs.
 
-FOOTER:
+% FOOTER %
+type-of: docs
+
 closes: https://esg-yorku-team.atlassian.net/browse/CE-26
 closes-desc: &quot;Investigate and Document Documentation Update Workflow&quot;
 
