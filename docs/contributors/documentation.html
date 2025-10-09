@@ -81,14 +81,20 @@
 
 <li>Documentation lives under <code>/src/site/markdown</code> in the form of Markdown <code>.md</code> files. They can be directly edited.</li>
 <li>When adding or removing pages, the corresponding menu entry must be added in removed from <code>/src/site/site.xml</code></li>
-<li>To generate documentation:
+<li>To generate documentation for testing:
 <code>mvn clean site</code>
 <ul>
 
 <li>It is to be run every time the documentation has been updated.</li>
-<li>The above creates the HTML files inside <code>/target/site</code> then copies them to <code>/docs</code> via <code>antrun</code></li>
+<li>The above creates the HTML files inside <code>/target/site</code></li>
 </ul></li>
+<li>To also publish a complete documentation version:
+<code>mvn andrun:run@publish-docs</code>
+<ul>
+
+<li>The above copies <code>/target/site</code> to <code>/docs</code></li>
 <li>GitHub must configured to use <code>/docs</code> as the web-site of the project, when the repo is public.</li>
+</ul></li>
 </ul></section>        </main>
       </div>
     </div>

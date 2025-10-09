@@ -231,8 +231,7 @@
       <version>3.1.0</version>
       <executions>
         <execution>
-          <id>copy-site-to-doc</id>
-          <phase>site</phase> <!-- runs after site generation -->
+          <id>publish-docs</id>
           <goals>
             <goal>run</goal>
           </goals>
