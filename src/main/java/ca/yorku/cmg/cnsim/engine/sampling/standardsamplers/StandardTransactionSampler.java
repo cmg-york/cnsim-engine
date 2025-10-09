@@ -156,7 +156,7 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      * </p>
      *
      * @return a sampled transaction size (long)
-     * @throws Exception 
+     * @throws RuntimeException 
      */
     @Override
     public long getNextTransactionSize()  {

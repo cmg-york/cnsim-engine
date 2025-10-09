@@ -133,10 +133,11 @@
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-site-plugin</artifactId>
 		  <version>3.21.0</version>
-		        <configuration>
-        <!-- Point to your docs directory -->
+		        <!-- <configuration>
         <outputDirectory>${basedir}/docs</outputDirectory>
-      </configuration>
+      </configuration> -->
+      
+        
 		</plugin>
 		
 		
@@ -168,13 +169,12 @@
             <version>3.2.0</version>
         </plugin>
        
-        
+<!--        
 		<plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.11.1</version>
         <configuration>
-        	<outputDirectory>${basedir}/docs</outputDirectory>
         	<doclint>all,-missing</doclint>
         </configuration>
         <executions>
@@ -187,10 +187,69 @@
                 </execution>
             </executions>
       </plugin>
-      
+    -->  
+    
+       
+           <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>3.1.0</version>
+      <executions>
+        <execution>
+          <id>copy-site-to-doc</id>
+          <phase>site</phase> <!-- runs after site generation -->
+          <goals>
+            <goal>run</goal>
+          </goals>
+          <configuration>
+            <target>
+              <echo message="Copying site from target/site to docs/"/>
+              
+              <!-- Clean doc/ first to avoid stale files -->
+              <delete dir="${basedir}/docs"/>
+              
+              <!-- Recreate doc/ folder -->
+              <mkdir dir="${basedir}/docs"/>
+              
+              <!-- Copy everything from target/site -->
+              <copy todir="${basedir}/docs" overwrite="true">
+                <fileset dir="${project.build.directory}/site"/>
+              </copy>
+            </target>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+       
        
     </plugins>
 
   </build>
+  
+    <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>3.5.0</version>
+      </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-javadoc-plugin</artifactId>
+      <version>3.11.1</version>
+      <configuration>
+        <doclint>all,-missing</doclint>
+      </configuration>
+    </plugin>
+
+    </plugins>
+
+
+  </reporting>
+
+
+
+
+
   
 </project>

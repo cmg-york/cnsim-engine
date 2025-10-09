@@ -1,14 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+  
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
         <version>2.1.0</version>
     </skin>
   <body>
-    <menu name="Documentation">
-      <item name="Introduction" href="markdown/units.md"/>
-      <item name="API" href="apidocs/index.html"/> <!-- link to javadocs -->
-    </menu>
+<menu name="Documentation">
+  <item name="Conceptual Overview" href="documentation/overview.html"/>
+  <item name="Architecture: Main Loop" href="documentation/main.html"/>
+  <item name="Architecture: Events" href="documentation/events.html"/>
+  <item name="Architecture: Samplers" href="documentation/samplers.html"/>
+  <item name="Architecture: Nodes and Behaviors" href="documentation/nodes.html"/>
+  <item name="Architecture: Reporting" href="documentation/reporting.html"/>
+  <item name="Units of Measurement" href="documentation/units.html"/>
+  </menu>  
+  <menu name="API Reference">
+  <item name="API Reference" href="apidocs/index.html"/>
+  </menu>  
+  <menu name="Contibutor's Guide">
+    <item name="Project Information" href="contributors/info.html"/>
+    <item name="Required Style" href="contributors/formatting.html"/>
+    <item name="Git Main Worklow" href="contributors/git-workflow.html"/>
+    <item name="Commit Conventions" href="contributors/commits.html"/>
+	<item name="Documentation Workflow" href="contributors/release.html"/>
+	<item name="Release Workflow" href="contributors/release.html"/>
+	<item name="Deployment Workflow" href="contributors/deploy.html"/>
+	<item name="Architectural Decisions" href="contributors/adr.html"/>
+   </menu>
+    <menu name="Maven Info">
+	<item name="Overview" href="project-info.html"/>
+    <item name="Dependencies" href="dependencies.html"/>
+    <item name="Dependency Information" href="dependency-information.html"/>
+    <item name="Dependency Management" href="dependency-management.html"/>
+	<item name="Plugin Management" href="plugin-management.html"/>
+	<item name="Plugins" href="plugins.html"/>
+	<item name="Summary" href="summary.html"/>
+
+   </menu>
   </body>
+    <custom>
+    <head>
+      <include>js/mathjax.html</include>
+    </head>
+  </custom>
 </site>
