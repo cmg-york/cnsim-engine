@@ -3,7 +3,7 @@
 
 ### *(under construction)*
 
-\[concrete steps to deploy assuming setup \]
+\[concrete steps to deploy assuming setup\]
 
 # Deployment Setup Guide
 
@@ -48,7 +48,7 @@ Sign up at https://central.sonatype.com
 > Tip: If you are fine with `io.github.<myusername>` as a namespace/groupId, sign up with GitHub to automatically register it. 
 > You can skip step 2 and move onto step 3: metadata requirements.
 > 
-> ![](./images/signUpWithGithub.png)
+> ![](../images/signUpWithGithub.png)
 > 
 > If you want `io.github.<github organization name>`, it is not available as an automatically registered namespace and 
 > would need to make a public repository with verification key as the name: `github.com/<org>/<verification-key> `. 
@@ -78,7 +78,7 @@ This verification process is easier compared to DNS TXT record.
 
 If done correctly, verification status should be changed to "Verified."
 
-![Verified Namespace](./images/verifiedNamespace.png)
+![Verified Namespace](../images/verifiedNamespace.png)
 
 ### 3. Metadata requirements 
 
@@ -252,21 +252,21 @@ All artifacts are required to be signed.
 
 Hover over the top right account profile and navigate to "View Account":
 
-![View Account](./images/viewAccount.png)
+![View Account](../images/viewAccount.png)
 
 Click the “Generate User Token” button:
 
-![Generate User Token](./images/generateUserToken.png)
+![Generate User Token](../images/generateUserToken.png)
 
 Click "Ok":
 
-![](./images/confirmUserToken.png)
+![](../images/confirmUserToken.png)
 
 > Note: This action will invalidate any existing token
 
 Save the credentials:
 
-![](./images/viewUserToken.png)
+![](../images/viewUserToken.png)
 
 ###  8. Add Publication Maven plugin to `pom.xml`
 ```xml
@@ -463,15 +463,15 @@ Go to Sonatype deployments page.
 
 `Verified` status should be changed to `Publishing`.
 
-![Publishing status](./images/publishing.png)
+![Publishing status](../images/publishing.png)
 
 After a few minutes, if successful, it should be updated to `Published`.
 
-![Published status](./images/published.png)
+![Published status](../images/published.png)
 
 You can now add it as a dependency and search for your package here: https://central.sonatype.com/
 
-![Overview page](./images/overview.png)
+![Overview page](../images/overview.png)
 
 > Unlike pulling from GitHub Package, users do not require a Personal Access Token (PAT) in order to install a 
 > dependency up on Central Maven
@@ -563,7 +563,7 @@ MAVEN_GPG_PRIVATE_KEY
 You can publish SNAPSHOTs to Central. Enable snapshots for your namespace by 
 `In Namespaces` > `your namespace` > `Enable SNAPSHOTs`
 
-![Enable Snapshots](./images/enableSnapshots.png)
+![Enable Snapshots](../images/enableSnapshots.png)
 
 Have `-SNAPSHOT` in `version` then deploy as usual
 ```bash
@@ -573,11 +573,11 @@ mvn -Pdeployment clean deploy
 ### Manually getting artifacts or built JAR
 You can get JAR from Maven Central (release) or the Central Snapshots repo (SNAPSHOTs).
 
-![Browse Repo](./images/browseRepo.png)
+![Browse Repo](../images/browseRepo.png)
 
 Example: https://repo1.maven.org/maven2/io/github/nina2dv/xml-validation-central-maven-test/1.0.0/ 
 
-![Release Repo](./images/releaseRepo.png)
+![Release Repo](../images/releaseRepo.png)
 
 
 ## References
