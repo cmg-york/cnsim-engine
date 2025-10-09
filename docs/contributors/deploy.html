@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>Deployment Workflow – cnsim-engine</title>
+    <title>Deployment Workflow – CNSim Engine</title>
     <link rel="stylesheet" href="../css/apache-maven-fluido-2.1.0.min.css" />
     <link rel="stylesheet" href="../css/site.css" />
     <link rel="stylesheet" href="../css/print.css" media="print" />
@@ -45,24 +45,25 @@
     <li><a href="../documentation/nodes.html">Architecture: Nodes and Behaviors</a></li>
     <li><a href="../documentation/reporting.html">Architecture: Reporting</a></li>
     <li><a href="../documentation/units.html">Units of Measurement</a></li>
+   <li class="nav-header">API Reference</li>
     <li><a href="../apidocs/index.html">API Reference</a></li>
    <li class="nav-header">Contibutor&apos;s Guide</li>
-    <li><a href="../contributors/info.html">Project Information</a></li>
     <li><a href="../contributors/formatting.html">Required Style</a></li>
     <li><a href="../contributors/git-workflow.html">Git Main Worklow</a></li>
     <li><a href="../contributors/commits.html">Commit Conventions</a></li>
-    <li><a href="../contributors/release.html">Documentation Workflow</a></li>
+    <li><a href="../contributors/documentation.html">Documentation Workflow</a></li>
     <li><a href="../contributors/release.html">Release Workflow</a></li>
     <li class="active"><a>Deployment Workflow</a></li>
     <li><a href="../contributors/adr.html">Architectural Decisions</a></li>
    <li class="nav-header">Maven Info</li>
     <li><a href="../project-info.html">Overview</a></li>
     <li><a href="../dependencies.html">Dependencies</a></li>
-    <li><a href="../dependency-information.html">Dependency Information</a></li>
+    <li><a href="../dependency-info.html">Dependency Information</a></li>
     <li><a href="../dependency-management.html">Dependency Management</a></li>
     <li><a href="../plugin-management.html">Plugin Management</a></li>
     <li><a href="../plugins.html">Plugins</a></li>
     <li><a href="../summary.html">Summary</a></li>
+    <li><a href="../team.html">Team</a></li>
   </ul>
           </nav>
           <div class="well sidebar-nav">
@@ -75,7 +76,9 @@
         </header>
         <main id="bodyColumn" class="span10">
 <section><a id="Deployment_Workflow"></a>
-<h1>Deployment Workflow</h1></section><section><a id="Deployment_Setup_Guide"></a>
+<h1>Deployment Workflow</h1><section><section><a id="a.28under_construction.29"></a>
+<h3><em>(under construction)</em></h3>
+<p>[concrete steps to deploy assuming setup]</p></section></section></section><section><a id="Deployment_Setup_Guide"></a>
 <h1>Deployment Setup Guide</h1><!-- TOC -->
 
 <ul>
@@ -125,7 +128,7 @@
 
 <p>Tip: If you are fine with <code>io.github.&lt;myusername&gt;</code> as a namespace/groupId, sign up with GitHub to automatically register it.
 You can skip step 2 and move onto step 3: metadata requirements.</p>
-<p><img src="./images/signUpWithGithub.png" alt="" /></p>
+<p><img src="../images/signUpWithGithub.png" alt="" /></p>
 <p>If you want <code>io.github.&lt;github organization name&gt;</code>, it is not available as an automatically registered namespace and
 would need to make a public repository with verification key as the name: <code>github.com/&lt;org&gt;/&lt;verification-key&gt;</code>.
 More on step 2</p>
@@ -154,7 +157,7 @@ Verification only requires signing up with GitHub (for GitHub user accounts) or 
 This verification process is easier compared to DNS TXT record.</li>
 </ol>
 <p>If done correctly, verification status should be changed to &#x201c;Verified.&#x201d;</p>
-<p><img src="./images/verifiedNamespace.png" alt="Verified Namespace" /></p></section><section><a id="a3._Metadata_requirements"></a>
+<p><img src="../images/verifiedNamespace.png" alt="Verified Namespace" /></p></section><section><a id="a3._Metadata_requirements"></a>
 <h3>3. Metadata requirements</h3>
 <blockquote>
 
@@ -320,17 +323,17 @@ gpg --export --armor &lt;KEY_ID&gt; &gt; public.key
 </code></pre></section><section><a id="a7._Generate_a_user_token"></a>
 <h3>7. Generate a user token</h3>
 <p>Hover over the top right account profile and navigate to &#x201c;View Account&#x201d;:</p>
-<p><img src="./images/viewAccount.png" alt="View Account" /></p>
+<p><img src="../images/viewAccount.png" alt="View Account" /></p>
 <p>Click the &#x201c;Generate User Token&#x201d; button:</p>
-<p><img src="./images/generateUserToken.png" alt="Generate User Token" /></p>
+<p><img src="../images/generateUserToken.png" alt="Generate User Token" /></p>
 <p>Click &#x201c;Ok&#x201d;:</p>
-<p><img src="./images/confirmUserToken.png" alt="" /></p>
+<p><img src="../images/confirmUserToken.png" alt="" /></p>
 <blockquote>
 
 <p>Note: This action will invalidate any existing token</p>
 </blockquote>
 <p>Save the credentials:</p>
-<p><img src="./images/viewUserToken.png" alt="" /></p></section><section><a id="a8._Add_Publication_Maven_plugin_to_pom.xml"></a>
+<p><img src="../images/viewUserToken.png" alt="" /></p></section><section><a id="a8._Add_Publication_Maven_plugin_to_pom.xml"></a>
 <h3>8. Add Publication Maven plugin to <code>pom.xml</code></h3>
 
 <pre class="prettyprint"><code class="language-xml">&lt;plugin&gt;
@@ -516,11 +519,11 @@ mvn -Pdeployment clean deploy -s some_file.xml
 </ul>
 <p>Go to Sonatype deployments page.</p>
 <p><code>Verified</code> status should be changed to <code>Publishing</code>.</p>
-<p><img src="./images/publishing.png" alt="Publishing status" /></p>
+<p><img src="../images/publishing.png" alt="Publishing status" /></p>
 <p>After a few minutes, if successful, it should be updated to <code>Published</code>.</p>
-<p><img src="./images/published.png" alt="Published status" /></p>
+<p><img src="../images/published.png" alt="Published status" /></p>
 <p>You can now add it as a dependency and search for your package here: <a href="https://central.sonatype.com/" class="externalLink">https://central.sonatype.com/</a></p>
-<p><img src="./images/overview.png" alt="Overview page" /></p>
+<p><img src="../images/overview.png" alt="Overview page" /></p>
 <blockquote>
 
 <p>Unlike pulling from GitHub Package, users do not require a Personal Access Token (PAT) in order to install a
@@ -605,16 +608,16 @@ MAVEN_GPG_PRIVATE_KEY
 <h3>SNAPSHOTs</h3>
 <p>You can publish SNAPSHOTs to Central. Enable snapshots for your namespace by
 <code>In Namespaces</code> &gt; <code>your namespace</code> &gt; <code>Enable SNAPSHOTs</code></p>
-<p><img src="./images/enableSnapshots.png" alt="Enable Snapshots" /></p>
+<p><img src="../images/enableSnapshots.png" alt="Enable Snapshots" /></p>
 <p>Have <code>-SNAPSHOT</code> in <code>version</code> then deploy as usual</p>
 
 <pre class="prettyprint"><code class="language-bash">mvn -Pdeployment clean deploy
 </code></pre></section><section><a id="Manually_getting_artifacts_or_built_JAR"></a>
 <h3>Manually getting artifacts or built JAR</h3>
 <p>You can get JAR from Maven Central (release) or the Central Snapshots repo (SNAPSHOTs).</p>
-<p><img src="./images/browseRepo.png" alt="Browse Repo" /></p>
+<p><img src="../images/browseRepo.png" alt="Browse Repo" /></p>
 <p>Example: <a href="https://repo1.maven.org/maven2/io/github/nina2dv/xml-validation-central-maven-test/1.0.0/" class="externalLink">https://repo1.maven.org/maven2/io/github/nina2dv/xml-validation-central-maven-test/1.0.0/</a></p>
-<p><img src="./images/releaseRepo.png" alt="Release Repo" /></p></section></section><section><a id="References"></a>
+<p><img src="../images/releaseRepo.png" alt="Release Repo" /></p></section></section><section><a id="References"></a>
 <h2>References</h2>
 <ul>
 
@@ -630,6 +633,7 @@ MAVEN_GPG_PRIVATE_KEY
       <div class="container-fluid">
         <div class="row-fluid">
             <p>©      2025
+<a href="https://cmg.info.yorku.ca/">Conceptual Modeling Group @ York University</a>
 </p>
         </div>
       </div>

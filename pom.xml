@@ -7,9 +7,44 @@
   <artifactId>cnsim-engine</artifactId>
   <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>cnsim-engine</name>
+  <name>CNSim Engine</name>
+  <description>A simulation engine for consensus networks</description>
   <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>http://cmg-yorku.github.io/cnsim-engine</url>
+  
+  <developers>
+    <developer>
+    <id>nina</id>
+    <name>Nina Dang</name>
+    <email>nina2022@my.yorku.ca</email>
+  </developer>
+  <developer>
+    <id>liaskos</id>
+    <name>Sotirios Liaskos</name>
+    <email>liaskos@yorku.ca</email>
+  </developer>
+      <developer>
+    <id>kasra</id>
+    <name>Kasra Zarei</name>
+    <email>kasrazarei39@gmail.com</email>
+  </developer>
+
+</developers>
+  
+    <contributors>
+    <contributor>
+    <name>Some One</name>
+    <email>some@one.ca</email>
+  </contributor>
+</contributors>
+  
+  
+	<organization>
+  <name>Conceptual Modeling Group @ York University</name>
+  <url>https://cmg.info.yorku.ca/</url>
+</organization>
+
+
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

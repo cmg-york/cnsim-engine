@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content="Apache Maven Doxia Site Renderer 2.0.0" />
-    <title>Commit Conventions – cnsim-engine</title>
+    <title>Commit Conventions and Principles – CNSim Engine</title>
     <link rel="stylesheet" href="../css/apache-maven-fluido-2.1.0.min.css" />
     <link rel="stylesheet" href="../css/site.css" />
     <link rel="stylesheet" href="../css/print.css" media="print" />
@@ -45,24 +45,25 @@
     <li><a href="../documentation/nodes.html">Architecture: Nodes and Behaviors</a></li>
     <li><a href="../documentation/reporting.html">Architecture: Reporting</a></li>
     <li><a href="../documentation/units.html">Units of Measurement</a></li>
+   <li class="nav-header">API Reference</li>
     <li><a href="../apidocs/index.html">API Reference</a></li>
    <li class="nav-header">Contibutor&apos;s Guide</li>
-    <li><a href="../contributors/info.html">Project Information</a></li>
     <li><a href="../contributors/formatting.html">Required Style</a></li>
     <li><a href="../contributors/git-workflow.html">Git Main Worklow</a></li>
     <li class="active"><a>Commit Conventions</a></li>
-    <li><a href="../contributors/release.html">Documentation Workflow</a></li>
+    <li><a href="../contributors/documentation.html">Documentation Workflow</a></li>
     <li><a href="../contributors/release.html">Release Workflow</a></li>
     <li><a href="../contributors/deploy.html">Deployment Workflow</a></li>
     <li><a href="../contributors/adr.html">Architectural Decisions</a></li>
    <li class="nav-header">Maven Info</li>
     <li><a href="../project-info.html">Overview</a></li>
     <li><a href="../dependencies.html">Dependencies</a></li>
-    <li><a href="../dependency-information.html">Dependency Information</a></li>
+    <li><a href="../dependency-info.html">Dependency Information</a></li>
     <li><a href="../dependency-management.html">Dependency Management</a></li>
     <li><a href="../plugin-management.html">Plugin Management</a></li>
     <li><a href="../plugins.html">Plugins</a></li>
     <li><a href="../summary.html">Summary</a></li>
+    <li><a href="../team.html">Team</a></li>
   </ul>
           </nav>
           <div class="well sidebar-nav">
@@ -74,8 +75,114 @@
           </div>
         </header>
         <main id="bodyColumn" class="span10">
-<section><a id="Commit_Conventions"></a>
-<h1>Commit Conventions</h1><!-- TOC -->
+<section><a id="Commit_Conventions_and_Principles"></a>
+<h1>Commit Conventions and Principles</h1><section><a id="Principles"></a>
+<h2>Principles</h2>
+<ul>
+
+<li>Each commit should strive to address one and only work item (Jira Issue).
+<ul>
+
+<li>Avoid commits that address more than one work items.</li>
+<li>Avoid commits that relate to no explicit work item.</li>
+</ul></li>
+<li>Every commit should include trailing key : value pairs as per the description below.</li>
+</ul></section><section><a id="Format"></a>
+<h2>Format</h2>
+
+<pre><code class="nohighlight nocode">&lt;type&gt;([optional scope]): &lt;description&gt;
+
+[body]
+
+FOOTER:
+[footers]
+</code></pre>
+<p>where</p>
+<ul>
+
+<li>
+<ul>
+
+<li><code>&lt;type&gt;</code> is one or more of the types below, e.g. <code>MILESTONE,fix</code></li>
+</ul></li>
+<li><code>[scope]</code> refers to the specific area that is affected e.g., <code>reporting</code>, <code>sampling</code> or <code>none</code>, <code>all</code>, and <code>other</code> &#x2013; the latter when scope is unclear</li>
+<li><code>&lt;description&gt;</code> title of commit 50 chars or less in imperative &#x201c;change&#x201d;, &#x201c;fix&#x201d;, &#x201c;update&#x201d; etc.</li>
+<li><code>[footers]</code> as follows:
+<ul>
+
+<li><code>&lt;action&gt;</code>: [Jira Issue URI]</li>
+<li><code>&lt;action&gt;</code>-desc: [copy/paste title/description of issue]</li>
+<li><code>BREAKING CHANGE:</code> description</li>
+</ul></li>
+<li><code>&lt;action&gt;</code> is one of:
+<ul>
+
+<li><code>addresses</code> the commit represents progress towards the referred issue but not resolution</li>
+<li><code>closes</code> when the commit marks resolution of the referred issue</li>
+<li><code>relates-to</code> commit relates to referred issue</li>
+<li><code>introduces</code> commit serves as the introduction</li>
+</ul></li>
+</ul>
+<table class="table table-striped">
+<thead>
+<tr class="a">
+<th>Type</th>
+<th>Purpose</th></tr></thead><tbody>
+<tr class="b">
+<td><code>feat</code></td>
+<td>Introduces a new feature</td></tr>
+<tr class="a">
+<td><code>fix</code></td>
+<td>Fixes a bug</td></tr>
+<tr class="b">
+<td><code>docs</code></td>
+<td>Documentation-only changes</td></tr>
+<tr class="a">
+<td><code>style</code></td>
+<td>Formatting, spacing, semicolons (no logic changes)</td></tr>
+<tr class="b">
+<td><code>refactor</code></td>
+<td>Code restructuring without behavior change</td></tr>
+<tr class="a">
+<td><code>perf</code></td>
+<td>Performance improvement</td></tr>
+<tr class="b">
+<td><code>test</code></td>
+<td>Adds or corrects tests</td></tr>
+<tr class="a">
+<td><code>chore</code></td>
+<td>Miscellaneous maintenance (e.g., <code>.gitignore</code>)</td></tr>
+<tr class="b">
+<td><code>build</code></td>
+<td>Build system or dependency changes (<code>pom.xml</code>, etc.)</td></tr>
+<tr class="a">
+<td><code>ci</code></td>
+<td>CI/CD configuration changes (e.g., GitHub Actions)</td></tr>
+<tr class="b">
+<td><code>revert</code></td>
+<td>Reverts a previous commit</td></tr>
+<tr class="a">
+<td><code>version</code></td>
+<td>Reflects a commit that marks a concrete version of the product</td></tr></tbody>
+</table>
+<section><a id="Examples"></a>
+<h3>Examples</h3><section><a id="A_documentation_restructuring"></a>
+<h4>A documentation restructuring</h4>
+
+<pre><code class="nohighlight nocode">docs(site): Restructure documentation
+
+- Produced a new structure for the site.
+- Site now under /src/site/.
+- mvn clean site now copies generates /target/site and apidocs within it, then copies to /docs.
+
+FOOTER:
+closes: https://esg-yorku-team.atlassian.net/browse/CE-26
+closes-desc: &quot;Investigate and Document Documentation Update Workflow&quot;
+
+initiates: https://esg-yorku-team.atlassian.net/browse/CE-30
+initiates-descr: Allow Latex-style formulae in docs. Currently all documentation is generated by `mvn clean site` Works well except that MD formulae such as $\sigma = \sqrt{\sum_{i=1}^{n} p_i{(x_i - \mu)}^2}$ that appear in MD do not render in the HTML.
+</code></pre></section></section></section></section><section><a id="Commit_Conventions.3A_Complete_Study"></a>
+<h1>Commit Conventions: Complete Study</h1><!-- TOC -->
 
 <ul>
 
@@ -276,7 +383,7 @@ An exception is made for BREAKING CHANGE, which MAY also be used as a token.</p>
 <p>If included in the type/scope prefix, breaking changes MUST be indicated by a <code>!</code> immediately before the <code>:</code>.
 If <code>!</code> is used, <code>BREAKING CHANGE:</code> MAY be omitted from the footer section, and the commit description
 SHALL be used to describe the breaking change.</p>
-</blockquote></section><section><a id="Examples"></a>
+</blockquote></section><section><a id="Examples_1"></a>
 <h3>Examples</h3>
 <p>Subject line with type, scope, and description:</p>
 
@@ -345,6 +452,7 @@ Closes: #17
       <div class="container-fluid">
         <div class="row-fluid">
             <p>©      2025
+<a href="https://cmg.info.yorku.ca/">Conceptual Modeling Group @ York University</a>
 </p>
         </div>
       </div>
