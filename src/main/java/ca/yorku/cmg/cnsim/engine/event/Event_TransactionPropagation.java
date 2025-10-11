@@ -6,25 +6,42 @@ import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 /**
+ * Represents an event for the propagation of a transaction within the simulation.
+ * <p>
+ * When this event occurs, a specific {@linkplain INode node} receives a
+ * propagated {@linkplain Transaction transaction} from another node (not from a client). 
+ * The event triggers the node's transaction propagation logic and logs the event using
+ * {@linkplain Reporter}.
+ * </p>
+ *
+ * <p>
+ * This class extends {@linkplain Event} and implements the {@linkplain #happen(Simulation)}
+ * method to define the behavior specific to transaction propagation events.
+ * </p>
  * 
- * Represents an event for transaction propagation in the simulation.
- * It extends the base Event class.
- * 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
+ * @author 
+ *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ *
+ * @see Event
+ * @see INode#event_NodeReceivesPropagatedTransaction(Transaction, long)
+ * @see Reporter
+ * @see Transaction
  */
 public class Event_TransactionPropagation extends Event {
+	
+    /** The transaction being propagated. */
     private Transaction trans;
+
+    /** The node receiving the propagated transaction. */
     private INode node;
 
     
     /**
-     * Constructs a new Event_TransactionPropagation object with the specified transaction,
-     * node, and time.
+     * Constructs a new {@code Event_TransactionPropagation}.
      *
-     * @param t     The transaction being propagated.
-     * @param n     The node receiving the propagated transaction.
-     * @param time  The simultion time at which the event occurs.
+     * @param t     the {@linkplain Transaction transaction} being propagated
+     * @param n     the {@linkplain INode node} receiving the transaction
+     * @param time  the simulation time at which the event occurs
      */
     public Event_TransactionPropagation(Transaction t, INode n, long time){
     	super();
@@ -34,16 +51,22 @@ public class Event_TransactionPropagation extends Event {
     }
 
     /**
-     * Performs the actions associated with the transaction propagation event.
-     * It invokes the event_NodeReceivesPropagatedTransaction method of the node
-     * and records the event in the Reporter.
+     * Executes the transaction propagation event in the simulation.
+     * <p>
+     * This method first calls {@linkplain Event#happen(Simulation)} to perform
+     * shared event bookkeeping (such as ID assignment and periodic reporting). 
+     * Then it invokes {@linkplain INode#event_NodeReceivesPropagatedTransaction(Transaction, long)}
+     * on the associated node and logs the event using {@linkplain Reporter#addEvent}.
+     * </p>
      *
-     * @param sim  The Simulation object.
+     * @param sim the {@linkplain Simulation simulation} instance in which the event occurs
+     * @see INode#event_NodeReceivesPropagatedTransaction(Transaction, long)
      */
     @Override
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesPropagatedTransaction(trans, getTime());
+        //TODO: this should be conditional on some configuration parameter
         Reporter.addEvent(
         		sim.getSimID(),
         		getEvtID(), 

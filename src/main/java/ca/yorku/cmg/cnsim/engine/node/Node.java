@@ -32,7 +32,7 @@ public abstract class Node implements INode {
 	protected double totalCycles = 0;
 	protected double prospectiveMiningCycles = 0;
 	
-	protected BehaviorType behaviorType;
+	protected String behaviorType;
 	protected TransactionGroup pool;
 	protected Event nextValidationEvent;
 	
@@ -59,147 +59,22 @@ public abstract class Node implements INode {
 	@Deprecated
 	public void ______________________ID() {} 
 	
-	/**
-	 * Gets the next available ID for a node and increments the counter.
-	 * @return The next available ID for a node.
-	 */
-	public static int getNextNodeID() {
-	    return(currID++);
-	}
-
-
-	/**
-	 * Resets the next available ID to 1. To be used for moving to the next experiment.
-	 */
-	public static void resetCurrID() {
-	    currID = 1;
-	}
-	
-	
-	
-	/**
-	 * Gets the ID of the node.
-	 * @return The ID of the node.
-	 */
-	public int getID() {
-	    return ID;
-	}
-
-	//
-	// R E F E R E N C E S
-	//
-	@Deprecated
-	public void ______________________Components_and_References() {} 
-	
-	/**
-	 * Gets the simulation associated with the node.
-	 * @param s The simulation associated with the node.
-	 */
-	@Override
-	public void setSimulation(Simulation s) {
-		sim = (Simulation) s;
-	}
-	
-	/**
-	 * Gets the simulation associated with the node.
-	 * @return The Simulation object associated with the node.
-	 */
-	public Simulation getSim() {
-	    return sim;
-	}
-
-	/**
-	 * Gets the transaction pool of the node.
-	 * @return The transaction pool of the node.
-	 */
-	public TransactionGroup getPool() {
-	    return pool;
-	}
-
-    
-
-	
-	
-	//
-	// N O D E   C H A R A C T E R I S I T C S
-	//
-	@Deprecated
-	public void ______________________Node_Characteristics() {} 
-	
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public void setHashPower(float hashpower) {
-		if(hashpower < 0 )
-			throw new ArithmeticException("Hash Power < 0");
-	    this.hashPower = hashpower;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public float getHashPower() {
-	    return hashPower;
-	}
-	
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public void setElectricityCost(float electricityCost) {
-		if(electricityCost < 0 )
-			throw new ArithmeticException("Electricity Cost < 0");
-	    this.electricityCost = electricityCost;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public float getElectricityCost() {
-	    return electricityCost;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public BehaviorType getBehavior() {
-	    return behaviorType;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public void setBehavior(BehaviorType type) {
-	    this.behaviorType = type;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public float getAverageConnectedness() {
-		return(sim.getNetwork().getAvgTroughput(getID()));
-	}
 
 	
 
 
-    
-    //
-    // A C T I O N S
-    //
+	// -----------------------------------------------------------------
+	// A C T I O N S
+	// -----------------------------------------------------------------
 
-	@Deprecated
-	public void ______________________Actions() {} 
+	
+	
+	// -----------------------------------------------------------------
+	// MINING MANAGEMENT
+	// -----------------------------------------------------------------
+		
 
-	// Mining related
-	@Deprecated
-	public void ________________________________Mining_Related() {} 
+	
 	/**
 	 * Starts mining with the specified expected mining interval. 
 	 * The interval may be based on when the next validation event takes place.  
@@ -236,9 +111,9 @@ public abstract class Node implements INode {
 
 	
 	
-	// Several Behaviors
-	@Deprecated
-	public void ________________________________Several_Behaviors() {} 
+	// -----------------------------------------------------------------
+	// POOL MANAGEMENT
+	// -----------------------------------------------------------------
 	
 	
 	/**
@@ -248,8 +123,6 @@ public abstract class Node implements INode {
 	public void addTransactionToPool(Transaction t) {
 		getPool().addTransaction(t);
 	}
-
-	
 	
 	/**
 	 * Removes the transactions included in transaction container from the pool.
@@ -271,6 +144,11 @@ public abstract class Node implements INode {
 			pool.removeTransaction(removeThis);
 	}
 
+	
+	
+	// -----------------------------------------------------------------
+	// PROPAGATION ACTIONS
+	// -----------------------------------------------------------------
 	
 	/**
 	 * Propagates the specified transaction container to other nodes in the simulation.
@@ -318,6 +196,9 @@ public abstract class Node implements INode {
 	    }
 	}
 
+	// -----------------------------------------------------------------
+	// CYCLE COUNTING AND COST CALCULATIONS
+	// -----------------------------------------------------------------
 	
 	/**
 	 * Adds the specified number of cycles to the total cycles of the node.
@@ -325,6 +206,14 @@ public abstract class Node implements INode {
 	 */
 	public void addCycles(double c) {
 		totalCycles += c;
+	}
+	
+	/**
+	 * See ({@linkplain INode#getTotalCycles()}
+	 */
+	@Override
+	public double getTotalCycles() {
+		return totalCycles;
 	}
 	
 	/**
@@ -336,7 +225,133 @@ public abstract class Node implements INode {
 		return ( (electricityCost * electricPower / 1000) / (3600 * hashPower) );
 	}
 
+
 	
+	// -----------------------------------------------------------------
+	// GETTERS AND SETTERS
+	// -----------------------------------------------------------------
+
+	
+	//
+	// ID MANAGEMENT
+	//
+	/**
+	 * Gets the next available ID for a node and increments the counter.
+	 * @return The next available ID for a node.
+	 */
+	public static int getNextNodeID() {
+	    return(currID++);
+	}
+
+
+	/**
+	 * Resets the next available ID to 1. To be used for moving to the next experiment.
+	 */
+	public static void resetCurrID() {
+	    currID = 1;
+	}
+		
+	/**
+	 * Gets the ID of the node.
+	 * @return The ID of the node.
+	 */
+	public int getID() {
+	    return ID;
+	}
+
+	//
+	// R E F E R E N C E S
+	//
+	/**
+	 * Gets the simulation associated with the node.
+	 * @param s The simulation associated with the node.
+	 */
+	@Override
+	public void setSimulation(Simulation s) {
+		sim = (Simulation) s;
+	}
+	
+	/**
+	 * Gets the simulation associated with the node.
+	 * @return The Simulation object associated with the node.
+	 */
+	public Simulation getSim() {
+	    return sim;
+	}
+
+	/**
+	 * Gets the transaction pool of the node.
+	 * @return The transaction pool of the node.
+	 */
+	public TransactionGroup getPool() {
+	    return pool;
+	}
+
+
+	//
+	// SIMPLE SET/GET
+	//
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public void setHashPower(float hashpower) {
+		if(hashpower < 0 )
+			throw new ArithmeticException("Hash Power < 0");
+	    this.hashPower = hashpower;
+	}
+
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public float getHashPower() {
+	    return hashPower;
+	}
+	
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public void setElectricityCost(float electricityCost) {
+		if(electricityCost < 0 )
+			throw new ArithmeticException("Electricity Cost < 0");
+	    this.electricityCost = electricityCost;
+	}
+
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public float getElectricityCost() {
+	    return electricityCost;
+	}
+
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public String getBehavior() {
+	    return behaviorType;
+	}
+
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public void setBehavior(String type) {
+	    this.behaviorType = type;
+	}
+
+	/**
+	 * See ({@linkplain INode} interface.
+	 */
+	@Override
+	public float getAverageConnectedness() {
+		return(sim.getNetwork().getAvgTroughput(getID()));
+	}
+
+
 	/**
 	 * See {@linkplain INode#getElectricPower()}
 	 */
@@ -356,19 +371,13 @@ public abstract class Node implements INode {
 	}
 	
 	
-	/**
-	 * See ({@linkplain INode#getTotalCycles()}
-	 */
-	@Override
-	public double getTotalCycles() {
-		return totalCycles;
-	}
+
 	
 	
+	// -----------------------------------------------------------------
+	// VALIDATION EVENT CREATION AND MANAGEMENT
+	// -----------------------------------------------------------------
 	
-	//
-	// E V E N T S 
-	//
 	
     /**
      * Returns the next validation event associated with this node. Useful for removing the event when necessary.
@@ -400,6 +409,14 @@ public abstract class Node implements INode {
 	    return (h);
 	}
     
+	
+	
+	// -----------------------------------------------------------------
+	// EVENT HANDLERS / BEHAVIORS
+	// -----------------------------------------------------------------
+	
+	
+	
 	/**
 	 * See {@linkplain INode#event_NodeCompletesValidation(ITxContainer, long)}
 	 * TODO: prospectiveMiningCycles must be removed from here, they are inaccurate, in cases of cancellation.

@@ -7,48 +7,69 @@ import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 /**
- * The Event object for the event-driven simulator
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
+ * Represents a single discrete occurrence within the event-driven simulation.
+ * <p>
+ * An {@code Event} encapsulates the notion of something happening at a particular
+ * simulation time. Subclasses specialize this class to define concrete simulation
+ * actions (for example, container arrivals, transaction propagation, etc.).
+ * </p>
+ *
+ * <p>Each event maintains a unique identifier, a simulation time, and an optional
+ * flag indicating whether it should be ignored (useful for disregarding future events).</p>
+ *
+ * @author 
+ *     Sotirios Liaskos for the Conceptual Modeling Group @ York University
  */
 public class Event {
 	
-	// The ID of the current event
+	/** A global counter for assigning unique event IDs. */
 	public static long currID = 1;
+
+	/** The ID of the current event object. */
 	public long evtID = 1;
 	
-	//TODO: erase eventually
-	//public static long lastTransaction;
-	//public static long currEvt; 
-
-	//static {
-	//	currEvt = 0;
-	//}	
-	
-	//Whether the event should be ignored.
+	/** If true, the event will be ignored when processed. Useful for disregarding future events. */
 	protected boolean ignore = false;
 	
-	// The simulation time of occurrence of the event.
+	/** The simulation time at which the event occurs. */
     private long time;
 
     
-	
-	/**
-	 * Retrieves the next unique event ID.
-	 *
-	 * @return The next event ID.
-	 */
+	// -----------------------------------------------------------------
+    // ID MANAGEMENT
+    // -----------------------------------------------------------------
+    
+    
+    /**
+     * Retrieves the next unique event identifier.
+     *
+     * @return The next available event ID.
+     */
 	public static long getNextEventID() {
 		return(currID++);
 	}
 	
 
-    
     /**
-     * Sets the time value of the event.
+     * Returns the unique identifier of this event instance.
+     * IDs are assigned at the time the event is processed.
      *
-     * @param time The time value to set (time greater than 0).
-     * @throws ArithmeticException if the provided time value is less than 0.
+     * @return The event ID.
+     */
+	public long getEvtID() {
+		return evtID;
+	}
+	
+	
+	// -----------------------------------------------------------------
+	// SETTERS AND GETTERS
+	// -----------------------------------------------------------------
+	
+    /**
+     * Sets the time of occurrence for this event.
+     *
+     * @param time The simulation time (must be non-negative).
+     * @throws ArithmeticException if {@code time < 0}.
      */
     public void setTime(long time) {
     	if(time < 0)
@@ -57,18 +78,24 @@ public class Event {
     }
 
     /**
-     * Retrieves the time of the event.
+     * Returns the simulation time at which this event occurs.
      *
-     * @return The simulation time of the event.
+     * @return The event's simulation time.
      */
     public long getTime() {
         return time;
     }
     
+    
+	// -----------------------------------------------------------------
+	// EVENT IGNORING
+	// -----------------------------------------------------------------
+    
     /**
-     * Checks if the event should be ignored. Useful for when canceling future events.
+     * Indicates whether this event should be ignored by the simulator.
+     * Useful for canceling future events or suppressing redundant actions.
      *
-     * @return {@code true} if the event should be ignored, {@code false} otherwise.
+     * @return {@code true} if the event should be ignored; {@code false} otherwise.
      */
     public boolean ignoreEvt() {
     	return ignore;
@@ -76,27 +103,29 @@ public class Event {
     
     
     /**
-     * Sets the ignore status of the event.
+     * Sets whether this event should be ignored.
      *
-     * @param ignoreEvt true to ignore the event, false otherwise.
+     * @param ignoreEvt {@code true} to ignore the event, {@code false} otherwise.
      */
     public void ignoreEvt(boolean ignoreEvt) {
     	ignore = ignoreEvt;
     }
     
-	/**
-	 * The ID of the current event object. IDs are created at the time of processing the event.
-	 * @return The ID of the current event object
-	 */
-	public long getEvtID() {
-		return evtID;
-	}
     
     
     /**
-     * Executes the event in the simulation. Call node's periodic and time advancement reports. 
-     *
-     * @param sim The simulation instance.
+     * Executes the event in the context of a simulation.
+     * <p>
+     * This base implementation:
+     * <ul>
+     *   <li>Assigns a unique event ID.</li>
+     *   <li>Triggers periodic reporting on all nodes based on the
+     *       configured reporting window (see {@linkplain Config}).</li>
+     *   <li>Triggers a time advancement report on each {@linkplain INode}.</li>
+     * </ul>
+     * Subclasses typically override this method to implement specific behaviors. Howver, Subclasses must call {@code super.happen(sim)} to allow the base functionality to execute.
+     * TODO: introduce template method pattern to enforce calling super.happen(sim)
+     * @param sim The active {@linkplain Simulation} instance.
      */
     public void happen(Simulation sim){
     	evtID = getNextEventID();
@@ -110,24 +139,29 @@ public class Event {
     	}
 
     	// Ask node if it wants to print Node report.
-    	// TODO: difference between time advancement report and periodic report.
+    	// FIXME: is there a difference between time advancement report and periodic report.
 		for (INode n : sim.getNodeSet().getNodes()) {
 			n.timeAdvancementReport();
 		}
     	
     }
    
-        
+	// -----------------------------------------------------------------
+	// DEBUGGING AND PRINTING
+	// -----------------------------------------------------------------
     
-	/**
-	 * For debug purposes. Call this to print the even occurrence in the standard output.
+    
+    /**
+     * Prints a debug message describing the event and its associated transaction.
+     * This is intended for development and tracing only.
 	 * TODO: remove the parameters and make it specific on the event data.
-	 * @param msg A message to be printed.
-	 * @param tx The relevant transaction.
-	 * @param n The relevant node.
-	 * @param tim The simulation time.
-	 * @param delay The time to delay before continuing.
-	 */
+     *
+     * @param msg   A message prefix to display.
+     * @param tx    The relevant {@linkplain Transaction} instance.
+     * @param n     The relevant {@linkplain INode} instance.
+     * @param tim   The simulation time.
+     * @param delay The delay (in milliseconds) before continuing execution.
+     */
 	public void debugPrint(String msg, Transaction tx, INode n, long tim, long delay) {
 		System.out.println(msg + tx.getID() + " node " + n.getID() + " time " + tim);
 		try {
@@ -135,6 +169,17 @@ public class Event {
 		} catch (InterruptedException e) {e.printStackTrace();}
 	}
 
+	
+    /**
+     * Prints a debug message describing the event and its associated transaction container.
+     * This is intended for development and tracing only.
+     *
+     * @param msg   A message prefix to display.
+     * @param txc   The relevant {@linkplain ITxContainer} instance.
+     * @param n     The relevant {@linkplain INode} instance.
+     * @param tim   The simulation time.
+     * @param delay The delay (in milliseconds) before continuing execution.
+     */
 	public void debugPrint(String msg, ITxContainer txc, INode n, long tim, long delay) {
 		System.out.println(msg + txc.printIDs(",") + " node " + n.getID() + " time " + tim);
 		try {
@@ -143,38 +188,3 @@ public class Event {
 	}
 
 }
-
-
-
-/* 
- *  	
-//        System.out.printf("%s %,6d %s %,6d %s %s %s %s %s \r", 
-//        		"Event:",
-//        		currEvt++,
-//        		"/",
-//        		Parameters.numTransactions*(Parameters.NumofNodes + 1),
-//        		"Elapsed Time:",
-//        		String.format("%02d:%02d:%02d sec",
-//        				((elapsed / (1000*60*60)) % 24),
-//        				((elapsed / (1000*60)) % 60),
-//        				((elapsed / (1000)) % 60)
-//        			),
-//        		" Remaining: ",
-//        		String.format("%02d:%02d:%02d sec",
-//        				((estimated / (1000*60*60)) % 24),
-//        				((estimated / (1000*60)) % 60),
-//        				((estimated / (1000)) % 60)
-//        			),
-//        		" (sec)"
-//        		);
- 
-//    	TangleReporter.flushEvtReport();
-    	
-//        if (this instanceof NewTransactionArrival) evtType = "NewTransactionArrival";
-//        if (this instanceof TransactionValidation) evtType = "TransactionValidation";
-//        if (this instanceof TransactionPropagation) evtType = "TransactionPropagation";
-//        System.out.print("Time:" + String.format("%.4f", this.getTime()) + " s \t Event:" + evtType + "\n");
-
- */
-
-

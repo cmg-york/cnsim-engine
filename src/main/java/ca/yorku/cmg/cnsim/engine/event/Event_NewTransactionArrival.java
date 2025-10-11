@@ -4,26 +4,43 @@ import ca.yorku.cmg.cnsim.engine.ProgressBar;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 
 /**
- * Represents an event of a new transaction arrival in the simulation.
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
+ * Represents an event corresponding to the arrival of a new external (client) transaction 
+ * at a node within the simulation. 
+ * <p>
+ * When this event occurs, the associated node receives a new transaction 
+ * from a client, the event and transaction are recorded by the {@linkplain Reporter}, 
+ * and progress tracking is updated via the {@linkplain ProgressBar}.
+ * </p>
+ *
+ * @author Sotirios Liaskos
+ * @see INode#event_NodeReceivesClientTransaction(Transaction, long)
+ * @see Reporter
+ * @see ProgressBar
  */
 public class Event_NewTransactionArrival extends Event {
+	
+	/** The new transaction arriving at the node. */
     private Transaction transaction;
+    
+    /** The node where the transaction arrives. */
     private INode node;
     
+    /** 
+     * Tracks the total number of queued transactions across all events. 
+     */
     public static int totalqueuedTransactions = 0;
     
     /**
-     * Constructs a new Event_NewTransactionArrival.
+     * Constructs a new {@code Event_NewTransactionArrival}.
      *
-     * @param tx    The new transaction.
-     * @param n     The node where the transaction arrives.
-     * @param time  The simulation time at which the event occurs.
+     * @param tx    the new transaction that arrives.
+     * @param n     the node where the transaction arrives.
+     * @param time  the simulation time at which the event occurs.
      */
     public Event_NewTransactionArrival(Transaction tx, INode n, long time) {
     	super();
@@ -33,16 +50,24 @@ public class Event_NewTransactionArrival extends Event {
     }
 
 
+
     /**
-     * Executes the event in the simulation and adds the corresponding logs.
+     * Executes the event logic for a new transaction arrival.
+     * <p>
+     * This method notifies the node of the transaction reception, 
+     * logs the event and transaction to the reporter, and updates 
+     * the progress bar. If the transaction is marked as seed-changing, 
+     * the node sampler seeds are also updated.
+     * </p>
      *
-     * @param sim The simulation instance.
+     * @param sim the simulation instance in which the event occurs.
+     * @see INode#event_NodeReceivesClientTransaction(Transaction, long)
+     * @see AbstractNodeSampler#updateSeed()
      */
     @Override
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesClientTransaction(transaction, getTime());
-        //System.out.println();
         Reporter.addEvent(
         		sim.getSimID(),
         		getEvtID(), 

@@ -12,34 +12,88 @@ import ca.yorku.cmg.cnsim.engine.node.Node;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 /**
- * Handles all main measurement and reporting for simulations. 
- * Meant to be used via its static methods.
- * Supports three log actions which add a line to the corresponding file:
- * 1. Events: adds a log line every time an event is processed.
- * 2. Transactions: adds a log line for every transaction arrival event.
- * 3. Nodes: adds a new line for every node known to the simulator. This happens at the end of the simulator.
- * Additional measurements and files can be produced by other classes (e.g., Nodes, Structures).
+ * Provides centralized measurement and reporting for simulations.
+ * <p>
+ * The {@code Reporter} class is designed to be used via its static methods and handles
+ * the creation, logging, and flushing of simulation data for different categories:
+ * <ul>
+ *   <li><b>Events:</b> Records every processed event.</li>
+ *   <li><b>Transactions:</b> Records every transaction arrival.</li>
+ *   <li><b>Nodes:</b> Records information about each node in the simulation, typically at the end.</li>
+ *   <li><b>Network events:</b> Records network link events or bandwidth changes.</li>
+ *   <li><b>Beliefs:</b> Records nodes' beliefs about transactions, including optional short-format reports.</li>
+ *   <li><b>Errors:</b> Records runtime errors or issues during simulation execution.</li>
+ * </ul>
+ * Additional reporting (e.g., structure or custom metrics) can be implemented in other classes.
+ * </p>
  * 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University`
+ * <p>
+ * The class manages the log data in {@linkplain ArrayList} structures and flushes them to files
+ * when requested. Log files are created in a simulation-specific directory, based on the
+ * {@linkplain Config configuration} properties and a timestamped run identifier.
+ * </p>
  * 
+ * <p>
+ * Reporting can be selectively enabled or disabled per category using the static setter methods:
+ * {@linkplain #reportEvents(boolean)}, {@linkplain #reportTransactions(boolean)},
+ * {@linkplain #reportNodes(boolean)}, {@linkplain #reportNetEvents(boolean)},
+ * {@linkplain #reportBeliefs(boolean)}, and {@linkplain #reportBeliefsShort(boolean)}.
+ * </p>
+ * 
+ * <p>
+ * All flush methods write the corresponding log to a CSV file (or TXT for errors) in the
+ * simulation output directory. File names include the run identifier to ensure uniqueness.
+ * </p>
+ * 
+ * <p>
+ * The class is thread-unsafe; concurrent modifications to log data should be externally synchronized
+ * if multiple threads may report simultaneously.
+ * </p>
+ * TODO: concentrate all flushing in one method.
+ * TODO: design conditionals. 
+ * @author
+ *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ *
+ * @see Node
+ * @see Transaction
+ * @see Config
  */
 public class Reporter {
-	// Each of the arraylists below contain a line in the output
+	
+	 /** Stores transaction arrival log lines. */
 	protected static ArrayList<String> inputTxLog = new ArrayList<String>();
+	 
+	 /** Stores event log lines. */
 	protected static ArrayList<String> eventLog = new ArrayList<String>();
+	
+	 /** Stores node log lines. */
 	protected static ArrayList<String> nodeLog = new ArrayList<String>();
+	
+	/** Stores compact belief log lines. */
 	protected static ArrayList<String> netLog = new ArrayList<String>();
+	
+	/** Stores belief log lines. */
 	protected static ArrayList<String> beliefLog = new ArrayList<String>();
+	
+	/** Stores compact belief log lines. */
 	protected static ArrayList<String> beliefLogShort = new ArrayList<String>();
-	protected static ArrayList<String> errorLog = new ArrayList<String>();
-
+	
+	/** Counts belief entries for the short belief report. */
 	protected static BeliefEntryCounter beliefCounter = new BeliefEntryCounter();
 	
+	/** Stores error log lines. */
+	protected static ArrayList<String> errorLog = new ArrayList<String>();
+	
+	/** The unique identifier for the current simulation run, used in file naming. */
 	protected static String runId;
+	
+	/** The root directory for all simulation output files. */
 	protected static String path;
+	
+	/** The base directory for all simulation output files, configurable via {@code sim.output.directory}. Default is {@code ./log/} */
 	protected static String root = "./log/";
 	
-
+ 	/** Reporting control flags */
 	protected static boolean reportEvents;
 	protected static boolean reportTransactions;
 	protected static boolean reportNodes;
@@ -48,6 +102,53 @@ public class Reporter {
 	protected static boolean reportBeliefsShort;
 
 
+
+	
+	
+	// -----------------------------------------------------------------
+	// STATIC INITIALIZATION
+	// -----------------------------------------------------------------
+	
+	
+	// Static initialization block sets up paths, runId, and prepares log headers
+	static {
+		root = Config.getPropertyString("sim.output.directory");
+
+		String label = "";
+		if (Config.hasProperty("sim.experimentalLabel")) {
+			label = Config.getPropertyString("sim.experimentalLabel") + " - ";
+		}
+		
+		//ID the run
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH.mm.ss");  
+		LocalDateTime now = LocalDateTime.now();
+		runId = label + dtf.format(now);
+		path = root + runId + "/";
+		new File(path).mkdirs();
+		FileWriter writer;
+		try {
+			writer = new FileWriter(root + "LatestFileName.txt");
+			writer.write(runId + "\n");
+			writer.close();
+		} catch (IOException e) {e.printStackTrace();}
+		
+		//Prepare the reporting structures
+		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, Node, Object");
+		inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
+		nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
+		netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
+		beliefLog.add("SimID, Node ID, Transaction ID, Believes, Time (ms from start)");
+		beliefLogShort.add("SimID, Transaction ID, Time (ms from start), Belief");
+	}
+	
+	
+	
+	
+	// -----------------------------------------------------------------
+	// Methods to enable/disable or query report categories
+	// -----------------------------------------------------------------
+	
+	
 	public static void reportEvents(boolean reportEvents) {
 		Reporter.reportEvents = reportEvents;
 	}
@@ -82,51 +183,28 @@ public class Reporter {
 	
 	
 	
-	
-	static {
-		root = Config.getPropertyString("sim.output.directory");
-
-		String label = "";
-		if (Config.hasProperty("sim.experimentalLabel")) {
-			label = Config.getPropertyString("sim.experimentalLabel") + " - ";
-		}
-		
-		//ID the run
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH.mm.ss");  
-		LocalDateTime now = LocalDateTime.now();
-		runId = label + dtf.format(now);
-		path = root + runId + "/";
-		new File(path).mkdirs();
-		FileWriter writer;
-		try {
-			writer = new FileWriter(root + "LatestFileName.txt");
-			writer.write(runId + "\n");
-			writer.close();
-		} catch (IOException e) {e.printStackTrace();}
-		
-		//Prepare the reporting structures
-		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, Node, Object");
-		inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
-		nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
-		netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
-		beliefLog.add("SimID, Node ID, Transaction ID, Believes, Time (ms from start)");
-		beliefLogShort.add("SimID, Transaction ID, Time (ms from start), Belief");
-	}
-	
 	public static String getRunId() {
 		return(runId);
 	}
 	
-	/**
-	 * Adds a line to the event log with information about the event.
-	 *  
+	
+	// -----------------------------------------------------------------
+	// LOGGING METHODS
+	// -----------------------------------------------------------------
+	
+	
+	
+ 	/**
+	 * Adds an entry to the event log with information about the event.
+	 * 
 	 * @param simID The simulation ID.
-	 * @param evtID ID of the event.
-	 * @param simTime Simulation time in which the event is happening.
-	 * @param sysTime Real time in which the event is happening.
-	 * @param evtType The Type of the event.
-	 * @param nodeInvolved The {@linkplain Node} involved in the event.
-	 */
+	 * @param evtID The event ID.
+	 * @param simTime The simulation time at which the event occurred.
+	 * @param sysTime The system time at which the event was processed.
+	 * @param evtType A string describing the type of event.
+	 * @param nodeInvolved The ID of the node involved in the event, or -1 if none.
+	 * @param objInvolved The ID of the object involved in the event (e.g., transaction ID), or -1 if none.
+	 */    
 	public static void addEvent(int simID, long evtID, long simTime, long sysTime, 
 			String evtType, int nodeInvolved, long objInvolved) {
 		if (Reporter.reportEvents)
@@ -139,15 +217,15 @@ public class Reporter {
 					objInvolved);
 	}
 
-	/**
-	 * Adds an entry to the transaction log with information about the transaction.
-	 * 
-	 * @param simID The simulation ID.
-	 * @param txID Transaction ID
-	 * @param size Transaction size in bytes
-	 * @param value Transaction value in local tokens.
-	 * @param simTime Time transaction arrived in system
-	 */
+    /**
+     * Adds a transaction entry to the transaction log.
+     *
+     * @param simID Simulation ID
+     * @param txID Transaction ID
+     * @param size Transaction size in bytes TODO: verify it is bytes
+     * @param value Transaction value in tokens
+     * @param simTime Simulation time of arrival
+     */
 	public static void addTx(int simID, long txID, float size, float value, long simTime) {
 		if (Reporter.reportTransactions)
 			inputTxLog.add(simID + "," +
@@ -157,15 +235,16 @@ public class Reporter {
 					simTime);
 	}
 	
-	/**
-	 * Adds an entry to the nodes log with information about the node.
-	 * @param simID The simulation ID.
-	 * @param nodeID Node ID
-	 * @param hashPower Hashpower of the node (hashes/second)
-	 * @param electricPower The power consumed by the node (Watts)
-	 * @param electricityCost The electricity cost per kWh of the node
-	 * @param totalCycles The total hashes the node performed
-	 */
+	   /**
+     * Adds a node entry to the node log.
+     *
+     * @param simID Simulation ID
+     * @param nodeID Node ID
+     * @param hashPower Hashing power in GH/s
+     * @param electricPower Electric power usage in Watts
+     * @param electricityCost Electricity cost in USD/kWh
+     * @param totalCycles Total hash cycles performed by the node
+     */
 	public static void addNode(int simID, int nodeID, float hashPower, float electricPower, 
 		float electricityCost, double totalCycles) {
 			if (Reporter.reportNodes)
@@ -201,15 +280,17 @@ public class Reporter {
 	}
 	
 	
-	/**
-	 * Adds an entry to the belief log. Each entry   
-	 * @param simID The simulation ID.
-	 * @param node The ID of the node whose belief is registered.
-	 * @param tx The transaction the node's belief about its validity is registered. 
-	 * @param believes Whether the node believes the transaction is valid and "final". Will report {@code false} if 
-	 * the transaction is not in the structure or has not been seen before.   
-	 * @param simTime The time at which the report is produced.
-	 */
+    /**
+     * Adds a belief entry for a node about a transaction. If {@code reportBeliefsShort} is enabled, the belief counter is also updated, to be later be used for a compact report.
+     *
+     * @param simID Simulation ID
+     * @param node Node ID
+     * @param tx Transaction ID
+     * @param believes {@code true} if node believes transaction is valid/final, {@code false} otherwise
+     * @param simTime Simulation time at which the belief is recorded
+     * @see #reportBeliefsShort
+     * @see BeliefEntryCounter
+     */
 	public static void addBeliefEntry(int simID, int node, long tx, boolean believes, long simTime) {
 		if (Reporter.reportBeliefs) {
 			beliefLog.add(simID + "," +
@@ -235,6 +316,12 @@ public class Reporter {
 		errorLog.add(errorMsg);
 	}
 		
+	
+	
+	// -----------------------------------------------------------------
+	// FLUSH METHODS - write the logs to files
+	// -----------------------------------------------------------------
+	
 	
 	
 	/**
@@ -277,7 +364,6 @@ public class Reporter {
 	/**
 	 * Save reporter's node log to file. File name is "Nodes - [Simulation Date Time].csv"
 	 */
-
 	public static void flushNodeReport() {
 		if (Reporter.reportNodes) {
 			FileWriter writer;
@@ -369,7 +455,6 @@ public class Reporter {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	
 	/**
