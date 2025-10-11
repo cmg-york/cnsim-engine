@@ -6,22 +6,45 @@ import ca.yorku.cmg.cnsim.engine.node.NodeSet;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 
 /**
- * Generic network structure.
+ * Represents a generic network structure in a simulation.
+ * <p>
+ * This class maintains a reference to a {@link NodeSet} object representing the participating nodes
+ * and stores point-to-point throughput values between nodes in a 2D {@code float} array {@code Net}.
+ * Propagation times can be computed for messages of a given size. See
+ * <a href="../documentation/units.html">documentation/units</a> for the units of measurement of throughput and propagation times.
+ * </p>
  * 
- * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
+ * @author Sotirios Liaskos
+ * @version 1.0
  */
 public abstract class AbstractNetwork {
 	
+    /** The set of nodes in the network */
 	protected NodeSet ns;
 
+    /** The network throughput matrix in bits per second (bps) */
 	public float[][] Net;
 
-	/**
-	 * Constructor. 
-	 * @param ns A NodeSet object representing the nodes of the network.
-	 * @throws Exception 
-	 */
+	
+	// -----------------------------------------------------------------
+	// CONSTRUCTORS
+	// -----------------------------------------------------------------
+
+	
+    /**
+     * Empty constructor for testing purposes.
+     * Initializes an empty network object.
+     */
+	public AbstractNetwork() {
+	}
+	
+    /**
+     * Constructs a network using the specified {@link NodeSet}.
+     * Initializes the throughput matrix with dimensions based on {@code sim.maxNodes}.
+     * 
+     * @param ns the NodeSet representing the nodes of the network
+     * @throws Exception if the number of nodes exceeds the maximum allowed in configuration
+     */
 	public AbstractNetwork(NodeSet ns) throws Exception {
         int maxNodes = Config.getPropertyInt("sim.maxNodes");
 		if (maxNodes < ns.getNodeSetCount()) {
@@ -31,43 +54,40 @@ public abstract class AbstractNetwork {
         this.ns = ns;
 	}
 	
-	
-	/**
-	 * Constructor. Create an empty object. For testing purposes only. 
-	 */
-	public AbstractNetwork() {
-	}
-	
-	
-	/**
-	 * @return The NodeSet based on which the network is constructed. 
-	 */
-	public NodeSet getNodeSet() {
-		return ns;
-	}
 
+	// -----------------------------------------------------------------
+	// PROPAGATION TIME CALCULATIONS
+	// -----------------------------------------------------------------
 
-	/**
-	 * Returns the propagation time of a message of size Size from Origin to Destination
-	 * @param origin The ID of the origin node.
-	 * @param destination The ID of the destination node.
-	 * @param size The size of the message in bytes
-	 * @return The propagation time *in milliseconds* or -1 if the nodes are not connected.
-	 */
+	
+   /**
+    * Calculates the propagation time of a message of given size between two nodes.
+    * 
+    * @param origin      the ID of the origin node
+    * @param destination the ID of the destination node
+    * @param size        the size of the message in bytes
+    * @return the propagation time in <b>milliseconds</b>, or -1 if the nodes are not connected
+    * @throws ArithmeticException if {@code size < 0}
+    * @see #getPropagationTime(float, float)
+    * @see <a href="../documentation/units.html">documentation/units</a>
+    */
 	public long getPropagationTime(int origin, int destination, float size) {
 		if(size < 0)
 			throw new ArithmeticException("Size < 0");
 		float bps = getThroughput(origin, destination);
-		return(getPropagationTime(bps, size));
+		return (getPropagationTime(bps, size));
 	}
 
 	
-	/**
-	 * Returns the propagation time of a message of size `size` in a channel of throughput `throughput`
-	 * @param throughput in Bits per Second (bps)
-	 * @param size The size of the message in bytes
-	 * @return The propagation time *in milliseconds* or -1 if the nodes are not connected.
-	 */
+    /**
+     * Calculates the propagation time for a message of a given size over a channel with specified throughput.
+     * 
+     * @param throughput the channel throughput in bits per second (bps)
+     * @param size       the size of the message in bytes
+     * @return the propagation time in <b>milliseconds</b>, or -1 if throughput is 0
+     * @throws ArithmeticException if {@code size < 0} or {@code throughput < 0}
+     * @see <a href="../documentation/units.html">documentation/units</a>
+     */
 	public long getPropagationTime(float throughput, float size) {
 		if(size < 0)
 			throw new ArithmeticException("Size < 0");
@@ -77,28 +97,43 @@ public abstract class AbstractNetwork {
 	    if(throughput == 0)
 	        return (-1);
 	    else
-		    // Multiply by 8 because Size is in terms of bytes but throughput is in terms of bits.
-			// Multiply by 1000 because throughput is measured in bits/second but 
-			// expected output is in terms of milliseconds.
+		    /* Multiply by 8 because Size is in terms of bytes but throughput is in terms of bits. Multiply by 1000 because throughput is measured in bits/second but expected output is in terms of milliseconds. */
 	    	return(Math.round((size * 8 * 1000)/throughput));
 	}
 	
 	
 	
-	/**
-	 * Returns the throughput between Origin and Destination.
-	 * @param Origin The ID of the origin node.
-	 * @param Destination The ID of the destination node.
-	 * @return The throughput of the connection in bits per second (bps)
-	 */
-	public float getThroughput(int Origin, int Destination) {
-		if(Origin < 0)
+	
+	// -----------------------------------------------------------------
+	// GETTERS AND SETTERS
+	// -----------------------------------------------------------------
+
+	
+    /**
+     * Returns the throughput between two nodes.
+     * 
+     * @param origin      the ID of the origin node
+     * @param destination the ID of the destination node
+     * @return the throughput in bits per second (bps)
+     * @throws ArithmeticException if {@code origin < 0} or {@code destination < 0}
+     */
+	public float getThroughput(int origin, int destination) {
+		if(origin < 0)
 			throw new ArithmeticException("Origin < 0");
-		if(Destination < 0)
+		if(destination < 0)
 			throw new ArithmeticException("Destination < 0");
-		return Net[Origin][Destination];
+		return Net[origin][destination];
 	}
 
+    /**
+     * Sets the throughput between two nodes.
+     * Records the event in the reporter.
+     * 
+     * @param origin      the ID of the origin node
+     * @param destination the ID of the destination node
+     * @param throughput  the throughput in bits per second (bps)
+     * @throws ArithmeticException if {@code origin < 0}, {@code destination < 0}, or {@code throughput < 0}
+     */
 	public void setThroughput(int origin, int destination, float throughput) {
 		Reporter.addNetEvent(Simulation.currentSimulationID, origin, destination, throughput, Simulation.currTime);
 		if(origin < 0)
@@ -111,15 +146,12 @@ public abstract class AbstractNetwork {
 	}
 
 	
-	
-	
-	/**
-	 * Calculates the average throughput a given origin node has with the rest of the network.
-	 * Based on averaging the throughput of the origin with all other nodes.
-	 *
-	 * @param origin The origin node for which to calculate the average throughput.
-	 * @return The average throughput for the origin node.
-	 */
+    /**
+     * Calculates the average throughput for a given origin node with all other nodes in the network.
+     * 
+     * @param origin the ID of the origin node
+     * @return the average throughput for the origin node in bits per second (bps)
+     */
 	public float getAvgTroughput(int origin) {
 		float sum=0;
 		int i=1, count = 0;
@@ -134,10 +166,21 @@ public abstract class AbstractNetwork {
 	    return (sum/count);
 	}
 	
+	
+    /**
+     * Returns the {@link NodeSet} used to construct this network.
+     * 
+     * @return the NodeSet representing the nodes in this network
+     */
+	public NodeSet getNodeSet() {
+		return ns;
+	}
+
+
 	/**
-	 * Prints the network matrix.
-	 * Each element of the matrix represents the throughput between two nodes.
-	 */
+     * Prints the network throughput matrix to standard output.
+     * Each element represents the throughput between two nodes.
+     */
 	public void printNetwork() {
 		for (float[] x : Net) {
 		   for (float y : x) {
@@ -148,9 +191,10 @@ public abstract class AbstractNetwork {
 	}
 	
 	
-	/**
-	 * TODO: Alternate implementation of network printing. Pick the one that is better. 
-	 */
+    /**
+     * Alternate implementation of network printing.
+     * Prints the throughput matrix as plain numbers separated by spaces.
+     */
 	public void printNetwork2() {
 		for (int i = 0; i < Net.length; i++) {
 			for (int j = 0; j < Net[i].length; j++) {

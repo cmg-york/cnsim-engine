@@ -8,10 +8,42 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+
+/**
+ * Represents a network where end-to-end throughput is loaded from a CSV file.  
+ * For each pair of nodes, a throughput value indicates the number of bits that can travel 
+ * from one node to the other in the unit of time (ignoring routing). This network is 
+ * typically an abstraction produced by applying all-possible-shortest-paths algorithms to the true 
+ * structure and throughput of a network. It is agnostic to the actual physical structure 
+ * or individual link throughputs.
+ * <p>
+ * The CSV file should contain rows describing the connections between nodes in the format:
+ * <pre>
+ * fromNodeID,toNodeID,throughput
+ * </pre>
+ * Optionally, the first line can contain headers.
+ * <p>
+ * This class extends {@link AbstractNetwork} and initializes the network matrix
+ * based on the provided {@link NodeSet} and the data read from the file.
+ * </p>
+ * 
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @see AbstractNetwork
+ */
 public class FileBasedEndToEndNetwork extends AbstractNetwork {
 
+	 /** Path to the CSV file describing the network throughput */
 	private String networkFilePath;
 	
+	
+    /**
+     * Constructs a FileBasedEndToEndNetwork from a NodeSet and a CSV file.
+     * The network throughput matrix is initialized based on the file contents.
+     * 
+     * @param ns the NodeSet representing the nodes in the network
+     * @param filename the path to the CSV file containing throughput data
+     * @throws Exception if the NodeSet exceeds the maximum allowed nodes, or if file parsing fails
+     */
     public FileBasedEndToEndNetwork(NodeSet ns, String filename) throws Exception {
         super(ns);
         networkFilePath = filename;
@@ -22,14 +54,30 @@ public class FileBasedEndToEndNetwork extends AbstractNetwork {
 			e.printStackTrace();
 		}
     }
-
+    
+    /**
+     * Empty constructor for testing purposes.
+     * The network will not be initialized until {@link #LoadFromFile()} is called.
+     */
     public FileBasedEndToEndNetwork(){
     }
 
+    /**
+     * Loads the network throughput matrix from the CSV file.
+     * Assumes the first line is a header.
+     * 
+     * @throws Exception if there is a problem reading the file or parsing the values
+     */
     public void LoadFromFile() throws Exception {
     	LoadFromFile(true);
     }
     
+    /**
+     * Loads the network throughput matrix from the CSV file.
+     * 
+     * @param hasHeaders true if the first line of the CSV file contains headers and should be skipped
+     * @throws Exception if there is a problem reading the file, parsing values, or invalid node IDs
+     */
     public void LoadFromFile(boolean hasHeaders) throws Exception {
     	int lineCount = 0;
         //read the file from file path

@@ -6,56 +6,62 @@ import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 /**
- * Represents a network node.
+ * Represents a network node within the simulation.
+ * <p>
+ * Each node has an associated structure (e.g., blockchain or DAG), 
+ * a set of behavioral characteristics, and can report events for monitoring.
+ * The interface defines methods for node properties,  
+ * reporting, and event handling.
+ * </p>
+ * 
+ * @author Sotirios
  */
 public interface INode {
 	
-    /**
-     * Enumeration for the behavior type of node.
-     */
-	public enum BehaviorType {HONEST, MALICIOUS, SELFISH}
-
-	// N O D E     P R O P E R T I E S    A N D     D A T A
-	//
-	//
 	
+	// -----------------------------------------------------------------
+	// GETTERS AND SETTERS
+	// -----------------------------------------------------------------
 	
     /**
      * Returns the ID of the node.
      *
-     * @return The ID of the node.
+     * @return the unique node ID
      */
 	public int getID();
 	
     /**
-     * Returns the structure (blockchain, DAG, etc.) associated with the node.
+     * Returns the structure associated with this node.
      *
-     * @return The structure associated with the node.
+     * @return the structure (blockchain, DAG, etc.)
      */
 	public IStructure getStructure(); 
 	
     /**
-     * TODO: Conflicts with Sampler. Check to see what the hashpower is.  
-     * Set the total hash power of the node in Gigahashes (billions of hashes) per second.
-     * @param hashpower The hash power in GH/second.
+     * Sets the total hash power of the node in Gigahashes per second (GH/s).
+     *
+     * @param hashPower the hash power in GH/s
      */
-    public void setHashPower(float hashpower);
+    public void setHashPower(float hashPower);
 
     /**
-     * Returns the total hashpower of the node in Gigahashes (billions of hashes) per second.
-     * @return The hash power in GH/second.
+     * Returns the total hash power of the node in Gigahashes per second (GH/s).
+     *
+     * @return hash power in GH/s
      */
     public float getHashPower();
 
     /**
-     * Sets the cost (in real world currency) of electricity in tokens/kWh (Kilowatt Hours)
-     * @param electricityCost The cost of electricity in tokens/kWh.
+     * Sets the cost of electricity in tokens per kilowatt-hour (tokens/kWh).
+     *
+     * @param electricityCost the cost of electricity
      */
     public void setElectricityCost(float electricityCost);
     
     /**
-     * Get the cost (in conventional currency "tokens") of electricity in tokens/kWh (Kilowatt Hours)
-     * @return The cost of electricity in tokens/kWh.
+     * Returns the cost of electricity in tokens per kilowatt-hour (tokens/kWh).
+     *
+     * @return the electricity cost
      */
     public float getElectricityCost();
     
@@ -71,26 +77,106 @@ public interface INode {
     
     
     /**
-     * Get the electric power of the node in Watts.
-     * @return The electric power of the node in Watts.
+     * Returns the electric power of the node in Watts.
+     *
+     * @return electric power in Watts
      */
     public float getElectricPower();
     
 
     /**
-     * Get the electric power of the node in Watts.
-     * @param power The electric power of the node in Watts.
+     * Sets the electric power of the node in Watts.
+     *
+     * @param power the electric power in Watts
      */
     public void setElectricPower(float power);
     
     
     /**
-     * Returns the average connectedness of the node; i.e., the average throughput with the other nodes.
+     * Returns the average connectedness of the node with other nodes.
      *
-     * @return The average connectedness of the node.
+     * @return the average throughput with other nodes
      */
 	public float getAverageConnectedness();
     
+
+    /**
+     * Sets the simulation object for this node.
+     *
+     * @param sim the simulation instance
+     */
+    public void setSimulation(Simulation sim);
+    
+    
+    /**
+     * Sets the behavior type of the node.
+     *
+     * @param behaviorName description of the behavior type as a string (e.g., "honest", "selfish", "malicious")
+     */
+    public void setBehavior(String behaviorName);
+    
+    
+    /**
+     * Returns the current behavior type of the node.
+     *
+     * @return behavior type as a string
+     */
+    public String getBehavior();
+    
+    
+	// -----------------------------------------------------------------
+	// REPORTING HOOKS
+	// -----------------------------------------------------------------
+	
+    
+    /**
+     * Generates a time advancement report.
+     * <p>The method is called every time a new event is processed.</p>
+     * <p>To be used sparingly, due to computational implications.</p>
+     */
+	public void timeAdvancementReport();
+	
+    /**
+     * Generates a periodic report.
+     * <p>The method is called at user-defined time intervals.</p>
+     */
+	public void periodicReport();
+	
+	
+    /**
+     * Generates a transaction belief report.
+     * <p>
+     * Called by the simulation environment to report the node's belief 
+     * on a set of transactions.
+     * </p>
+     *
+     * @param sample list of transaction IDs to report on
+     * @param time   timestamp of the report
+     */
+	public void beliefReport(long[] sample, long time);
+	
+    /**
+     * Generates a node status report.
+     * <p>
+     * Reports the node's status (e.g., active, token balance, power usage).
+     * </p>
+     */
+	public void nodeStatusReport();
+	
+	
+    /**
+     * Generates a structure report.
+     * <p>
+     * Reports the node's current structure (blockchain, DAG, etc.).
+     * </p>
+     */
+	public void structureReport();
+	
+	
+	// -----------------------------------------------------------------
+	// MISC ROUTINES
+	// -----------------------------------------------------------------
+	
 	
     /**
      * Returns the total PoW cycles the node has expended
@@ -98,78 +184,6 @@ public interface INode {
      * @return The total PoW cycles of the node has expended.
      */
     public double getTotalCycles();
-
-    /**
-     * Sets the Simulation object for the node.
-     *
-     * @param sim The Simulation object.
-     */
-    public void setSimulation(Simulation sim);
-    
-    
-    /**
-     * Sets a behavior type of the node (HONEST, MALICIOUS etc.) 
-     *
-     * @param h The behavior type.
-     */
-    public void setBehavior(BehaviorType h);
-    
-    
-    /**
-     * Returns the behavior type of the node.
-     *
-     * @return The behavior type of the node.
-     */
-    public BehaviorType getBehavior();
-    
-    
-    
-    // R E P O R T I N G    R E S P O N S I B I L I T I E S
-    //
-    //
-    //
-    
-    /**
-     * Generates a time advancement report.
-     * The method is called from the simulator (or other) environment in for continues logging of events. 
-     * The method is called every time a new even is processed.
-     * The content and format of the report may vary depending on the implementation.
-     * No parameters are required for this method.
-     */
-	public void timeAdvancementReport();
-	
-	/**
-	 * Generates a generic time-advancement report.
-     * The method is called from the simulator (or other) environment in for periodic logging on events status etc.
-	 * The content and format of the report may vary depending on the implementation.
-	 * This method does not take any parameters.
-	 */
-	public void periodicReport();
-	
-	
-	/**
-	 * Generates a transaction belief report.
-     * The method is called from the simulator (or other) environment. In response the node must report whether it
-     * believes each of the transactions in its structure. 
-	 * @param sample A list of transaction IDs for which beliefs are to be reported.
-	 * @param time The time of the request.
-	 */
-	public void beliefReport(long[] sample, long time);
-	
-	/**
-	 * Generates a node status report.
-     * The method is called from the simulator (or other) environment. In response the node must report 
-     * it's status (e.g. whether it is active, how many tokens it has, how much power it has spend etc.) 
-	 */
-	public void nodeStatusReport();
-	
-	
-	/**
-	 * Generates a structure report.
-     * The method is called from the simulator (or other) environment. In response the node must output the structure, 
-	 */
-	public void structureReport();
-	
 	
 	
 	/**
@@ -181,13 +195,16 @@ public interface INode {
     
 	
 	
-    
-    // B E H A V I O R S   /   E V E N T   R E S P O N S E S 
-	//
+	
+	
+	// -----------------------------------------------------------------
+	// EVENT HANDLERS / BEHAVIORS
+	// -----------------------------------------------------------------
+	
 	
 	
 	/**
-	* Event: Node receives a client transaction.
+	* Event: Node receives a client transaction, i.e. a transaction outside the system.
 	*
 	* @param t The client transaction received by the node.
 	* @param time The timestamp of the event.
@@ -195,7 +212,7 @@ public interface INode {
     public void event_NodeReceivesClientTransaction(Transaction t, long time);
 
     /**
-     * Event: Node receives a propagated transaction.
+     * Event: Node receives a propagated transaction, i.e., from another node.
      *
      * @param trans The propagated transaction received by the node.
      * @param time The timestamp of the event.
@@ -203,7 +220,7 @@ public interface INode {
 	public void event_NodeReceivesPropagatedTransaction(Transaction trans, long time);
     
 	/**
-	 * Event: Node receives a propagated container.
+	 * Event: Node receives a propagated container; e.g., block of transactions.
 	 *
 	 * @param t The propagated container received by the node.
 	 */
@@ -216,7 +233,6 @@ public interface INode {
 	 * @param time The timestamp of the event.
 	 */
     public void event_NodeCompletesValidation(ITxContainer t, long time);
-    
     
     
 	/**
