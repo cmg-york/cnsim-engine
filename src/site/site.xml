@@ -7,7 +7,32 @@
         <version>2.1.0</version>
     </skin>
   <body>
-<menu name="Documentation">
+
+      <head>
+      <![CDATA[
+          <script>
+          window.MathJax = {
+            tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              macros: {
+                  R: '{\\mathbb{R}}',
+                  N: '{\\mathbb{N}}',
+                  Z: '{\\mathbb{Z}}',
+                  Q: '{\\mathbb{Q}}',
+                  C: '{\\mathbb{C}}',
+                  ge: '{\\geq}',
+                  le: '{\\leq}'
+                }
+            },
+            svg: { fontCache: 'global' }
+          };
+          </script>
+          <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+      ]]>
+      </head>
+
+      <menu name="Documentation">
   <item name="Conceptual Overview" href="documentation/overview.html"/>
   <item name="Architecture: Main Loop" href="documentation/main.html"/>
   <item name="Architecture: Events" href="documentation/events.html"/>
@@ -40,9 +65,4 @@
 
    </menu>
   </body>
-    <custom>
-    <head>
-      <include>js/mathjax.html</include>
-    </head>
-  </custom>
 </site>
