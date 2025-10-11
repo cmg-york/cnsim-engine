@@ -321,7 +321,46 @@ public class Reporter {
 	// FLUSH METHODS - write the logs to files
 	// -----------------------------------------------------------------
 	
+    /**
+     * Flushes (writes out and clears) all report buffers maintained by the simulation reporting subsystem.
+     * <p>
+     * This method triggers the flush operations for all built-in report categories,
+     * including event, input, node, network, belief, error, and configuration reports.
+     * It also invokes {@linkplain #flushCustomReports()} to handle any user-defined or extension reports.
+     * </p>
+     * <p>
+     * This method is {@code final} to ensure that subclasses cannot override it and
+     * potentially skip mandatory flush operations.
+     * </p>
+     *
+     * <b>Implementation detail:</b> This method delegates to specific flush methods for each report type.  Subclasses should extend reporting functionality through {@link #flushCustomReports()},
+     * not by overriding this method.
+     */
+	public static final void flushAll() {
+		flushEvtReport();
+		flushInputReport();
+		flushNodeReport();
+		flushNetworkReport();
+		flushBeliefReport();
+		flushErrorReport();
+		flushConfig();
+		flushCustomReports();
+	}
 	
+    /**
+     * Flushes any custom or extension-specific reports defined outside the core reporting system.
+     * <p>
+     * This method is a no-op by default but may be extended to include
+     * additional report flush operations specific to custom modules or simulations.
+     * </p>
+     *
+     * <b>Implementation detail:</b> Subclasses or extensions may override this method to implement their
+     * own flushing behavior for additional report types.
+     */
+	public static void flushCustomReports() {
+	}
+	
+		
 	
 	/**
 	 * Save reporter's event log to file. File name is "EventLog - [Simulation Date Time].csv"

@@ -1,9 +1,11 @@
 package ca.yorku.cmg.cnsim.engine;
 
+
 import ca.yorku.cmg.cnsim.engine.event.Event;
 import ca.yorku.cmg.cnsim.engine.event.EventTimeComparator;
 import ca.yorku.cmg.cnsim.engine.event.Event_NewTransactionArrival;
 import ca.yorku.cmg.cnsim.engine.network.AbstractNetwork;
+import ca.yorku.cmg.cnsim.engine.node.Node;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -174,8 +176,9 @@ public class Simulation {
 	}
 	
 	
-	
-	
+	public void closeNodes() {
+		getNodeSet().closeNodes();
+	}
 	
 	
 	/*
