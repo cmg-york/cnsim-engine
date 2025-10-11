@@ -8,7 +8,7 @@
 ## Format
 
 ```
-<type>([optional scope]): <description>
+<type>([optional scope])-<importance>: <description>
 
 [body]
 
@@ -18,6 +18,7 @@
 
 where 
 - - `<type>` is one or more of the types below, e.g. `MILESTONE,fix`
+- `<importance>` is one of `major` or `minor`.  If omited, it is assumed to be `major` by default.
 - `[scope]` refers to the specific area that is affected e.g., `reporting`, `sampling` or `none`, `all`, and `other` -- the latter when scope is unclear
 - `<description>` title of commit 50 chars or less in imperative "change", "fix", "update" etc.
 - `[footers]` as follows:
