@@ -321,6 +321,7 @@ public class Reporter {
 	// FLUSH METHODS - write the logs to files
 	// -----------------------------------------------------------------
 	
+
     /**
      * Flushes (writes out and clears) all report buffers maintained by the simulation reporting subsystem.
      * <p>
@@ -359,8 +360,7 @@ public class Reporter {
      */
 	public static void flushCustomReports() {
 	}
-	
-		
+
 	
 	/**
 	 * Save reporter's event log to file. File name is "EventLog - [Simulation Date Time].csv"
