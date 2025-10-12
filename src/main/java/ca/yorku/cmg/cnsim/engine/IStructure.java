@@ -14,9 +14,9 @@ public interface IStructure {
 	
 	
 	/**
-	 * Checks if a transaction is part of the structure.
+	 * Checks the degree to which a transaction is believed to be true.
 	 * @param txID The ID of the transaction.
-	 * @return {@code true} if the transaction is part of the structure and {@code false} if it is not 
+	 * @return the degree of belief in the transaction 
 	 */
-	boolean transactionInStructure(long txID);
+	float transactionBelief(long txID);
 }
