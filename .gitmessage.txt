@@ -1,0 +1,37 @@
+xxx([loc])[-minor]: Short Description
+
+# xxx is one, two max of: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert, version
+# In [loc] mention package, class, or say all, other. 
+# Remove [-minor] if commit has more than just minimum changes
+
+- Description in point form
+
+% FOOTER %
+# Add below what you used for xxx. Repate the line for all relevant xxx's
+type-of: xxx1
+type-of: xxx2
+
+# Related Issues and Commits if any
+
+# If the commit closes the work item (In Progress -> Done)
+closes: URL of Jira work item
+closes-desc: [Title of Jira work item in one line]
+
+# If the related work item stays In Progress
+addresses: URL of Jira work item
+addresses-desc: [Title of Jira work item in one line]
+
+# The commit relates to a work item in an unspecified way
+relates-to: URL of Jira work item
+relates-to-desc: [Title of Jira work item in one line]
+
+# A work item that was just introduced as a result of working on this commit.
+introduces: URL of Jira work item
+introduces-descr: [Title of Jira work item in one line]
+
+# A related commit in a different repo to which this repo depends
+# Example: 
+# related-commit: 95f935e8344042e91711858e19fc3de09186224e@cnsim-engine
+related-commit: [git commit hash]@[repo simple name]
+
+
