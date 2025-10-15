@@ -48,7 +48,6 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
  * The class is thread-unsafe; concurrent modifications to log data should be externally synchronized
  * if multiple threads may report simultaneously.
  * </p>
- * TODO: concentrate all flushing in one method.
  * TODO: design conditionals. 
  * @author
  *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
@@ -287,21 +286,32 @@ public class Reporter {
      * @param tx Transaction ID
      * @param believes {@code true} if node believes transaction is valid/final, {@code false} otherwise
      * @param simTime Simulation time at which the belief is recorded
+     * @param string 
      * @see #reportBeliefsShort
      * @see BeliefEntryCounter
      */
-	public static void addBeliefEntry(int simID, int node, long tx, boolean believes, long simTime) {
-		if (Reporter.reportBeliefs) {
-			beliefLog.add(simID + "," +
-					node + "," + 
-					tx + "," +
-					believes + "," +
-					simTime);
+	public static void addBeliefEntry(int simID, int node, long tx, boolean believes, float degBelief, long simTime, boolean continuous) {
+		if (Reporter.reportsBeliefs()) {
+			if (continuous) {
+				beliefLog.add(simID + "," +
+						tx + "," +
+						degBelief + "," +
+						simTime);
+			} else {
+				beliefLog.add(simID + "," +
+						tx + "," +
+						believes + "," +
+						simTime);
+			}
 		}
 		
-		if (Reporter.reportBeliefsShort) {
-			if (believes) {
-				beliefCounter.increment(simID, tx, simTime);
+		if (Reporter.reportsBeliefsShort()) {
+			if (continuous) {
+				throw new UnsupportedOperationException("Continuous belief reporting not supported in short report.");
+			} else {
+				if (believes) {
+					beliefCounter.increment(simID, tx, simTime);
+				}
 			}
 		}
 	}
