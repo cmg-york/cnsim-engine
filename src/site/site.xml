@@ -62,7 +62,11 @@
             <item name="Plugins" href="plugins.html"/>
             <item name="Summary" href="summary.html"/>
             <item name="Team" href="team.html"/>
-
         </menu>
+       <menu name="Test Coverage Report">
+            <item name="JaCoCo Report" href="jacoco/index.html"/>
+        </menu>
+
+		
     </body>
 </site>
