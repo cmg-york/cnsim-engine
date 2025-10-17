@@ -75,14 +75,16 @@ public class Event_ContainerArrival extends Event {
         node.event_NodeReceivesPropagatedContainer(container);
         //TODO: this should be conditional on some configuration parameter
         //TODO: how this reports to the parent reporting
-        Reporter.addEvent(
-        		sim.getSimID(),
-        		this.getEvtID(), 
-        		this.getTime(), 
-        		System.currentTimeMillis() - Simulation.sysStartTime, 
-        		this.getClass().getSimpleName(), 
-        		node.getID(), 
-        		container.getID());
+		if (Reporter.reportsEvents()) {
+	        Reporter.addEvent(
+	        		sim.getSimID(),
+	        		this.getEvtID(), 
+	        		this.getTime(), 
+	        		System.currentTimeMillis() - Simulation.sysStartTime, 
+	        		this.getClass().getSimpleName(), 
+	        		node.getID(), 
+	        		container.getID());
+		}
     }
 
 }

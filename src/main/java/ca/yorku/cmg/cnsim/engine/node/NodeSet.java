@@ -178,7 +178,9 @@ public class NodeSet {
 	public void closeNodes() {
 		for (INode n:this.getNodes()) {
 			n.close(n);
-			Reporter.addNode(Simulation.currentSimulationID, n.getID(), n.getHashPower(), n.getElectricPower(), n.getElectricityCost(), n.getTotalCycles());
+			if (Reporter.reportsNodeEvents()) {
+				Reporter.addNode(Simulation.currentSimulationID, n.getID(), n.getHashPower(), n.getElectricPower(), n.getElectricityCost(), n.getTotalCycles());
+			}
 		}
 	}
 	

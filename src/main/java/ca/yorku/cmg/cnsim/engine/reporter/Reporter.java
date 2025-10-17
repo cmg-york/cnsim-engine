@@ -48,7 +48,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
  * The class is thread-unsafe; concurrent modifications to log data should be externally synchronized
  * if multiple threads may report simultaneously.
  * </p>
- * TODO: design conditionals. 
+ *
  * @author
  *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
  *
@@ -171,6 +171,45 @@ public class Reporter {
 		Reporter.reportBeliefsShort = reportBeliefsShort;
 	}
 	
+	  /**
+     * Returns whether general events are being logged.
+     *
+     * @return {@code true} if event reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsEvents() {
+        return Reporter.reportEvents;
+    }
+
+    /**
+     * Returns whether transaction events are being logged.
+     *
+     * @return {@code true} if transaction reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsTransactions() {
+        return Reporter.reportTransactions;
+    }
+
+    /**
+     * Returns whether node events are being logged.
+     *
+     * @return {@code true} if node reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsNodeEvents() {
+        return Reporter.reportNodes;
+    }
+
+    /**
+     * Returns whether network events are being logged.
+     *
+     * @return {@code true} if network event reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsNetEvents() {
+        return Reporter.reportNetEvents;
+    }
+	
+	
+	
+	
 	public static boolean reportsBeliefs() {
 		return Reporter.reportBeliefs;
 	}
@@ -245,13 +284,14 @@ public class Reporter {
      */
 	public static void addNode(int simID, int nodeID, float hashPower, float electricPower, 
 		float electricityCost, double totalCycles) {
-			if (Reporter.reportNodes)
+			if (Reporter.reportsNodeEvents()) {
 				nodeLog.add(simID + "," +
 					nodeID + "," + 
 					hashPower + "," +
 					electricPower + "," +
 					electricityCost + "," +
 					totalCycles);
+			}
 	}
 	
 	
@@ -269,7 +309,7 @@ public class Reporter {
 	 * @param simTime The time at which the event happened
 	 */
 	public static void addNetEvent(int simID, int from, int to, float bandwidth, long simTime) {
-		if (Reporter.reportNetEvents)
+		if (Reporter.reportsNetEvents())
 			netLog.add(simID + "," +
 					from + "," + 
 					to + "," +

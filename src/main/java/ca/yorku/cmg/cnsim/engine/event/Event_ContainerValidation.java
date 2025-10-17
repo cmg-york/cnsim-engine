@@ -73,15 +73,17 @@ public class Event_ContainerValidation extends Event {
         } else {
         	status = "_Abandonded";
         }
-        //TODO: this should be conditional on some configuration parameter
-        Reporter.addEvent(
-        		sim.getSimID(),
-        		getEvtID(), 
-        		getTime(), 
-        		System.currentTimeMillis() - Simulation.sysStartTime, 
-        		this.getClass().getSimpleName() + status, 
-        		node.getID(), 
-        		container.getID());
+
+        if (Reporter.reportsEvents()) {
+            Reporter.addEvent(
+            		sim.getSimID(),
+            		getEvtID(), 
+            		getTime(), 
+            		System.currentTimeMillis() - Simulation.sysStartTime, 
+            		this.getClass().getSimpleName() + status, 
+            		node.getID(), 
+            		container.getID());
+        }
     }
 
 }

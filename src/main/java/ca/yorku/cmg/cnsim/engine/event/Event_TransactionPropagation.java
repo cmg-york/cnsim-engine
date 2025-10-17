@@ -66,15 +66,16 @@ public class Event_TransactionPropagation extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesPropagatedTransaction(trans, getTime());
-        //TODO: this should be conditional on some configuration parameter
-        Reporter.addEvent(
-        		sim.getSimID(),
-        		getEvtID(), 
-        		getTime(), 
-        		System.currentTimeMillis() - Simulation.sysStartTime, 
-        		this.getClass().getSimpleName(), 
-        		node.getID(), 
-        		trans.getID());
+        if (Reporter.reportsEvents()) {
+	        Reporter.addEvent(
+	        		sim.getSimID(),
+	        		getEvtID(), 
+	        		getTime(), 
+	        		System.currentTimeMillis() - Simulation.sysStartTime, 
+	        		this.getClass().getSimpleName(), 
+	        		node.getID(), 
+	        		trans.getID());
+        }
     }
 
 }

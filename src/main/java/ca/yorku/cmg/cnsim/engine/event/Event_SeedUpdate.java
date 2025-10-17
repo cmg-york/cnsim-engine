@@ -61,13 +61,15 @@ public class Event_SeedUpdate extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         sampler.updateSeed();
-        Reporter.addEvent(
-        		sim.getSimID(),
-        		this.getEvtID(), 
-        		this.getTime(), 
-        		System.currentTimeMillis() - Simulation.sysStartTime, 
-        		this.getClass().getSimpleName(), 
-        		-1, 
-        		-1);
+        if (Reporter.reportsEvents()) {
+	        Reporter.addEvent(
+	        		sim.getSimID(),
+	        		this.getEvtID(), 
+	        		this.getTime(), 
+	        		System.currentTimeMillis() - Simulation.sysStartTime, 
+	        		this.getClass().getSimpleName(), 
+	        		-1, 
+	        		-1);
+        }
     }
 }

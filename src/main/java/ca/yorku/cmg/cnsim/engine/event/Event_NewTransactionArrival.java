@@ -68,20 +68,27 @@ public class Event_NewTransactionArrival extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesClientTransaction(transaction, getTime());
-        Reporter.addEvent(
-        		sim.getSimID(),
-        		getEvtID(), 
-        		getTime(), 
-        		System.currentTimeMillis() - Simulation.sysStartTime, 
-        		this.getClass().getSimpleName(), 
-        		node.getID(), 
-        		transaction.getID());
-        Reporter.addTx(
-        		sim.getSimID(),
-        		transaction.getID(), 
-        		transaction.getSize(), 
-        		transaction.getValue(),
-        		getTime());
+        
+        
+        if (Reporter.reportsEvents()) {
+	        Reporter.addEvent(
+	        		sim.getSimID(),
+	        		getEvtID(), 
+	        		getTime(), 
+	        		System.currentTimeMillis() - Simulation.sysStartTime, 
+	        		this.getClass().getSimpleName(), 
+	        		node.getID(), 
+	        		transaction.getID());
+        }
+        
+        if (Reporter.reportsTransactions()) {
+        	Reporter.addTx(
+            		sim.getSimID(),
+            		transaction.getID(), 
+            		transaction.getSize(), 
+            		transaction.getValue(),
+            		getTime());
+		}
         
         ProgressBar.printProgress((int) transaction.getID(),sim.totalqueuedTransactions,4);
 

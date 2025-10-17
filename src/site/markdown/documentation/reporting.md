@@ -2,7 +2,15 @@
 
 ## Overview
 
-Reporting in CNSim-Engine is handled through the `Reporter` class. The `Reporter` keeps a log of the occurrences of events of different types ("event" here not necessarily equivalently to CNSim `Event` instances). Below for each we offer: (a) an overview of what events it pertains to, (b) what method to call in order to record the event, (c) the structure of the information captured. (b) where it is the method currently called from, (d) how to enable/disable event capture, (e) how to flush the events to a file.
+### Architectural Approach
+
+Reporting in CNSim-Engine is handled through the `Reporter` class. The `Reporter` keeps a log of the occurrences of events of different types ("event" here not necessarily equivalently to CNSim `Event` instances). To log an event or other information different parts of the simulator, primarily `Node` objects, call static methods of `Reporter` adding the information to be recorded as parameters to the corresponding call. This marks a reporting action. `Reporter` maintains this information in lists that are saved to the disc once the simulation run ends. 
+
+CNSim supports a basic mechanism for reporting basic events (Standard Reporting) as well as a mechanism for triggering custom reports via designated events (Custom Reporting). Standard reporting pertains to events relating to the creation of various objects in the simulation, specifically transactions, nodes, network connections and events in general. These reports are important for reviewing the structure of the network and the workload of transactions after the simulation. However, some or all of them can be switched off for better performance.
+
+Custom reporting is implemented by having simulation objects respond to specified reporting `Event` objects, possibly but not necessarily prescheduled during simulation set-up. Processing of the event (calling of its `happens()` routine) causes the class responsible for responding to it to send reporting information to the Reporter. It is up to the implementor to decide whether the class would offer a report upon requested and what this report will be. Specializations of the `Reporter` class can be utilized for custom reports. 
+
+### Formatting and Saving Reports
 
 Currently, event logs are appended as *comma separated* Strings in various arraylists each corresponding to a different kind of event. At the end of the simulation the arraylists are saved to CSV files on the disk following a `flush[Evt Type]` call. 
 
@@ -12,7 +20,12 @@ The log files are saved at TODO
 
 TODO: create TOC here
 
+
 -----
+## Standard Reports
+
+We cover Standard reports first. For each we offer: (a) an overview of what events it pertains to, (b) what method to call in order to record the event, (c) the structure of the information captured. (b) where it is the method currently called from, (d) how to enable/disable event capture, (e) how to flush the events to a file.
+
 ### `Event` instance occurrences
 
 Keeps track of all `Event` type of objects processed. 
@@ -139,6 +152,28 @@ Records an error that signifies issues with the implementation, protocol design,
 #### Output
 - `ErrorLog - [label] - yyyy.mm.dd hh.mm.ss.txt`
 
+
+## Custom Reports
+
+### Scheduled Reports
+
+Scheduled reports are based on a set `Event` types which, once occurred, call a designated method of some other class, chiefly the node. A pre-defined set of events and designated methods are already defined in CNSim, but custom such events and methods can be easily created. By convention the event classes are called `Event_Report_[xxx]` where `[xxx]` describes the reporting action the receiving object (e.g., a node instance) is supposed to perform.
+
+| Event                           | Calls                                            |
+| ------------------------------- | ------------------------------------------------ |
+| `Event_Report_BeliefReport`     | `Node#event_PrintBeliefReport(sampleTx,simTime)` |
+| `Event_Report_NodeStatusReport` | `Node#event_NodeStatusReport(simTime)`           |
+| `Event_Report_StructureReport`  | `Node#event_PrintStructureReport(simTime)`       |
+
+The Node `event_[xxx]` methods above can be used as the implementor sees fit, through likely they will be used to call `Reporter#addBeliefEntry(...)` for registering the nodes belief, and methods that a *specialization* of the Reporter class defines for keeping track and saving to files node status reports and structure reports.
+
+### Periodic and Time Advancement Reports
+There are custom reports that are not relating to an event but are produced potentially every time `happen(...)` of `Event` is called. These are periodic and time advancement reports.
+
+**Time Advancement reports** are triggered from within `happen(...)`. The `Event` class loops around all nodes of the simulation and triggers their `Node#timeAdvancementReport()` method. The implementors can choose whether and hot to implement the latter.  
+
+**Periodic reports** are also triggered from within `happen(...)` as above: the `Event` class loops around all nodes of the simulation and triggers their `Node#periodicReport()` method. The difference is that this happens only  every `N` events where `N` is defined by the `reporter.reportingWindow` configuration parameter. So if `reporter.reportingWindow = 1000`, `Node#periodicReport()` will be called for event IDs `1000, 2000, 3000, ...`.
+
 ## Related Configuration Parameters
 
 ### Enable/Disable Parameters
@@ -151,15 +186,18 @@ Records an error that signifies issues with the implementation, protocol design,
 | `reporter.reportBeliefs`      | Set `true` to report Beliefs, `false` otherwise                | None (mandatory) |
 | `reporter.reportBeliefsShort` | Set `true` to report Beliefs (short option), `false` otherwise | None (mandatory) |
 ### Belief Report Specific  Parameters
-| Parameter                       | Description | Default          |
-| ------------------------------- | ----------- | ---------------- |
-| `reporter.beliefReportInterval` | TODO        | None (mandatory) |
-| `reporter.beliefReportOffset`   | TODO        | None (mandatory) |
+| Parameter                       | Description                                                                                                                                          | Default          |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `reporter.beliefReportInterval` | The time interval between consecutive belief report events. Used by `ReportEventFactory` to schedule reporting events.                               | None (mandatory) |
+| `reporter.beliefReportOffset`   | A time offset added to the latest known event time to determine scheduling range. Used by `ReportEventFactory` to schedule reporting events. \( * \) | None (mandatory) |
+
+\( * \)  Given that the simulation generates events during its course in addition to the initial workload, typically there will be events scheduled after the time the last transaction arrives at the system. The offset helps to ensure that these events are also captured.
+
 ### Other Parameters
-| Parameter                    | Description                                                             | Default          |
-| ---------------------------- | ----------------------------------------------------------------------- | ---------------- |
-| `reporter.reportingWindow`   | TODO                                                                    | None (mandatory) |
-| `sim.output.directory`       | TODO                                                                    | None (mandatory) |
-| `sim.experimentalLabel`      | TODO                                                                    | None (mandatory) |
-| `workload.sampleTransaction` | A set of transactions for which belief levels are recorded `{200, 203}` | TODO (Sotirios)  |
+| Parameter                    | Description                                                              | Default          |
+| ---------------------------- | ------------------------------------------------------------------------ | ---------------- |
+| `reporter.reportingWindow`   | When set to 'N' `Node#periodicReport` is called every `N` events         | None (mandatory) |
+| `sim.output.directory`       | The directory in which the log files are to be saved.                    | None (mandatory) |
+| `sim.experimentalLabel`      | Is used to construct part of the filename.                               | None (mandatory) |
+| `workload.sampleTransaction` | A set of transactions for which belief levels are recorded: `{200, 203}` | TODO (Sotirios)  |
 

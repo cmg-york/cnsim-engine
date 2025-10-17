@@ -131,7 +131,6 @@ public class Event {
     	evtID = getNextEventID();
  
     	// Every little while ask node if it wants to print any period reports.
-    	// TODO: the periodic printing should (also) be based on simulation time.
     	if ((currID % Config.getPropertyLong("reporter.reportingWindow")) == 0) {
     		for (INode n : sim.getNodeSet().getNodes()) {
     			n.periodicReport();
@@ -139,7 +138,6 @@ public class Event {
     	}
 
     	// Ask node if it wants to print Node report.
-    	// FIXME: is there a difference between time advancement report and periodic report.
 		for (INode n : sim.getNodeSet().getNodes()) {
 			n.timeAdvancementReport();
 		}
