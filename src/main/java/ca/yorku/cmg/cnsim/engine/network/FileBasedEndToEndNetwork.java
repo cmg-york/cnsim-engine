@@ -3,6 +3,7 @@ package ca.yorku.cmg.cnsim.engine.network;
 
 import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
+import ca.yorku.cmg.cnsim.engine.node.PoWNodeSet;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

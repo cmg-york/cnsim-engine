@@ -19,24 +19,18 @@ import java.util.ArrayList;
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  * 
  */
-public abstract class Node implements INode {
+public abstract class Node implements IMiner {
 
-	private static int currID = 1;
+	protected static int currID = 1;
 	protected int ID;
 	
 	protected Simulation sim;
-	
-	protected float hashPower;
-	protected float electricPower;
-	protected float electricityCost;
-	protected double totalCycles = 0;
-	protected double prospectiveMiningCycles = 0;
 	
 	protected String behaviorType;
 	protected TransactionGroup pool;
 	protected Event nextValidationEvent;
 	
-	private boolean isMining = false;
+
 	
 
 	
@@ -47,18 +41,8 @@ public abstract class Node implements INode {
 		super();
         this.sim = sim;
         pool = new TransactionGroup();
-        //setNetwork(sim.getNetwork());
         ID = getNextNodeID();
 	}
-
-	
-	
-	//
-	// I D   M A N A G E M E N T
-	//
-	@Deprecated
-	public void ______________________ID() {} 
-	
 
 	
 
@@ -66,49 +50,6 @@ public abstract class Node implements INode {
 	// -----------------------------------------------------------------
 	// A C T I O N S
 	// -----------------------------------------------------------------
-
-	
-	
-	// -----------------------------------------------------------------
-	// MINING MANAGEMENT
-	// -----------------------------------------------------------------
-		
-
-	
-	/**
-	 * Starts mining with the specified expected mining interval. 
-	 * The interval may be based on when the next validation event takes place.  
-	 * @param interval The mining interval (in seconds).
-	 */
-	public void startMining(double interval) {
-		prospectiveMiningCycles = interval*this.getHashPower();
-		isMining = true;
-	}
-
-	/**
-	 * Starts mining without specifying an expected mining interval.
-	 */
-	public void startMining() {
-		isMining = true;
-	}
-	
-	
-	/**
-	 * Checks if the node is currently mining.
-	 * @return true if the node is mining, false otherwise.
-	 */
-	public boolean isMining() {
-	    return isMining;
-	}
-
-
-	/**
-	 * Stops mining
-	 */
-	public void stopMining() {
-		isMining = false;
-	}
-
 	
 	
 	// -----------------------------------------------------------------
@@ -196,36 +137,6 @@ public abstract class Node implements INode {
 	    }
 	}
 
-	// -----------------------------------------------------------------
-	// CYCLE COUNTING AND COST CALCULATIONS
-	// -----------------------------------------------------------------
-	
-	/**
-	 * Adds the specified number of cycles to the total cycles of the node.
-	 * @param c The number of cycles to be added. 
-	 */
-	public void addCycles(double c) {
-		totalCycles += c;
-	}
-	
-	/**
-	 * See ({@linkplain INode#getTotalCycles()}
-	 */
-	@Override
-	public double getTotalCycles() {
-		return totalCycles;
-	}
-	
-	/**
-	 * See {@linkplain INode#getCostPerGH()}
-	 */
-	@Override
-	public double getCostPerGH() {
-		//[ [electrictiyCost ($/kWh) * electricPower (W) / 1000 (W/kW)] /  [3600 (s/h) * hashPower (GH/s)]]
-		return ( (electricityCost * electricPower / 1000) / (3600 * hashPower) );
-	}
-
-
 	
 	// -----------------------------------------------------------------
 	// GETTERS AND SETTERS
@@ -288,47 +199,8 @@ public abstract class Node implements INode {
 	}
 
 
-	//
-	// SIMPLE SET/GET
-	//
 	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public void setHashPower(float hashpower) {
-		if(hashpower < 0 )
-			throw new ArithmeticException("Hash Power < 0");
-	    this.hashPower = hashpower;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public float getHashPower() {
-	    return hashPower;
-	}
-	
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public void setElectricityCost(float electricityCost) {
-		if(electricityCost < 0 )
-			throw new ArithmeticException("Electricity Cost < 0");
-	    this.electricityCost = electricityCost;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
-	 */
-	@Override
-	public float getElectricityCost() {
-	    return electricityCost;
-	}
-
-	/**
-	 * See ({@linkplain INode} interface.
+	 * See ({@linkplain IMiner} interface.
 	 */
 	@Override
 	public String getBehavior() {
@@ -336,7 +208,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * See ({@linkplain INode} interface.
+	 * See ({@linkplain IMiner} interface.
 	 */
 	@Override
 	public void setBehavior(String type) {
@@ -344,33 +216,13 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * See ({@linkplain INode} interface.
+	 * See ({@linkplain IMiner} interface.
 	 */
 	@Override
 	public float getAverageConnectedness() {
 		return(sim.getNetwork().getAvgTroughput(getID()));
 	}
 
-
-	/**
-	 * See {@linkplain INode#getElectricPower()}
-	 */
-	@Override
-	public float getElectricPower() {
-		return this.electricPower;
-	}
-
-	
-	/**
-	 * See {@linkplain INode#setElectricPower(float)}
-	 */
-	@Override
-	public void setElectricPower(float power) {
-		this.electricPower = power;
-		
-	}
-	
-	
 
 	
 	
@@ -418,25 +270,20 @@ public abstract class Node implements INode {
 	
 	
 	/**
-	 * See {@linkplain INode#event_NodeCompletesValidation(ITxContainer, long)}
-	 * TODO: prospectiveMiningCycles must be removed from here, they are inaccurate, in cases of cancellation.
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void event_NodeCompletesValidation(ITxContainer t, long time) {
-		addCycles(prospectiveMiningCycles);
-		prospectiveMiningCycles = 0;
-	}
+	public abstract void event_NodeCompletesValidation(ITxContainer t, long time);
 
 	/**
-	 * See {@linkplain INode#event_NodeReceivesPropagatedTransaction(Transaction, long)}
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void event_NodeReceivesPropagatedTransaction(Transaction t, long time) {
-	}
+	public abstract void event_NodeReceivesPropagatedTransaction(Transaction t, long time);
 
 
 	/**
-	 * See {@linkplain INode#event_PrintPeriodicReport(long)}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void event_PrintPeriodicReport(long time) {
@@ -446,7 +293,7 @@ public abstract class Node implements INode {
 
 
 	/**
-	 * See {@linkplain INode#event_PrintBeliefReport(long[], long)}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void event_PrintBeliefReport(long[] sample, long time) {
@@ -455,7 +302,7 @@ public abstract class Node implements INode {
 	}
 
 	/**
-	 * See {@linkplain INode#event_PrintStructureReport(long)}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void event_PrintStructureReport(long time) {
@@ -464,7 +311,7 @@ public abstract class Node implements INode {
 
 
 	/**
-	 * See {@linkplain INode#event_PrintStructureReport(long)}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void event_NodeStatusReport(long time) {

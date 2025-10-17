@@ -2,12 +2,11 @@ package ca.yorku.cmg.cnsim.engine.node;
 
 import ca.yorku.cmg.cnsim.engine.IStructure;
 import ca.yorku.cmg.cnsim.engine.Simulation;
-import ca.yorku.cmg.cnsim.engine.node.INode;
-import ca.yorku.cmg.cnsim.engine.node.Node;
+import ca.yorku.cmg.cnsim.engine.node.PoWNode;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
-public class NodeStub extends Node {
+public class NodeStub extends PoWNode {
 
     public NodeStub(Simulation sim) {
         super(sim);

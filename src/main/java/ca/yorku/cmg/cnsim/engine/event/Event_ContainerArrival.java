@@ -1,6 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
@@ -39,7 +40,7 @@ public class Event_ContainerArrival extends Event {
     
     /**
      * Constructs a new {@code Event_ContainerArrival} representing the arrival
-     * of a specific {@linkplain ITxContainer} at a given {@linkplain INode}.
+     * of a specific {@linkplain ITxContainer} at a given {@linkplain IMiner}.
      *
      * @param txc  the container (block or transaction group) that has arrived
      * @param n    the node receiving the container

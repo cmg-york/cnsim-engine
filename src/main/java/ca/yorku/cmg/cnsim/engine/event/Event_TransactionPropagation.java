@@ -1,6 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -8,7 +9,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 /**
  * Represents an event for the propagation of a transaction within the simulation.
  * <p>
- * When this event occurs, a specific {@linkplain INode node} receives a
+ * When this event occurs, a specific {@linkplain IMiner node} receives a
  * propagated {@linkplain Transaction transaction} from another node (not from a client). 
  * The event triggers the node's transaction propagation logic and logs the event using
  * {@linkplain Reporter}.
@@ -40,7 +41,7 @@ public class Event_TransactionPropagation extends Event {
      * Constructs a new {@code Event_TransactionPropagation}.
      *
      * @param t     the {@linkplain Transaction transaction} being propagated
-     * @param n     the {@linkplain INode node} receiving the transaction
+     * @param n     the {@linkplain IMiner node} receiving the transaction
      * @param time  the simulation time at which the event occurs
      */
     public Event_TransactionPropagation(Transaction t, INode n, long time){

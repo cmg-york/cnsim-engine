@@ -2,6 +2,7 @@ package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.ProgressBar;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;

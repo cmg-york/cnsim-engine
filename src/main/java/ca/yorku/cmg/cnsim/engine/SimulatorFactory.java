@@ -5,6 +5,7 @@ import ca.yorku.cmg.cnsim.engine.network.AbstractNetwork;
 import ca.yorku.cmg.cnsim.engine.network.FileBasedEndToEndNetwork;
 import ca.yorku.cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
+import ca.yorku.cmg.cnsim.engine.node.PoWNodeSet;
 import ca.yorku.cmg.cnsim.engine.reporter.ReportEventFactory;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.sampling.factories.NetworkSamplerFactory;
@@ -28,7 +29,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
  * <ol>
  *     <li>Create and attach a {@linkplain Sampler} to the {@linkplain Simulation}.</li>
  *     <li>Add node, network, and transaction samplers to the sampler.</li>
- *     <li>Create a {@linkplain NodeSet} using the subclass’s implementation.</li>
+ *     <li>Create a {@linkplain PoWNodeSet} using the subclass’s implementation.</li>
  *     <li>Build and attach a network.</li>
  *     <li>Create and schedule a transaction workload.</li>
  *     <li>Schedule periodic belief reports.</li>

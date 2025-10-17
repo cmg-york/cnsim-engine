@@ -2,6 +2,7 @@ package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.config.Config;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -121,7 +122,7 @@ public class Event {
      *   <li>Assigns a unique event ID.</li>
      *   <li>Triggers periodic reporting on all nodes based on the
      *       configured reporting window (see {@linkplain Config}).</li>
-     *   <li>Triggers a time advancement report on each {@linkplain INode}.</li>
+     *   <li>Triggers a time advancement report on each {@linkplain IMiner}.</li>
      * </ul>
      * Subclasses typically override this method to implement specific behaviors. Howver, Subclasses must call {@code super.happen(sim)} to allow the base functionality to execute.
      * TODO: introduce template method pattern to enforce calling super.happen(sim)
@@ -156,7 +157,7 @@ public class Event {
      *
      * @param msg   A message prefix to display.
      * @param tx    The relevant {@linkplain Transaction} instance.
-     * @param n     The relevant {@linkplain INode} instance.
+     * @param n     The relevant {@linkplain IMiner} instance.
      * @param tim   The simulation time.
      * @param delay The delay (in milliseconds) before continuing execution.
      */
@@ -174,7 +175,7 @@ public class Event {
      *
      * @param msg   A message prefix to display.
      * @param txc   The relevant {@linkplain ITxContainer} instance.
-     * @param n     The relevant {@linkplain INode} instance.
+     * @param n     The relevant {@linkplain IMiner} instance.
      * @param tim   The simulation time.
      * @param delay The delay (in milliseconds) before continuing execution.
      */

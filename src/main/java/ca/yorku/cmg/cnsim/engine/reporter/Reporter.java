@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import ca.yorku.cmg.cnsim.engine.config.Config;
-import ca.yorku.cmg.cnsim.engine.node.Node;
+import ca.yorku.cmg.cnsim.engine.node.PoWNode;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 /**
@@ -52,7 +52,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
  * @author
  *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
  *
- * @see Node
+ * @see PoWNode
  * @see Transaction
  * @see Config
  */

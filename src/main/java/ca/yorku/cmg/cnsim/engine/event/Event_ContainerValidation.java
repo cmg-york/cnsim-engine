@@ -1,6 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
@@ -8,7 +9,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 /**
  * Represents a simulation event where a node validates a container, such as a block.
  * <p>
- * This event occurs when a specific {@linkplain INode node} completes the validation
+ * This event occurs when a specific {@linkplain IMiner node} completes the validation
  * of a {@linkplain ITxContainer container}. Upon execution, the node's validation
  * logic is invoked, and a corresponding event record is added to the
  * {@linkplain Reporter Reporter}.
@@ -42,7 +43,7 @@ public class Event_ContainerValidation extends Event {
      * Constructs a new {@code Event_ContainerValidation}.
      *
      * @param txc   the {@linkplain ITxContainer container} to validate
-     * @param n     the {@linkplain INode node} performing the validation
+     * @param n     the {@linkplain IMiner node} performing the validation
      * @param time  the simulation time at which this event occurs
      */
     public Event_ContainerValidation(ITxContainer txc, INode n, long time){

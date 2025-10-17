@@ -4,7 +4,7 @@ import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
 /**
- * Abstract factory class for creating {@link INode} instances.
+ * Abstract factory class for creating {@link IMiner} instances.
  * <p>
  * Holds references to the {@link Simulation} and {@link Sampler} objects,
  * which can be used by subclasses to configure newly created nodes.
