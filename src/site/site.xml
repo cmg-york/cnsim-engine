@@ -48,6 +48,7 @@
             <item name="Required Style" href="contributors/formatting.html"/>
             <item name="Git Main Worklow" href="contributors/git-workflow.html"/>
             <item name="Commit Conventions" href="contributors/commits.html"/>
+            <item name="Git and Commit Habits" href="contributors/git-habits.html"/>
             <item name="Documentation Workflow" href="contributors/documentation.html"/>
             <item name="Release Workflow" href="contributors/release.html"/>
             <item name="Deployment Workflow" href="contributors/deploy.html"/>
