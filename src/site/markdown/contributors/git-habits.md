@@ -43,7 +43,7 @@ However, frequent commits may not be atomic. They may not pass tests and individ
 The solution is to reorganize the intermediate commits (especially for messy messages or exploratory commits).
 Before merging into the main branch, you can:
 1. Squash intermediate commits (be aware that the result should be small and single-purpose)
-2. Use `git rebase -i` (interactive rebase) to reorder, squash/combine, edit, or delete commits.
+2. Use `git rebase -i` (interactive rebase) to reorder, squash/combine, edit, or delete commits
 3. Perform a soft reset on your branch and create new commits with `git add -p` (partial committing or committing specific "hunks" of change)
 
 
@@ -59,6 +59,7 @@ Also, thoroughly test your code before pushing/sharing it with others (especiall
 ## Meaningful Commit Messages
 - Describe what change was made, how it resolves an issue/need, and why it was made
 - Follow the established commit standards (usually some form of Conventional Commit)
+  - Please see our [Commit Conventions and Structure Guide](./commits.md) for more detail
 - Clear messages are beneficial for code reviews and for understanding project history
 
 ## Pull from the main branch often
@@ -82,6 +83,8 @@ For more complex rewrites, use `git rebase -i`
 # Example: Combine the last 3 commits interactively
 git rebase -i HEAD~3
 ```
+
+> Caution: use rebase only if you understand the command and you are on a personal branch.
 
 > Note: Commits are immutable.
 > Both `amend` and `rebase` create new commits (with new SHAs), so it is safer to do them locally.
