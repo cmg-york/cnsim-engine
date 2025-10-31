@@ -60,7 +60,7 @@ This creates:
 
 ##### Add SSH key to the ssh-agent
 
-<details close>
+<details>
   <summary>Windows</summary>
 
 ```bash
@@ -74,7 +74,7 @@ ssh-add ~/.ssh/id_ed25519
 </details>
 
 
-<details close>
+<details>
   <summary>macOS</summary>
 
 ```bash
@@ -215,7 +215,7 @@ What this does:
 
 
 
-<details close>
+<details>
   <summary>What to do if <code>&lt;pushChanges&gt;</code> is false?</summary>
 
 You can keep the prepare-made tag and push it (tag on release-branch commit).
@@ -229,7 +229,7 @@ git push origin v0.1.1
 
 </details>
 
-<details close>
+<details>
   <summary>How to undo a failed <code>release:prepare</code>?</summary>
 
 To restore the POM to the state before `release:prepare`, clean up generated temp/backup files, and
@@ -240,7 +240,7 @@ mvn release:rollback
 </details>
 
 
-<details close>
+<details>
   <summary>How to resolve <code>Permission denied (publickey)</code>?</summary>
 
 You may encounter this error. For instance:
