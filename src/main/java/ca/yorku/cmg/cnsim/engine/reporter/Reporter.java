@@ -317,20 +317,14 @@ public class Reporter {
 	}
 	
 	
-    /**
-     * Adds a belief entry for a node about a transaction. If {@code reportBeliefsShort} is enabled, the belief counter is also updated, to be later be used for a compact report.
-     *
-     * @param simID Simulation ID
-     * @param node Node ID
-     * @param tx Transaction ID
-     * @param believes {@code true} if node believes transaction is valid/final, {@code false} otherwise
-     * @param simTime Simulation time at which the belief is recorded
-     * @param string 
-     * @see #reportBeliefsShort
-     * @see BeliefEntryCounter
-     */
-	
-	
+	/**
+	 * Adds an entry to the belief log with information about a node's belief on a transaction.
+	 * @param simID The simulation ID.
+	 * @param node The node ID expressing the belief.
+	 * @param tx The transaction ID about which the belief is expressed.
+	 * @param degBelief The degree of belief (e.g., 1 for believes, 0 for does not believe).
+	 * @param simTime The simulation time at which the belief is recorded.
+	 */
 	public static void addBeliefEntry(
 			int simID, 
 			int node, 

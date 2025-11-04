@@ -2,6 +2,8 @@ package ca.yorku.cmg.cnsim.engine.node;
 
 import java.util.ArrayList;
 
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+
 public abstract class NodeSet {
 
 	/** The list of nodes participating in this network. */
@@ -52,7 +54,7 @@ public abstract class NodeSet {
 	 * Performs cleanup and final reporting for all nodes in this {@code NodeSet}.
 	 * <p>
 	 * This typically occurs at the end of a simulation run. Each node is closed
-	 * and its statistics are recorded using {@linkplain Reporter#addNode(int, int, float, float, float, float)}.
+	 * and its statistics are recorded using {@linkplain Reporter#addNode(int, int, float, float, float, double)}.
 	 * </p>
 	 */
 	public abstract void closeNodes();
