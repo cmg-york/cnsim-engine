@@ -6,88 +6,86 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 /**
- * Maintains a count of {@linkplain BeliefEntry} occurrences for a simulation.
- * <p>
- * Each {@code BeliefEntryCounter} keeps track of how many times each belief entry
- * (identified by simulation ID, transaction ID, and simulation time) has been recorded.
- * This is useful for producing summarized belief reports.
- * </p>
+ * Maintains average values for {@linkplain BeliefEntry} occurrences for generating
+ * short belief reporting.  
  * 
- * <p>
- * Internally, this class uses a {@linkplain HashMap} with {@linkplain BeliefEntry} as keys
- * and {@linkplain Integer} as values. The {@link #increment(int, long, long)} method
- * updates the count of a specific belief entry, while {@link #getCount(int, long, long)}
- * retrieves the current count. The {@link #getEntries()} method returns a sorted list
- * of all entries in the format:
- * <pre>
- * simID, txID, time, count
- * </pre>
- * sorted first by {@code simID}, then {@code txID}, then {@code time}.
+ * Specifically when nodes are asked to report their beliefs on a sample of transactions
+ * they register their degree of belief (e.g. 1 or 0) by simply calling {@linkplain BeliefEntryCounter#add(int, long, long, float)} in which for a given Simulation ID, Transaction ID, and Simulation Time a value is provided. The class maintains a running average for each unique BeliefEntry. 
  * 
- * <p>
- * This class is intended to be used by {@linkplain Reporter} for reporting short belief logs.
- * </p>
- * @see Reporter
- * @see BeliefEntry
- * @author
- *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * This aleviates the need to store all individual belief values for each node and aggregating 
+ * a large belief file as activating the (long) belief reporting feature does.
+ * 
+ *  
+ * @author Sotirios Liaskos for the Conceptual Modeling Group, York University
+ * 
  */
 public class BeliefEntryCounter {
-	
-    /** Internal map storing each BeliefEntry and its count. */
-    private final Map<BeliefEntry, Integer> counts = new HashMap<>();
+
+    /** Internal map storing each BeliefEntry and its running average + count. */
+    private final Map<BeliefEntry, AvgTracker> values = new HashMap<>();
 
     /**
-     * Increments the count of the belief entry specified by the simulation ID,
-     * transaction ID, and simulation time. If the entry does not exist yet, it is added with count 1.
+     * Adds a value for the belief entry specified by simulation ID,
+     * transaction ID, and simulation time. Updates the running average.
      *
      * @param simID the simulation ID
      * @param txID the transaction ID
      * @param time the simulation time at which the belief is recorded
+     * @param value the new value to incorporate
      */
-    public void increment(int simID, long txID, long time) {
-    	BeliefEntry key = new BeliefEntry(simID, txID, time);
-        counts.put(key, counts.getOrDefault(key, 0) + 1);
+    public void add(int simID, long txID, long time, float value) {
+        BeliefEntry key = new BeliefEntry(simID, txID, time);
+        values.compute(key, (k, tracker) -> {
+            if (tracker == null) tracker = new AvgTracker();
+            tracker.add(value);
+            return tracker;
+        });
     }
 
     /**
-     * Returns the current count of a belief entry identified by simulation ID,
-     * transaction ID, and simulation time.
+     * Returns the current average value of a belief entry.
      *
      * @param simID the simulation ID
      * @param txID the transaction ID
-     * @param time the simulation time at which the belief was recorded
-     * @return the number of times this belief entry has been recorded, or 0 if not recorded
+     * @param time the simulation time
+     * @return the average of all added values, or 0 if none
      */
-    public int getCount(int simID, long txID, long time) {
-        return counts.getOrDefault(new BeliefEntry(simID, txID, time), 0);
+    public float getAverage(int simID, long txID, long time) {
+        AvgTracker tracker = values.get(new BeliefEntry(simID, txID, time));
+        return tracker != null ? tracker.getAverage() : 0f;
     }
 
     /**
-     * Returns all belief entries with their counts as a list of strings.
-     * <p>
-     * Each string is in the format:
-     * <pre>
-     * simID, txID, time, count
-     * </pre>
-     * Entries are sorted by {@code simID}, then {@code txID}, then {@code time}.
-     *
-     * @return an {@linkplain ArrayList} of strings representing all belief entries and their counts
+     * Returns all belief entries with their averages as a list of strings.
+     * Format: simID, txID, time, average
      */
     public ArrayList<String> getEntries() {
-        return (ArrayList<String>) counts.entrySet().stream()
+        return (ArrayList<String>) values.entrySet().stream()
             .sorted(Comparator
-                .comparing((Map.Entry<BeliefEntry, Integer> e) -> e.getKey().getSimID())
+                .comparing((Map.Entry<BeliefEntry, AvgTracker> e) -> e.getKey().getSimID())
                 .thenComparing(e -> e.getKey().getTxID())
                 .thenComparing(e -> e.getKey().getTime())
             )
             .map(e -> e.getKey().getSimID() + ", " +
                       e.getKey().getTxID() + ", " +
                       e.getKey().getTime() + ", " +
-                      e.getValue())
+                      e.getValue().getAverage())
             .collect(Collectors.toList());
     }
 
+    /** Helper class to track running average using incremental formula. */
+    private static class AvgTracker {
+        private float average = 0f;
+        private int count = 0;
+
+        void add(float value) {
+            average += (value - average) / (count + 1); // incremental formula
+            count++;
+        }
+
+        float getAverage() {
+            return average;
+        }
+    }
 }

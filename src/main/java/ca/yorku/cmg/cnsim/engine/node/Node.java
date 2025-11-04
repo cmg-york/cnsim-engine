@@ -298,7 +298,6 @@ public abstract class Node implements IMiner {
 	@Override
 	public void event_PrintBeliefReport(long[] sample, long time) {
 		this.beliefReport(sample, time);
-		
 	}
 
 	/**

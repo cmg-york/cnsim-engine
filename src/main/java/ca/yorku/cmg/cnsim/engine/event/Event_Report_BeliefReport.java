@@ -2,8 +2,8 @@ package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.config.Config;
-import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 
 /**
  * Represents an event that triggers a belief report for all nodes in the simulation, relative to a set of sample transactions, defined in the configuration.
@@ -54,5 +54,15 @@ public class Event_Report_BeliefReport extends Event {
 		for (INode n : sim.getNodeSet().getNodes()) {
 			n.event_PrintBeliefReport(sampleTx,this.getTime());
 		}
+        if (Reporter.reportsEvents()) {
+	        Reporter.addEvent(
+	        		sim.getSimID(),
+	        		getEvtID(), 
+	        		getTime(), 
+	        		System.currentTimeMillis() - Simulation.sysStartTime, 
+	        		this.getClass().getSimpleName(), 
+	        		-1, 
+	        		-1);
+        }
     }
 }

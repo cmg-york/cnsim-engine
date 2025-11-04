@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.PoWNode;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -208,8 +209,6 @@ public class Reporter {
     }
 	
 	
-	
-	
 	public static boolean reportsBeliefs() {
 		return Reporter.reportBeliefs;
 	}
@@ -330,29 +329,24 @@ public class Reporter {
      * @see #reportBeliefsShort
      * @see BeliefEntryCounter
      */
-	public static void addBeliefEntry(int simID, int node, long tx, boolean believes, float degBelief, long simTime, boolean continuous) {
+	
+	
+	public static void addBeliefEntry(
+			int simID, 
+			int node, 
+			long tx, 
+			float degBelief, 
+			long simTime) {
 		if (Reporter.reportsBeliefs()) {
-			if (continuous) {
-				beliefLog.add(simID + "," +
-						tx + "," +
-						degBelief + "," +
-						simTime);
-			} else {
-				beliefLog.add(simID + "," +
-						tx + "," +
-						believes + "," +
-						simTime);
-			}
+			beliefLog.add(simID + "," +
+					node + "," +
+					tx + "," +
+					degBelief + "," +
+					simTime);
 		}
-		
+
 		if (Reporter.reportsBeliefsShort()) {
-			if (continuous) {
-				throw new UnsupportedOperationException("Continuous belief reporting not supported in short report.");
-			} else {
-				if (believes) {
-					beliefCounter.increment(simID, tx, simTime);
-				}
-			}
+			beliefCounter.add(simID, tx, simTime, degBelief);
 		}
 	}
 	
@@ -508,9 +502,7 @@ public class Reporter {
 		if (Reporter.reportBeliefsShort) {
 			try {
 				writer = new FileWriter(path + "BeliefLogShort - " + runId + ".csv");
-				for(String str: beliefLogShort) {
-					  writer.write(str + System.lineSeparator());
-				}
+				writer.write("SimID, Transaction ID, Time (ms from start), Belief\n");
 				for(String str: beliefCounter.getEntries()) {
 					  writer.write(str + System.lineSeparator());
 				}
@@ -519,7 +511,6 @@ public class Reporter {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	
