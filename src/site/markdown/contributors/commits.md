@@ -1,3 +1,12 @@
+---
+main_authors: ["Nina Dang <nina2022@my.yorku.ca>"]
+
+contributors: ["Sotirios Liaskos <liaskos@yorku.ca>"]
+
+reviewers: [""]
+
+---
+
 # Commit Conventions and Principles
 
 ## Principles
