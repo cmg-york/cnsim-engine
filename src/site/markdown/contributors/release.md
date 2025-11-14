@@ -1,3 +1,12 @@
+---
+main_authors: ["Nina Dang <nina2022@my.yorku.ca>"]
+
+contributors: [""]
+
+reviewers: ["Sotirios Liaskos <liaskos@yorku.ca>"]
+
+---
+
 # Release Workflow
 ### *(under construction)*
 \[ concrete `mvn` and `git` steps to produce the next release. Separate from deployment. \]

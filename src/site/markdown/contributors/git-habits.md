@@ -1,3 +1,12 @@
+---
+main_authors: ["Nina Dang <nina2022@my.yorku.ca>"]
+
+contributors: [""]
+
+reviewers: ["Sotirios Liaskos <liaskos@yorku.ca>"]
+
+---
+
 # Good Git and Commit Habits
 
 <!-- TOC -->
