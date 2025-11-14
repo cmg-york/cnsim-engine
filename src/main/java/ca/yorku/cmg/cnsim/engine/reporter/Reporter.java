@@ -375,7 +375,7 @@ public class Reporter {
      * <b>Implementation detail:</b> This method delegates to specific flush methods for each report type.  Subclasses should extend reporting functionality through {@link #flushCustomReports()},
      * not by overriding this method.
      */
-	public static final void flushAll() {
+	public static void flushAll() {
 		flushEvtReport();
 		flushInputReport();
 		flushNodeReport();
