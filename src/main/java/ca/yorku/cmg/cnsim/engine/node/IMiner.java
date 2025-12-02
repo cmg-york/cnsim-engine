@@ -81,10 +81,4 @@ public interface IMiner extends INode {
      */
     public double getTotalCycles();
     
-	
-	
-	
-
-    
-    
 }

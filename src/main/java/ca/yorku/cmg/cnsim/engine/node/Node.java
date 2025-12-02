@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  * 
  */
-public abstract class Node implements IMiner {
+public abstract class Node implements INode {
 
 	protected static int currID = 1;
 	protected int ID;
@@ -29,6 +29,8 @@ public abstract class Node implements IMiner {
 	protected String behaviorType;
 	protected TransactionGroup pool;
 	protected Event nextValidationEvent;
+	
+	protected long networkInterfaceBusyUntil = -1;
 	
 
 	
@@ -44,7 +46,14 @@ public abstract class Node implements IMiner {
         ID = getNextNodeID();
 	}
 
-	
+	// 
+	//   For testing only
+	//
+	public Node() {
+		super();
+        pool = new TransactionGroup();
+        ID = getNextNodeID();
+	}
 
 
 	// -----------------------------------------------------------------
@@ -92,6 +101,88 @@ public abstract class Node implements IMiner {
 	// -----------------------------------------------------------------
 	
 	/**
+	 * Computes the end time of the next transmission starting at or after the given
+	 * current time, taking into account the time until which the network interface
+	 * is already busy.
+	 *
+	 * <p>If the interface is free at {@code currTime}, meaning either it has never
+	 * been used (busy time = -1) or its busy-until time is earlier than
+	 * {@code currTime}, then the next transmission begins immediately at
+	 * {@code currTime} and ends at {@code currTime + transDuration}.
+	 *
+	 * <p>If the interface is still busy at {@code currTime}, the next transmission
+	 * begins only after {@code networkInterfaceBusyUntil}, and ends at
+	 * {@code networkInterfaceBusyUntil + transDuration}.
+	 *
+	 * @param currTime       the current simulation time (must be ≥ 0)
+	 * @param transDuration  the duration of the transmission (must be ≥ 0)
+	 * @return the time at which the next transmission will end
+	 */
+	 /*@ 
+	   @ requires currTime >= 0;
+	   @ requires transDuration >= 0;
+	   @
+	   @ // Case 1: interface free or never used
+	   @ ensures (networkInterfaceBusyUntil == -1 
+	   @          || networkInterfaceBusyUntil < currTime)
+	   @        ==> \result == currTime + transDuration;
+	   @
+	   @ // Case 2: interface busy past currTime
+	   @ ensures (networkInterfaceBusyUntil != -1
+	   @          && networkInterfaceBusyUntil >= currTime)
+	   @        ==> \result == networkInterfaceBusyUntil + transDuration;
+	   @
+	   @ // Result is always at least currTime
+	   @ ensures \result >= currTime;
+	   @
+	   @ // Does not modify object state
+	   @ assignable \nothing;
+	   @*/
+	public long getNextTransmissionEndTime(long currTime, long transDuration) {
+		long returnTime;
+
+		if (currTime < 0 || transDuration < 0) {
+			throw new RuntimeException("Both arguments must be non-negative.");
+		}
+		
+		if ((networkInterfaceBusyUntil == -1) || (networkInterfaceBusyUntil < currTime )) {
+			//Uninitalized or last transmission ended in the past.
+			returnTime = currTime + transDuration;
+		} else { 
+			//Last transmission ends at networkInterfaceBusyUntil
+			returnTime = networkInterfaceBusyUntil + transDuration;
+		}
+		
+		if (returnTime < currTime) {
+			throw new RuntimeException("Next scheduled time is less than the current time.");
+		}
+		
+		return(returnTime);
+	}
+
+	/**
+	 * Sets the time until which the network interface is considered busy.
+	 *
+	 * <p>A value of -1 may be used to indicate that the interface has never been
+	 * used or is currently idle with no pending transmissions.
+	 *
+	 * @param latestBusyUntil the simulation time at which the interface will become free again
+	 */
+	 /*@
+	   @ // Allow any non-negative busy-until time
+	   @ requires latestBusyUntil >= 0;
+	   @
+	   @ // State update: the field must equal the argument afterward
+	   @ ensures networkInterfaceBusyUntil == latestBusyUntil;
+	   @
+	   @ // Only this field is modified
+	   @ assignable networkInterfaceBusyUntil;
+	   @*/
+	public void setNetworkInterfaceBusyUntil(long latestBusyUntil) {
+		networkInterfaceBusyUntil  = latestBusyUntil;
+	}
+	
+	/**
 	 * Propagates the specified transaction container to other nodes in the simulation.
 	 * TODO: All time references should be on a global time parameter. 
 	 * @param txc The transaction container to be propagated.
@@ -103,8 +194,10 @@ public abstract class Node implements IMiner {
 	    for (INode n : ns_list) {
 	        if (!n.equals(this)){
 	            long inter = sim.getNetwork().getPropagationTime(this.getID(), n.getID(), txc.getSize());
-	            Event_ContainerArrival e = new Event_ContainerArrival(txc, n, time + inter);
+	            long scheduleTime = getNextTransmissionEndTime(time, inter);
+	            Event_ContainerArrival e = new Event_ContainerArrival(txc, n, scheduleTime);
 	            sim.schedule(e);
+	            setNetworkInterfaceBusyUntil(scheduleTime);
 	        }
 	    }
 	}
@@ -121,6 +214,7 @@ public abstract class Node implements IMiner {
 	    for (INode n : ns_list) {
 	        if (!n.equals(this)){
 	            long inter = sim.getNetwork().getPropagationTime(this.getID(), n.getID(), t.getSize());
+	            
 	            if (inter<0) {
 	            	String error = "Error in 'propagateTransaction' Negative interval between " + this.getID() + " and " + n.getID() + " for size " + t.getSize() + " of transaction " + t.getID() +  " interval is " + inter;
 	            	Reporter.addErrorEntry(error);
@@ -129,10 +223,12 @@ public abstract class Node implements IMiner {
 	            }
 
 	            //TODO: do something more elaborate perhaps
-	            inter+= Config.getPropertyInt("net.propagationTime");
+	            inter += Config.getPropertyInt("net.propagationTime");
 	            
-	            Event_TransactionPropagation e = new Event_TransactionPropagation(t, n, time + inter);
+	            long scheduleTime = getNextTransmissionEndTime(time, inter);
+	            Event_TransactionPropagation e = new Event_TransactionPropagation(t, n, scheduleTime);
 	            sim.schedule(e);
+	            setNetworkInterfaceBusyUntil(scheduleTime);
 	        }
 	    }
 	}
@@ -153,7 +249,6 @@ public abstract class Node implements IMiner {
 	public static int getNextNodeID() {
 	    return(currID++);
 	}
-
 
 	/**
 	 * Resets the next available ID to 1. To be used for moving to the next experiment.
@@ -198,9 +293,9 @@ public abstract class Node implements IMiner {
 	    return pool;
 	}
 
-
 	/**
 	 * See ({@linkplain IMiner} interface.
+	 * TODO: remove this!
 	 */
 	@Override
 	public String getBehavior() {
@@ -209,6 +304,7 @@ public abstract class Node implements IMiner {
 
 	/**
 	 * See ({@linkplain IMiner} interface.
+	 * TODO: remove this!
 	 */
 	@Override
 	public void setBehavior(String type) {
@@ -225,50 +321,12 @@ public abstract class Node implements IMiner {
 
 
 	
-	
-	// -----------------------------------------------------------------
-	// VALIDATION EVENT CREATION AND MANAGEMENT
-	// -----------------------------------------------------------------
-	
-	
-    /**
-     * Returns the next validation event associated with this node. Useful for removing the event when necessary.
-     * @return The next validation Event.
-     */
-    public Event getNextValidationEvent() {
-    	return this.nextValidationEvent;
-    }
-    
-    /**
-     * Deletes the next validation event associated with this node.
-     * TODO: how does this affect cycle counting statistics?
-     */
-    public void resetNextValidationEvent() {
-    	this.nextValidationEvent = null;
-    }
-	
-	/**
-	 * Schedules a validation event for the specified transaction container at the given time.
-	 * @param txc The transaction container to be validated.
-	 * @param time The simulation time when the scheduling occurs. The even will be scheduled at `time + mining interval`. 
-	 * @return The scheduled mining interval in seconds.
-	 */
-	public long scheduleValidationEvent(ITxContainer txc, long time) {
-		long h = sim.getSampler().getNodeSampler().getNextMiningInterval(getHashPower());
-	    Event_ContainerValidation e = new Event_ContainerValidation(txc, this, time + h);
-	    this.nextValidationEvent = e;
-	    sim.schedule(e);
-	    return (h);
-	}
-    
-	
+
 	
 	// -----------------------------------------------------------------
 	// EVENT HANDLERS / BEHAVIORS
 	// -----------------------------------------------------------------
-	
-	
-	
+		
 	/**
 	 * {@inheritDoc}
 	 */
@@ -281,7 +339,6 @@ public abstract class Node implements IMiner {
 	@Override
 	public abstract void event_NodeReceivesPropagatedTransaction(Transaction t, long time);
 
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -289,8 +346,6 @@ public abstract class Node implements IMiner {
 	public void event_PrintPeriodicReport(long time) {
 		this.periodicReport();
 	}
-
-
 
 	/**
 	 * {@inheritDoc}
@@ -308,7 +363,6 @@ public abstract class Node implements IMiner {
 		this.structureReport();
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -316,6 +370,4 @@ public abstract class Node implements IMiner {
 	public void event_NodeStatusReport(long time) {
 		this.nodeStatusReport();
 	}
-	
-	
 }

@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  * 
  */
-public abstract class PoWNode extends Node {
+public abstract class PoWNode extends Node implements IMiner {
 
 	private float hashPower;
 	private float electricPower;
