@@ -28,16 +28,16 @@ class RandomEndToEndNetworkTest {
 		 * Message Size: 10Mb = 10,000,000 bytes
 		 * Time: 1 minute and 20 seconds, i.e. 80 seconds, i.e. 80,000 milliseconds 
 		 */
-		System.out.println("Propagation time: " + n.getPropagationTime(1000000, 10000000));
-		assertEquals(80000, n.getPropagationTime(1000000, 10000000));
+		System.out.println("Propagation time: " + n.getTransmissionTime(1000000, 10000000));
+		assertEquals(80000, n.getTransmissionTime(1000000, 10000000));
 		
 		/**
 		 * Throughput: 50MBit/sec = 50,000,000 bits/sec
 		 * Message Size: 1Mb = 1,000,000 bytes (Bitcoin case)
 		 * 160 milliseconds 
 		 */
-		System.out.println("Propagation time: " + n.getPropagationTime(50000000, 1000000));
-		assertEquals(160, n.getPropagationTime(50000000, 1000000));
+		System.out.println("Propagation time: " + n.getTransmissionTime(50000000, 1000000));
+		assertEquals(160, n.getTransmissionTime(50000000, 1000000));
 		
 	}
 

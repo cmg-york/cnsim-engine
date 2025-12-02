@@ -11,8 +11,8 @@ import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
  * <p>
  * This class maintains a reference to a {@link NodeSet} object representing the participating nodes
  * and stores point-to-point throughput values between nodes in a 2D {@code float} array {@code Net}.
- * Propagation times can be computed for messages of a given size. See
- * <a href="../documentation/units.html">documentation/units</a> for the units of measurement of throughput and propagation times.
+ * Transmission times can be computed for messages of a given size. See
+ * <a href="../documentation/units.html">documentation/units</a> for the units of measurement of throughput and transmission times.
  * </p>
  * 
  * @author Sotirios Liaskos
@@ -57,39 +57,39 @@ public abstract class AbstractNetwork {
 	
 
 	// -----------------------------------------------------------------
-	// PROPAGATION TIME CALCULATIONS
+	// TRANSMISSION TIME CALCULATIONS
 	// -----------------------------------------------------------------
 
 	
    /**
-    * Calculates the propagation time of a message of given size between two nodes.
+    * Calculates the transmission time of a message of given size between two nodes.
     * 
     * @param origin      the ID of the origin node
     * @param destination the ID of the destination node
     * @param size        the size of the message in bytes
-    * @return the propagation time in <b>milliseconds</b>, or -1 if the nodes are not connected
+    * @return the transmission time in <b>milliseconds</b>, or -1 if the nodes are not connected
     * @throws ArithmeticException if {@code size < 0}
-    * @see #getPropagationTime(float, float)
+    * @see #getTransmissionTime(float, float)
     * @see <a href="../documentation/units.html">documentation/units</a>
     */
-	public long getPropagationTime(int origin, int destination, float size) {
+	public long getTransmissionTime(int origin, int destination, float size) {
 		if(size < 0)
 			throw new ArithmeticException("Size < 0");
 		float bps = getThroughput(origin, destination);
-		return (getPropagationTime(bps, size));
+		return (getTransmissionTime(bps, size));
 	}
 
 	
     /**
-     * Calculates the propagation time for a message of a given size over a channel with specified throughput.
+     * Calculates the transmission time for a message of a given size over a channel with specified throughput.
      * 
      * @param throughput the channel throughput in bits per second (bps)
      * @param size       the size of the message in bytes
-     * @return the propagation time in <b>milliseconds</b>, or -1 if throughput is 0
+     * @return the transmission time in <b>milliseconds</b>, or -1 if throughput is 0
      * @throws ArithmeticException if {@code size < 0} or {@code throughput < 0}
      * @see <a href="../documentation/units.html">documentation/units</a>
      */
-	public long getPropagationTime(float throughput, float size) {
+	public long getTransmissionTime(float throughput, float size) {
 		if(size < 0)
 			throw new ArithmeticException("Size < 0");
 		if(throughput < 0)

@@ -188,12 +188,12 @@ public abstract class Node implements INode {
 	 * @param txc The transaction container to be propagated.
 	 * @param time The current simulation time.
 	 */
-	public void propagateContainer(ITxContainer txc, long time) {
+	public void broadcastContainer(ITxContainer txc, long time) {
 	    NodeSet nodes = sim.getNodeSet();
 	    ArrayList<INode> ns_list = nodes.getNodes();
 	    for (INode n : ns_list) {
 	        if (!n.equals(this)){
-	            long inter = sim.getNetwork().getPropagationTime(this.getID(), n.getID(), txc.getSize());
+	            long inter = sim.getNetwork().getTransmissionTime(this.getID(), n.getID(), txc.getSize());
 	            long scheduleTime = getNextTransmissionEndTime(time, inter);
 	            Event_ContainerArrival e = new Event_ContainerArrival(txc, n, scheduleTime);
 	            sim.schedule(e);
@@ -208,22 +208,20 @@ public abstract class Node implements INode {
 	 * @param t The transaction to be propagated.
 	 * @param time The current time in the simulation.
 	 */
-	public void propagateTransaction(Transaction t, long time) {
+	public void broadcastTransaction(Transaction t, long time) {
 	    NodeSet nodes = sim.getNodeSet();
 	    ArrayList<INode> ns_list = nodes.getNodes();
 	    for (INode n : ns_list) {
 	        if (!n.equals(this)){
-	            long inter = sim.getNetwork().getPropagationTime(this.getID(), n.getID(), t.getSize());
+	            long inter = sim.getNetwork().getTransmissionTime(this.getID(), n.getID(), t.getSize());
 	            
 	            if (inter<0) {
 	            	String error = "Error in 'propagateTransaction' Negative interval between " + this.getID() + " and " + n.getID() + " for size " + t.getSize() + " of transaction " + t.getID() +  " interval is " + inter;
-	            	Reporter.addErrorEntry(error);
-	            	System.err.println(error);
-	            	assert(inter > 0);
+	            	throw new RuntimeException(error);
 	            }
 
 	            //TODO: do something more elaborate perhaps
-	            inter += Config.getPropertyInt("net.propagationTime");
+	            //inter += Config.getPropertyInt("net.propagationTime");
 	            
 	            long scheduleTime = getNextTransmissionEndTime(time, inter);
 	            Event_TransactionPropagation e = new Event_TransactionPropagation(t, n, scheduleTime);
