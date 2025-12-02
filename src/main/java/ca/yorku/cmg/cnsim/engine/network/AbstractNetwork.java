@@ -3,7 +3,6 @@ package ca.yorku.cmg.cnsim.engine.network;
 import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
-import ca.yorku.cmg.cnsim.engine.node.PoWNodeSet;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 
 /**

@@ -1,17 +1,14 @@
 package ca.yorku.cmg.cnsim.engine.node;
 
+import java.util.ArrayList;
+
 import ca.yorku.cmg.cnsim.engine.Simulation;
-import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.event.Event;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerArrival;
-import ca.yorku.cmg.cnsim.engine.event.Event_ContainerValidation;
 import ca.yorku.cmg.cnsim.engine.event.Event_TransactionPropagation;
-import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
-
-import java.util.ArrayList;
 
 /**
  * Abstract class representing a node in a blockchain network.
@@ -26,7 +23,6 @@ public abstract class Node implements INode {
 	
 	protected Simulation sim;
 	
-	protected String behaviorType;
 	protected TransactionGroup pool;
 	protected Event nextValidationEvent;
 	
@@ -291,23 +287,6 @@ public abstract class Node implements INode {
 	    return pool;
 	}
 
-	/**
-	 * See ({@linkplain IMiner} interface.
-	 * TODO: remove this!
-	 */
-	@Override
-	public String getBehavior() {
-	    return behaviorType;
-	}
-
-	/**
-	 * See ({@linkplain IMiner} interface.
-	 * TODO: remove this!
-	 */
-	@Override
-	public void setBehavior(String type) {
-	    this.behaviorType = type;
-	}
 
 	/**
 	 * See ({@linkplain IMiner} interface.
@@ -317,8 +296,6 @@ public abstract class Node implements INode {
 		return(sim.getNetwork().getAvgTroughput(getID()));
 	}
 
-
-	
 
 	
 	// -----------------------------------------------------------------
