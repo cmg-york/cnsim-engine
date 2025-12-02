@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.PoWNode;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -132,12 +131,17 @@ public class Reporter {
 		} catch (IOException e) {e.printStackTrace();}
 		
 		//Prepare the reporting structures
-		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, Node, Object");
-		inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
-		nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
-		netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
-		beliefLog.add("SimID, Node ID, Transaction ID, Believes, Time (ms from start)");
-		beliefLogShort.add("SimID, Transaction ID, Time (ms from start), Belief");
+		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID");
+		//inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
+		inputTxLog.add("SimID, TxID, Size, Value, ArrivalTime");
+		//nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
+		nodeLog.add("SimID, NodeID, HashPower, ElectricPower, ElectricityCost, TotalCycles");
+		//netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
+		netLog.add("SimID, FromNodeID, ToNodeID, Bandwidth, Time");
+		//beliefLog.add("SimID, Node ID, Transaction ID, Believes, Time (ms from start)");
+		beliefLog.add("SimID, NodeID, TxID, Believes, Time");
+		//beliefLogShort.add("SimID, Transaction ID, Time (ms from start), Belief");
+		beliefLogShort.add("SimID, TxID, Time, Belief");
 	}
 	
 	
