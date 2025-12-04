@@ -81,6 +81,9 @@ public class Reporter {
 	
 	/** Stores error log lines. */
 	protected static ArrayList<String> errorLog = new ArrayList<String>();
+
+	/** Stores real run times and simulation statistics. */
+	protected static ArrayList<String> execTimeLog = new ArrayList<String>();
 	
 	/** The unique identifier for the current simulation run, used in file naming. */
 	protected static String runId;
@@ -98,6 +101,7 @@ public class Reporter {
 	protected static boolean reportNetEvents;
 	protected static boolean reportBeliefs;
 	protected static boolean reportBeliefsShort;
+
 
 
 
@@ -142,6 +146,7 @@ public class Reporter {
 		beliefLog.add("SimID, NodeID, TxID, Believes, Time");
 		//beliefLogShort.add("SimID, Transaction ID, Time (ms from start), Belief");
 		beliefLogShort.add("SimID, TxID, Time, Belief");
+		execTimeLog.add("SimID, SimTime, SysStartTime, SysEndTime, NumEventsScheduled, NumEventsProcessed");
 	}
 	
 	
@@ -358,6 +363,24 @@ public class Reporter {
 	}
 		
 	
+	/**
+	 * Adds an entry to the error log.   
+	 * @param errorMsg The custom error message.
+	 */
+	
+
+	
+	public static void addExecTimeEntry(int simID,
+			long simTime,
+			long sysStartTime,
+			long sysEndTime,
+			long numScheduled,
+			long numProcessed
+			) {
+		execTimeLog.add(simID + "," + simTime + "," + sysStartTime + "," + sysEndTime + "," + numScheduled + "," + numProcessed);
+	}
+	
+	
 	
 	// -----------------------------------------------------------------
 	// FLUSH METHODS - write the logs to files
@@ -387,6 +410,7 @@ public class Reporter {
 		flushBeliefReport();
 		flushErrorReport();
 		flushConfig();
+		flushExecTimeReport();
 		flushCustomReports();
 	}
 	
@@ -528,6 +552,22 @@ public class Reporter {
 			if (errorsExist) {
 				System.err.println("    Errors were produced. Please check " + path + "ErrorLog - " + runId + ".txt");
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Save reporter's execution time log to file. File name is "RunTime - [Simulation Date Time].csv"
+	 */
+	public static void flushExecTimeReport() {
+		FileWriter writer;
+		try {
+			writer = new FileWriter(path + "RunTime - " + runId + ".csv");
+			for(String str: execTimeLog) {
+				  writer.write(str + System.lineSeparator());
+				}
+			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
