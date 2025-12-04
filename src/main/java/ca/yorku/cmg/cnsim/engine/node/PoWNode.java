@@ -1,17 +1,10 @@
 package ca.yorku.cmg.cnsim.engine.node;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
-import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.event.Event;
-import ca.yorku.cmg.cnsim.engine.event.Event_ContainerArrival;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerValidation;
-import ca.yorku.cmg.cnsim.engine.event.Event_TransactionPropagation;
-import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
-import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
-
-import java.util.ArrayList;
 
 /**
  * Abstract class representing a node in a blockchain network.
@@ -19,7 +12,7 @@ import java.util.ArrayList;
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  * 
  */
-public abstract class PoWNode extends Node {
+public abstract class PoWNode extends Node implements IMiner {
 
 	private float hashPower;
 	private float electricPower;

@@ -156,9 +156,10 @@ public class ConfigInitializer {
         return validateFileExistsInternal(null, null, filePath, fileDescription);
     }
 
-    private static void validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
-        validateFileExistsInternal(properties, key, properties.getProperty(key), fileDescription);
-    }
+    //private static void validateFileExists(Properties properties, String key, String fileDescription) throws IOException {
+    //    validateFileExistsInternal(properties, key, properties.getProperty(key), fileDescription);
+    //}
+    
     private static String validateFileExistsInternal(Properties properties, String key, String filePath, String fileDescription) throws IOException {
         if (filePath == null || filePath.trim().isEmpty()) {
             throw new IllegalArgumentException(fileDescription + " path is null or empty");

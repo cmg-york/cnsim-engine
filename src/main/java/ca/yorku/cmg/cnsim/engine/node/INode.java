@@ -36,20 +36,6 @@ public interface INode {
 	void setSimulation(Simulation sim);
 
 	/**
-	 * Sets the behavior type of the node.
-	 *
-	 * @param behaviorName description of the behavior type as a string (e.g., "honest", "selfish", "malicious")
-	 */
-	void setBehavior(String behaviorName);
-
-	/**
-	 * Returns the current behavior type of the node.
-	 *
-	 * @return behavior type as a string
-	 */
-	String getBehavior();
-
-	/**
 	 * Generates a time advancement report.
 	 * <p>The method is called every time a new event is processed.</p>
 	 * <p>To be used sparingly, due to computational implications.</p>

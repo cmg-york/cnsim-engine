@@ -32,15 +32,15 @@ Keeps track of all `Event` type of objects processed.
 #### Reporter Method
 `Reporter#addEvent(params)`
 #### Parameters
-| Parameter    | Type   | Meaning                                                                    |
-| ------------ | ------ | -------------------------------------------------------------------------- |
-| simID        | int    | The simulation ID in which the event occurs                                |
-| evtID        | long   | The ID of the event                                                        |
-| simTime      | long   | The simulation time of the event                                           |
-| sysTime      | long   | The system time the event was processed                                    |
-| evtType      | String | The event type (typically: `getSimpleName()` of the specializing subclass) |
-| nodeInvolved | int    | The node in which the event is happening.                                  |
-| objInvolved  | long   | The object (transaction or container)                                      |
+| Parameter    | Column Name | Type   | Meaning                                                                    |
+| ------------ | ----------- | ------ | -------------------------------------------------------------------------- |
+| simID        | SimID       | int    | The simulation ID in which the event occurs                                |
+| evtID        | EventID     | long   | The ID of the event                                                        |
+| simTime      | SimTime     | long   | The simulation time of the event                                           |
+| sysTime      | SysTime     | long   | The system time the event was processed                                    |
+| evtType      | EventType   | String | The event type (typically: `getSimpleName()` of the specializing subclass) |
+| nodeInvolved | NodeID      | int    | The node in which the event is happening.                                  |
+| objInvolved  | ObjectID    | long   | The object (transaction or container)                                      |
 #### Called From
 - `Event_ContainerArrival#happen(Simulation)`
 - `Event_ContainerValidation#happen(Simulation)`

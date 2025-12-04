@@ -3,14 +3,12 @@ package ca.yorku.cmg.cnsim.engine.transaction;
 public class Transaction {
 
 	public static int currID = 1;
-	public enum Type {HONEST, MALICIOUS, FAKE}
 
 	protected long ID;
 	protected float size;
 	protected float value;
 	protected long creationTime;
 	protected int nodeID = -1;
-	protected Type type;
 	protected boolean seedChanging;
 
 	public void makeSeedChanging() {
@@ -159,21 +157,6 @@ public class Transaction {
 	   return(ID);
 	}
 
-	/**
-	 * Gets the transaction type. One of HONEST, MALICIOUS or FAKE.
-	 * @return The transaction type. One of HONEST, MALICIOUS or FAKE.
-	 */
-	public Type getType() {
-	    return type;
-	}
-
-	/**
-	 * Sets the transaction type. One of HONEST, MALICIOUS or FAKE
-	 * @param type The transaction type. One of HONEST, MALICIOUS or FAKE.
-	 */
-	public void setType(Type type) {
-	    this.type = type;
-	}
 	
 	/**
 	 * The id of the node where the transaction first arrives
