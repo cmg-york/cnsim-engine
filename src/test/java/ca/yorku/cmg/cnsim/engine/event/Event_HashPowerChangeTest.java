@@ -12,7 +12,7 @@ import ca.yorku.cmg.cnsim.engine.network.RandomEndToEndNetwork;
 import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.node.NodeSet;
-import ca.yorku.cmg.cnsim.engine.node.NodeStub;
+import ca.yorku.cmg.cnsim.engine.node.PoWNodeStub;
 import ca.yorku.cmg.cnsim.engine.node.PoWNodeSet;
 
 /**
@@ -23,7 +23,7 @@ import ca.yorku.cmg.cnsim.engine.node.PoWNodeSet;
 class Event_HashPowerChangeTest {
 
 	private Simulation sim;
-	private NodeStub node;
+	private PoWNodeStub node;
 	private float initialHashPower;
 	private float newHashPower;
 	private long eventTime;
@@ -36,12 +36,12 @@ class Event_HashPowerChangeTest {
 		} catch (Exception e) {
 			// Config may already be initialized, ignore
 		}
-		
+
 		// Create a simulation instance
 		sim = new Simulation(1);
-		
+
 		// Create a node stub (which extends PoWNode and implements IMiner)
-		node = new NodeStub(sim);
+		node = new PoWNodeStub(sim);
 		initialHashPower = 100.0f; // 100 GH/s
 		newHashPower = 200.0f; // 200 GH/s
 		eventTime = 1000L; // 1000ms simulation time

@@ -7,6 +7,9 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
 public class NodeStub extends Node {
 
+	private String behavior;
+	private float hashPower;
+
 	public NodeStub(Simulation sim) {
 		super(sim);
 		// TODO Auto-generated constructor stub
@@ -14,6 +17,22 @@ public class NodeStub extends Node {
 
 	public NodeStub() {
 		super();
+	}
+
+	public void setBehavior(String behavior) {
+		this.behavior = behavior;
+	}
+
+	public String getBehavior() {
+		return this.behavior;
+	}
+
+	public void setHashPower(float hashPower) {
+		this.hashPower = hashPower;
+	}
+
+	public float getHashPower() {
+		return this.hashPower;
 	}
 
 	

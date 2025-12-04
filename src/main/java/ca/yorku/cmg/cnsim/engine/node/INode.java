@@ -143,4 +143,22 @@ public interface INode {
 	 */
 	void event_NodeStatusReport(long time);
 
+	/**
+	 * Sets the behavior type of the node.
+	 * <p>
+	 * The behavior string can be used by implementations to indicate
+	 * different behavioral strategies (e.g., "Honest", "Malicious").
+	 * </p>
+	 *
+	 * @param behavior the behavior type name
+	 */
+	void setBehavior(String behavior);
+
+	/**
+	 * Gets the current behavior type of the node.
+	 *
+	 * @return the behavior type name, or null if not set
+	 */
+	String getBehavior();
+
 }

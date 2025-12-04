@@ -20,13 +20,15 @@ public abstract class Node implements INode {
 
 	protected static int currID = 1;
 	protected int ID;
-	
+
 	protected Simulation sim;
-	
+
 	protected TransactionGroup pool;
 	protected Event nextValidationEvent;
-	
+
 	protected long networkInterfaceBusyUntil = -1;
+
+	protected String behavior;
 	
 
 	
@@ -344,5 +346,21 @@ public abstract class Node implements INode {
 	@Override
 	public void event_NodeStatusReport(long time) {
 		this.nodeStatusReport();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setBehavior(String behavior) {
+		this.behavior = behavior;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getBehavior() {
+		return this.behavior;
 	}
 }
