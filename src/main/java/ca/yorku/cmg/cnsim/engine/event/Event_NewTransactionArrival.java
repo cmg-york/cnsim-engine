@@ -82,12 +82,22 @@ public class Event_NewTransactionArrival extends Event {
         }
         
         if (Reporter.reportsTransactions()) {
-        	Reporter.addTx(
-            		sim.getSimID(),
-            		transaction.getID(), 
-            		transaction.getSize(), 
-            		transaction.getValue(),
-            		getTime());
+        	if (transaction.getID() > Integer.MAX_VALUE) {
+	        	Reporter.addTx(
+	            		sim.getSimID(),
+	            		transaction.getID(), 
+	            		transaction.getSize(), 
+	            		transaction.getValue(),
+	            		getTime());        		
+        	} else {
+	        	Reporter.addTx(
+	            		sim.getSimID(),
+	            		transaction.getID(), 
+	            		transaction.getSize(), 
+	            		transaction.getValue(),
+	            		getTime(),
+	            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()));
+        	}
 		}
         
         ProgressBar.printProgress((int) transaction.getID(),sim.totalqueuedTransactions,4);

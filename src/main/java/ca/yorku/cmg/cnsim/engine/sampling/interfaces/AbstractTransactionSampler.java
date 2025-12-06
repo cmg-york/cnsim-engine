@@ -80,6 +80,20 @@ public abstract class AbstractTransactionSampler implements ISowable {
     public abstract int getRandomNum(int min, int max);
 
 
+    /**
+     * Pick a random match for a given ID with distance bias controlled by alpha.
+     * 
+     * @param id    Target ID (1 .. N)
+     * @param N     Total number of IDs (ignored if conflict comes predefined)
+     * @param alpha Closeness parameter [0,1]:
+     *              0 -> almost always near 'id'
+     *              1 -> can pick anywhere in range (near edges possible)
+     *              (ignored if conflict comes predefined)
+     * @return      Chosen matching ID
+     */
+    public abstract int getConflict(int id, int N, double alpha);
+
+
     
     
     /*

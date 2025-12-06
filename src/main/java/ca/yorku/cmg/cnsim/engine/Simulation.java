@@ -10,6 +10,7 @@ import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
+import ca.yorku.cmg.cnsim.engine.transaction.TxConflictRegistry;
 
 import java.util.PriorityQueue;
 
@@ -38,10 +39,14 @@ public class Simulation {
 	//The main Events Queue
 	protected PriorityQueue<Event> queue = new PriorityQueue<>(comp);
 	
-	//The 
+	//The network relating to the simulator
 	private AbstractNetwork net;
 
 	protected Sampler sampler;
+	
+	private TxConflictRegistry conflictRegistry;
+	
+	private TransactionWorkload workload;
 
 	public int totalqueuedTransactions = 0;
 	private long latestKnownEventTime = 0;
@@ -266,6 +271,25 @@ public class Simulation {
 	public PriorityQueue<Event> getQueue() {
 		return queue;
 	}
+	
+	
+	public TxConflictRegistry getConflictRegistry() {
+		return conflictRegistry;
+	}
+
+
+	public void setConflictRegistry(TxConflictRegistry conflictRegistry) {
+		this.conflictRegistry = conflictRegistry;
+	}
+
+	public TransactionWorkload getWorkload() {
+		return workload;
+	}
+
+	public void setWorkload(TransactionWorkload workload) {
+		this.workload = workload;
+	}
+	
 	
 }
 

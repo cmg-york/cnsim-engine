@@ -191,9 +191,54 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      */
     @Override
     public int getRandomNum(int min, int max) {
-        return(sampler.getTransactionSampler().getRandom().nextInt((max - min) + 1) + min);
+        //return(sampler.getTransactionSampler().getRandom().nextInt((max - min) + 1) + min);
+    	return(random.nextInt((max - min) + 1) + min);
     }
 
+    
+    /**
+     * Pick a random match for a given ID with distance bias controlled by alpha.
+     * 
+     * @param id    Target ID (1 .. N)
+     * @param N     Total number of IDs
+     * @param alpha Closeness parameter [0,1]:
+     *              0 -> almost always near 'id'
+     *              1 -> can pick anywhere in range (near edges possible)
+     * @return      Randomly chosen matching ID
+     */
+    public int getConflict(int id, int N, double alpha) {
+        if (alpha < 0 || alpha > 1) {
+            throw new IllegalArgumentException("alpha must be in [0,1]");
+        }
+        if (id < 1 || id > N) {
+            throw new IllegalArgumentException("id must be in [1, N]");
+        }
+        if (N <= 1) {
+            throw new IllegalArgumentException("Cannot pick a conflict when only one ID exists");
+        }
+
+        int candidate;
+        do {
+            // Sample a uniform random number
+            double U = random.nextDouble(); // in [0,1)
+
+            // Compute the exponential distance based on alpha
+            int maxDistance = N - 1;
+            int d = (int) Math.floor(-Math.log(U) * Math.pow(maxDistance, alpha));
+
+            // Randomly choose left or right
+            candidate = random.nextBoolean() ? id + d : id - d;
+
+            // Clamp to valid range [1, N]
+            candidate = Math.max(1, Math.min(N, candidate));
+
+            // Repeat if candidate equals id
+        } while (candidate == id);
+
+        return candidate;
+    }
+    
+    
     
     /**
      * Loads configuration values from {@linkplain Config} for transaction sampling.

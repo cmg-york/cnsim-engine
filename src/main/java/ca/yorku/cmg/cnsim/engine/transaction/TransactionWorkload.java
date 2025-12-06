@@ -2,6 +2,7 @@ package ca.yorku.cmg.cnsim.engine.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
@@ -106,6 +107,30 @@ public class TransactionWorkload extends TransactionGroup {
 			rtx.add(getTransaction(sampler.getTransactionSampler().getRandomNum(0, Math.round((getCount()-1)*percentile))));
 		}
 		return rtx;
+	}
+
+	/**
+	 * Updates the given TxConflictRegistry with conflicts based on the specified dispersion and likelihood.
+	 * @param reg The TxConflictRegistry to be updated.
+	 * @param dispersion The dispersion parameter controlling the closeness of conflicts. In [0,1].
+	 * @param likelihood The likelihood of a transaction having a conflict. In [0,1]
+	 * @return The updated TxConflictRegistry.
+	 */
+	public TxConflictRegistry updateConflicts(
+			TxConflictRegistry reg, 
+			double dispersion, double likelihood) {
+		
+		Random rand = sampler.getTransactionSampler().getRandom();
+		
+		for (Transaction tx : getAllTransactions()) {
+			if (rand.nextDouble() < likelihood) {
+				int conflict = sampler.getTransactionSampler().getConflict((int) tx.getID(),
+						getAllTransactions().size(),dispersion);
+				reg.setMatch((int) tx.getID(), conflict);
+			} // else leave it -1
+		}
+		
+		return reg;
 	}
 
 	

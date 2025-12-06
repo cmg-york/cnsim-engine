@@ -12,6 +12,7 @@ import ca.yorku.cmg.cnsim.engine.sampling.factories.NetworkSamplerFactory;
 import ca.yorku.cmg.cnsim.engine.sampling.factories.NodeSamplerFactory;
 import ca.yorku.cmg.cnsim.engine.sampling.factories.TransactionSamplerFactory;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
+import ca.yorku.cmg.cnsim.engine.transaction.TxConflictRegistry;
 
 
 /**
@@ -191,8 +192,46 @@ public abstract class SimulatorFactory {
 			e.printStackTrace();
 		}
 		s.schedule(ts);
+		
+		//Keep also a pointer to the workload.
+		s.setWorkload(ts);
 	}
 	
+	/**
+	 * Creates a conflict registry for transactions if conflicts are enabled
+	 * in the configuration.
+	 * <p>
+	 * The conflict registry is populated based on the parameters:
+	 * <ul>
+	 *     <li>{@code workload.hasConflicts}</li>
+	 *     <li>{@code workload.conflicts.dispersion}</li>
+	 *     <li>{@code workload.conflicts.likelihood}</li>
+	 * </ul>
+	 *
+	 * The method creates a conflict registry object based on the size of the current workload. 
+	 * It populates it based on the sampler and the parameters. A reference to the registry is 
+	 * given to the simulator for node access.
+	 *  
+	 * 
+	 * @param s the {@linkplain Simulation} for which to create the conflict registry
+	 */
+	private void createConflictRegistry(Simulation s) {
+		if (Config.getPropertyBoolean("workload.hasConflicts")) {
+			//Get the conflict sampling calculation parameters
+			double dispersion = Config.getPropertyDouble("workload.conflicts.dispersion");
+			double likelihood = Config.getPropertyDouble("workload.conflicts.likelihood");
+			int N = s.getWorkload().getCount();
+			
+			//Create the registry of the appropriate size:
+			TxConflictRegistry registry = new TxConflictRegistry(N);
+			
+			//Update the registry with random conflicts
+			registry = s.getWorkload().updateConflicts(registry, dispersion, likelihood);
+			
+			//set the registry to the simulation object for use by nodes.
+			s.setConflictRegistry(registry);
+		}
+	}
 	
 	/**
 	 * Sets a hard termination time for the simulation based on the
@@ -222,8 +261,6 @@ public abstract class SimulatorFactory {
         r.scheduleBeliefReports_Interval(Config.getPropertyLong("reporter.beliefReportInterval"), 
         		s, Config.getPropertyLong("reporter.beliefReportOffset"));
 	}
-	
-	
 	
 	
 	
@@ -288,6 +325,10 @@ public abstract class SimulatorFactory {
 		/** Create the transaction workload, using the transaction sampler
 		 * add it to the simulator, and schedule the corresponding events */
 		addAndScheduleTransactionWorkload(s);
+		
+		/** Create Conflict Registry 
+		 */
+		createConflictRegistry(s);
 		
 		/** Schedule belief reporting events */
 		scheduleBeliefReports(s);

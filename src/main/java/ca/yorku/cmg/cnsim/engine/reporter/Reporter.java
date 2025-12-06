@@ -137,7 +137,7 @@ public class Reporter {
 		//Prepare the reporting structures
 		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID");
 		//inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
-		inputTxLog.add("SimID, TxID, Size, Value, ArrivalTime");
+		inputTxLog.add("SimID, TxID, Size, Value, ArrivalTime, ConflictID");
 		//nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
 		nodeLog.add("SimID, NodeID, HashPower, ElectricPower, ElectricityCost, TotalCycles");
 		//netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
@@ -277,8 +277,33 @@ public class Reporter {
 					txID + "," + 
 					size + "," +
 					value + "," +
-					simTime);
+					simTime  + "," +
+					"-1");
 	}
+
+	
+    /**
+     * Adds a transaction entry to the transaction log including the ID of the transaction with 
+     * which the transaction in question conflicts. 
+     *
+     * @param simID Simulation ID
+     * @param txID Transaction ID
+     * @param size Transaction size in bytes TODO: verify it is bytes
+     * @param value Transaction value in tokens
+     * @param simTime Simulation time of arrival
+     * @param conflictID The transaction ID with which the current transaction conflicts.
+     */
+	public static void addTx(int simID, long txID, float size, float value, long simTime, int conflictID) {
+		if (Reporter.reportTransactions)
+			inputTxLog.add(simID + "," +
+					txID + "," + 
+					size + "," +
+					value + "," +
+					simTime  + "," +
+					conflictID);
+	}
+	
+	
 	
 	   /**
      * Adds a node entry to the node log.

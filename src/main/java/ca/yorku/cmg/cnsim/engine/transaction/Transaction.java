@@ -10,6 +10,8 @@ public class Transaction {
 	protected long creationTime;
 	protected int nodeID = -1;
 	protected boolean seedChanging;
+	
+
 
 	public void makeSeedChanging() {
 		this.seedChanging = true;
@@ -168,9 +170,11 @@ public class Transaction {
 
 	/**
 	 * Set the id of the node where the transaction first appears.
-	 * @param nodeID The id of the node where the transaction first appers.
+	 * @param nodeID The id of the node where the transaction first appears.
 	 */
 	public void setNodeID(int nodeID) {
 		this.nodeID = nodeID;
 	}
+
+	
 }

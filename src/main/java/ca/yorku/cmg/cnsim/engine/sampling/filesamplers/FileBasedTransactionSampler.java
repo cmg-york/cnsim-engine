@@ -3,6 +3,7 @@ package ca.yorku.cmg.cnsim.engine.sampling.filesamplers;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -53,7 +54,10 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     /** Queue of transaction arrival times read from file (milliseconds) */
     private final Queue<Long> transactionArrivalTimes = new LinkedList<>();
 
-	
+    /** Queue of conflicting IDs */
+    private ArrayList<Integer> conflictingTxs = new ArrayList<>();
+    
+    
 
     // -----------------------------------------------------------------
     // CONSTRUCTORS
@@ -116,7 +120,7 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
      * @param hasHeaders True if the first line is a header and should be skipped
      * @throws Exception if the file contains fewer transactions than required and no alternative sampler is defined
      * TODO: incorporate into centralized error and debug reporting.  
-     */
+
 	public void loadTransactionWorkload(boolean hasHeaders) throws Exception {
 		int lineCount = 0;
 		String line;
@@ -153,6 +157,67 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 			Debug.w(this,"Transaction file contains more lines than required transactions as per configuration file. Required: "	+ requiredTransactionLines + ", Found: " + lineCount);
 		}
 	}
+	*/
+	
+	
+	
+	public void loadTransactionWorkload(boolean hasHeaders) throws Exception {
+	    int lineCount = 0;
+	    String line;
+	    try (BufferedReader br = new BufferedReader(new FileReader(transactionsFilePath))) {
+	        while ((line = br.readLine()) != null) {
+	            lineCount++;
+	            String[] values = line.split(",");
+	            
+	            // Skip lines that don't have at least 4 columns
+	            if (values.length < 4) {
+	                continue;
+	            }
+	            
+	            // Skip first line if headers
+	            if (hasHeaders && lineCount == 1) {
+	                continue;
+	            }
+	            
+	            try {
+	                transactionSizes.add(Long.parseLong(values[1].trim()));
+	                transactionFeeValues.add(Float.parseFloat(values[2].trim()));
+	                transactionArrivalTimes.add(Long.parseLong(values[3].trim()));
+
+	                // Optional 5th column: conflictingTx
+	                if (values.length >= 5) {
+	                    try {
+	                        conflictingTxs.add(Integer.parseInt(values[4].trim()));
+	                    } catch (NumberFormatException e) {
+	                        System.err.println("Error parsing conflictingTx for line: " + line + " — storing as -1");
+	                        conflictingTxs.add(-1); // fallback if parsing fails
+	                    }
+	                } else {
+	                    conflictingTxs.add(-1); // default if column missing
+	                }
+	                
+	            } catch (NumberFormatException e) {
+	                System.err.println("Error parsing transaction line: " + line);
+	            }
+	        }
+	    } catch (IOException e) {
+	        Debug.e(this,"Error loading workload: no such file or directory.");
+	        throw e;
+	    }
+
+	    if (hasHeaders) lineCount--;
+	    
+	    if (lineCount < requiredTransactionLines) {
+	        if (alternativeSampler == null) {
+	            throw new Exception("The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Define alternative sampler for the additional intervals or update config file.");
+	        } else {
+	            Debug.p(1,this,"The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Additional arrivals to be drawn from alternative sampler.");
+	        }
+	    } else if (lineCount > requiredTransactionLines) {
+	        Debug.w(this,"Transaction file contains more lines than required transactions as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount);
+	    }
+	}
+	
 	
 	
 
@@ -242,6 +307,16 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     }
 
     
+	@Override
+	public int getConflict(int id, int N, double alpha) {
+		if (id <= conflictingTxs.size()) {
+			return (conflictingTxs.get(id-1));
+		} else {
+			return (alternativeSampler.getConflict(id, N, alpha));
+		}
+	}
+    
+    
     
     
 	// -----------------------------------------------------------------
@@ -281,6 +356,7 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 	public boolean seedUpdateEnabled() {
 		return(alternativeSampler.seedUpdateEnabled());
 	}
-    
+
+
 
 }
