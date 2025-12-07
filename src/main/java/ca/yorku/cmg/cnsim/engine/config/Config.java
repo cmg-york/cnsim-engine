@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
+import ca.yorku.cmg.cnsim.engine.exceptions.ConfigurationException;
+
 public class Config {
     static Properties prop = new Properties();
     static boolean initialized = false;
@@ -23,42 +25,36 @@ public class Config {
             prop.load(in);
             initialized = true;
         } catch (IOException e) {
-            System.err.println("Exception (Config): " + e);
             e.printStackTrace();
             System.exit(-1);
         }
     }
     
+    /**
     public static void chk(String propertyKey) throws Exception {
     	if (!initialized) {
     		throw new Exception("Error: configuration file uninitialized.");
     	} else if (prop.getProperty(propertyKey) == null) {
     		throw new Exception("Error reading configuration file: property '" + propertyKey + "' does not exist.");
     	}
-    }
+    } */
 
     public static void check(String propertyKey) {
-    	try {
-			chk(propertyKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-    		System.exit(-1);
-		}
-    }
-    
-    public static boolean propertyExists(String propertyKey) {
-    	return (prop.getProperty(propertyKey) != null);
-    }
-
-    public static String getProperty(String propertyKey, boolean returnNull) {
-    	if (returnNull) {
-    		return prop.getProperty(propertyKey);
-    	} else {
-    		return getProperty(propertyKey);
+    	if (!initialized) {
+    		throw new ConfigurationException("Error: configuration file uninitialized.");
+    	} else if (!prop.containsKey(propertyKey)) {
+    		throw new ConfigurationException("Error reading configuration file: property '" + propertyKey + "' does not exist.");
     	}
-    }
 
+    }
     
+
+    /*
+     * 
+     * PROPERTY READING
+     *  
+     */
+
     
     public static String getProperty(String propertyKey) {
     	check(propertyKey);
@@ -67,73 +63,73 @@ public class Config {
     
     
     public static int getPropertyInt(String propertyKey) {
-    	int l = -1; 
-    	check(propertyKey);
+    	int l; 
+    	String val = getProperty(propertyKey);
     	try {
-    		l =  Integer.parseInt(prop.getProperty(propertyKey));
-    	} catch (Exception e) {
-    		System.err.println("Error reading configuration key: '" + propertyKey + "' as integer");
-    		e.printStackTrace();
-    		System.exit(-1);
+    		l =  Integer.parseInt(val);
+    	} catch (NumberFormatException e) {
+    		throw new ConfigurationException("Error reading configuration key: '" + propertyKey + "' as integer",e);
     	}
-    	//System.out.print("getPropartyInt:" + propertyKey);
         return l;
      }
     
-    public static Long getPropertyLong(String propertyKey) {
-    	Long l = -1L; 
-    	check(propertyKey);
+    public static long getPropertyLong(String propertyKey) {
+    	long l; 
+    	String val = getProperty(propertyKey);
     	try {
-    		l =  Long.parseLong(prop.getProperty(propertyKey));
-    	} catch (Exception e) {
-    		System.err.println("Error reading configuration key: '" + propertyKey + "' as long");
-    		e.printStackTrace();
-    		System.exit(-1);
+    		l =  Long.parseLong(val);
+    	} catch (NumberFormatException e) {
+    		throw new ConfigurationException("Error reading configuration key: '" + propertyKey + "' as long",e);
     	}
-    	//System.out.print("getPropartyLong:" + propertyKey);
         return l;
      }
     
     public static Float getPropertyFloat(String propertyKey) {
-    	float l = -1.0f; 
-    	check(propertyKey);
+    	float l; 
+    	String val = getProperty(propertyKey);
     	try {
-    		l =  Float.parseFloat(prop.getProperty(propertyKey));
-    	} catch (Exception e) {
-    		System.err.println("Error reading configuration key: '" + propertyKey + "' as float");
-    		e.printStackTrace();
-    		System.exit(-1);
+    		l =  Float.parseFloat(val);
+    	} catch (NumberFormatException e) {
+    		throw new ConfigurationException("Error reading configuration key: '" + propertyKey + "' as float",e);
     	}
-    	//System.out.println("getPropartyFloat:" + propertyKey);
         return l;
      }
  
 
     public static Double getPropertyDouble(String propertyKey) {
-    	double l = -1.0; 
-    	check(propertyKey);
+    	double l;
+    	String val = getProperty(propertyKey);
     	try {
-    		l =  Double.parseDouble(prop.getProperty(propertyKey));
-    	} catch (Exception e) {
-    		System.err.println("Error reading configuration key: '" + propertyKey + "' as double");
-    		e.printStackTrace();
-    		System.exit(-1);
+    		l =  Double.parseDouble(val);
+    	} catch (NumberFormatException e) {
+    		throw new ConfigurationException("Error reading configuration key: '" + propertyKey + "' as float",e);
     	}
-    	//System.out.println("getPropartyDouble: " + propertyKey);
         return l;
      }
     
 	public static boolean getPropertyBoolean(String propertyKey) {
-		boolean b = false;
-		check(propertyKey);
-		try {
-			b = Boolean.parseBoolean(prop.getProperty(propertyKey));
-		} catch (Exception e) {
-			System.err.println("Error reading configuration key: '" + propertyKey + "' as boolean");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		return b;
+
+    	String val = getProperty(propertyKey);
+    	
+        if (val == null) {
+            throw new ConfigurationException("Missing required boolean property: " + propertyKey);
+        }
+        
+        val = val.trim();
+
+        switch (val.toUpperCase()) {
+            case "TRUE":
+            case "T":
+                return true;
+            case "FALSE":
+            case "F":
+                return false;
+            default:
+                throw new ConfigurationException(
+                    "Invalid boolean value for property '" + propertyKey + "': '" + val + "'. " +
+                    "Expected true/false or T/F (case-insensitive)."
+                );
+        }
 	}
 	
 	public static String getPropertyString(String propertyKey) {
@@ -231,4 +227,5 @@ public class Config {
 	public static boolean hasProperty(String s) {
 		return prop.containsKey(s);
 	}
+	
 }

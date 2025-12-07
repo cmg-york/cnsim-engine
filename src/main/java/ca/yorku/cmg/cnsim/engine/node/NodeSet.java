@@ -80,12 +80,12 @@ public abstract class NodeSet {
 	/**
 	 * Returns a specific node by its index (ID) within this {@code NodeSet}.
 	 *
-	 * @param nodeID the index or ID of the node
+	 * @param nodeID the index or ID of the node from 1 to number of nodes.
 	 * @return the corresponding {@linkplain IMiner}
 	 * @throws IndexOutOfBoundsException if {@code nodeID} is invalid
 	 */
 	public INode pickSpecificNode(int nodeID) {
-	    return (nodes.get(nodeID));
+	    return (nodes.get(nodeID-1));
 	}
 
 	

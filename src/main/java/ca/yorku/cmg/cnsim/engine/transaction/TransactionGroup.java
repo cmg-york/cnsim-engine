@@ -48,7 +48,6 @@ public class TransactionGroup implements ITxContainer {
      * Transaction ID must run from {@code 1} to {@code n} strictly increasing by 1 at each step  (error otherwise). Time must not decrease as transactions IDs increase.
      * Time Created: a long integer representing the number of milliseconds (ms) from a fixed time 0.
      * Total Value: in user defined tokens depending on network.
-     * TODO: Is this bytes?
      * Total Size: in bytes
      * First Arrival NodeID: the node at which the transaction first arrives
      *

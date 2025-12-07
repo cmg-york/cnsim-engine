@@ -51,6 +51,9 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     /** Queue of transaction fees read from file */
     private Queue<Float> transactionFeeValues = new LinkedList<>();
 
+    /** Queue of arrival node ids */
+    private Queue<Integer> transactionNodeIDs = new LinkedList<>();
+    
     /** Queue of transaction arrival times read from file (milliseconds) */
     private final Queue<Long> transactionArrivalTimes = new LinkedList<>();
 
@@ -170,7 +173,7 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 	            String[] values = line.split(",");
 	            
 	            // Skip lines that don't have at least 4 columns
-	            if (values.length < 4) {
+	            if (values.length < 5) {
 	                continue;
 	            }
 	            
@@ -182,12 +185,13 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 	            try {
 	                transactionSizes.add(Long.parseLong(values[1].trim()));
 	                transactionFeeValues.add(Float.parseFloat(values[2].trim()));
-	                transactionArrivalTimes.add(Long.parseLong(values[3].trim()));
+	                transactionNodeIDs.add(Integer.parseInt(values[3].trim()));
+	                transactionArrivalTimes.add(Long.parseLong(values[4].trim()));
 
 	                // Optional 5th column: conflictingTx
-	                if (values.length >= 5) {
+	                if (values.length >= 6) {
 	                    try {
-	                        conflictingTxs.add(Integer.parseInt(values[4].trim()));
+	                        conflictingTxs.add(Integer.parseInt(values[5].trim()));
 	                    } catch (NumberFormatException e) {
 	                        System.err.println("Error parsing conflictingTx for line: " + line + " — storing as -1");
 	                        conflictingTxs.add(-1); // fallback if parsing fails
@@ -295,6 +299,30 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
     }
     
 
+    
+    /** 
+     * Returns the next transaction size.
+     * <p>
+     * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+     * </p>
+     * 
+     * @return transaction size
+     * @throws Exception if the file is exhausted and no alternative sampler is defined
+     */
+     @Override
+     public int getArrivalNode() {
+     	if (!transactionNodeIDs.isEmpty()) {
+     		return(transactionNodeIDs.poll());
+     	} else if (alternativeSampler != null) {
+     		return(alternativeSampler.getArrivalNode());
+     	} else {
+     		Debug.e(this,"getArrivalNode(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+     		throw new IllegalStateException("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+     	}
+     }
+
+    
+    
     /**
      * Returns a uniformly sampled integer in the given range.
      * <p>
@@ -308,11 +336,16 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 
     
 	@Override
-	public int getConflict(int id, int N, double alpha) {
+	public int getConflict(int id, int N, double alpha, double likelihood) {
+		int conf;
 		if (id <= conflictingTxs.size()) {
-			return (conflictingTxs.get(id-1));
+			conf = conflictingTxs.get(id-1);
+			//System.err.println("File conflict for  " + id + " is " + conf);
+			return (conf);
 		} else {
-			return (alternativeSampler.getConflict(id, N, alpha));
+			conf = alternativeSampler.getConflict(id, N, alpha, likelihood);
+			//System.err.println("Rand conflict for  " + id + " is " + conf);
+			return (conf);
 		}
 	}
     

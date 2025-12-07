@@ -137,7 +137,7 @@ public class Reporter {
 		//Prepare the reporting structures
 		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID");
 		//inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
-		inputTxLog.add("SimID, TxID, Size, Value, ArrivalTime, ConflictID");
+		inputTxLog.add("SimID, TxID, Size, Value, NodeID, ArrivalTime, ConflictID");
 		//nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
 		nodeLog.add("SimID, NodeID, HashPower, ElectricPower, ElectricityCost, TotalCycles");
 		//netLog.add("SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)");
@@ -270,13 +270,15 @@ public class Reporter {
      * @param size Transaction size in bytes TODO: verify it is bytes
      * @param value Transaction value in tokens
      * @param simTime Simulation time of arrival
+     * @param nodeID The ID of the node at which the transaction first arrives.
      */
-	public static void addTx(int simID, long txID, float size, float value, long simTime) {
+	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime) {
 		if (Reporter.reportTransactions)
 			inputTxLog.add(simID + "," +
 					txID + "," + 
 					size + "," +
 					value + "," +
+					nodeID  + "," +
 					simTime  + "," +
 					"-1");
 	}
@@ -291,14 +293,16 @@ public class Reporter {
      * @param size Transaction size in bytes TODO: verify it is bytes
      * @param value Transaction value in tokens
      * @param simTime Simulation time of arrival
+     * @param nodeID The ID of the node at which the transaction first arrives.
      * @param conflictID The transaction ID with which the current transaction conflicts.
      */
-	public static void addTx(int simID, long txID, float size, float value, long simTime, int conflictID) {
+	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID) {
 		if (Reporter.reportTransactions)
 			inputTxLog.add(simID + "," +
 					txID + "," + 
 					size + "," +
 					value + "," +
+					nodeID  + "," +
 					simTime  + "," +
 					conflictID);
 	}

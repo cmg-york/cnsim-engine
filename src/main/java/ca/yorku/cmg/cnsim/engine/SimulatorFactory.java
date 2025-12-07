@@ -216,20 +216,24 @@ public abstract class SimulatorFactory {
 	 * @param s the {@linkplain Simulation} for which to create the conflict registry
 	 */
 	private void createConflictRegistry(Simulation s) {
-		if (Config.getPropertyBoolean("workload.hasConflicts")) {
-			//Get the conflict sampling calculation parameters
-			double dispersion = Config.getPropertyDouble("workload.conflicts.dispersion");
-			double likelihood = Config.getPropertyDouble("workload.conflicts.likelihood");
-			int N = s.getWorkload().getCount();
-			
-			//Create the registry of the appropriate size:
-			TxConflictRegistry registry = new TxConflictRegistry(N);
-			
-			//Update the registry with random conflicts
-			registry = s.getWorkload().updateConflicts(registry, dispersion, likelihood);
-			
-			//set the registry to the simulation object for use by nodes.
-			s.setConflictRegistry(registry);
+		if (Config.hasProperty("workload.hasConflicts")) { 
+			if (Config.getPropertyBoolean("workload.hasConflicts")) {
+				//Get the conflict sampling calculation parameters
+				double dispersion = Config.getPropertyDouble("workload.conflicts.dispersion");
+				double likelihood = Config.getPropertyDouble("workload.conflicts.likelihood");
+				int N = s.getWorkload().getCount();
+				
+				//Create the registry of the appropriate size:
+				TxConflictRegistry registry = new TxConflictRegistry(N);
+				
+				//Update the registry with random conflicts
+				s.getWorkload().updateConflicts(registry, dispersion, likelihood);
+				
+				//set the registry to the simulation object for use by nodes.
+				s.setConflictRegistry(registry);
+				
+				System.err.println("Registry says: " + registry.toString());
+			}
 		}
 	}
 	

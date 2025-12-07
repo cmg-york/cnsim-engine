@@ -47,10 +47,10 @@ public class Transaction {
 	 * @param time The time the transaction is created.
 	 * @param value The value of the transaction in local currency.
 	 * @param size The size of the transaction in bytes
-	 * @param nodeID The ID of the node where the transaction is supposed to show up. 
+	 * @param nodeID The ID of the node where the transaction is supposed to show up (-1 if no node is defined yet)
 	 * If undefined, please use constructor that omits this parameter.
 	 */
-	public Transaction(int ID, long time, float value, float size, int nodeID) {
+	public Transaction(long ID, long time, float value, float size, int nodeID) {
 	    if(time < 0)
 	    	throw new ArithmeticException("Trying to create new transation with Time < 0");
 	    creationTime = time;
@@ -61,8 +61,8 @@ public class Transaction {
 	    if(size < 0)
 	    	throw new ArithmeticException("Trying to create new transation with Size < 0");
 	    this.size = size;
-	    if(nodeID < 1)
-	    	throw new ArithmeticException("NodeID must be a positive integer");
+	    //if(nodeID < 1)
+	    //	throw new ArithmeticException("NodeID must be a positive integer");
 	    this.nodeID = nodeID;
 	}
 		

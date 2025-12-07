@@ -2,6 +2,7 @@ package ca.yorku.cmg.cnsim.engine.event;
 
 import ca.yorku.cmg.cnsim.engine.ProgressBar;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.INode;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
@@ -82,21 +83,23 @@ public class Event_NewTransactionArrival extends Event {
         }
         
         if (Reporter.reportsTransactions()) {
-        	if (transaction.getID() > Integer.MAX_VALUE) {
+        	if ((transaction.getID() <= Integer.MAX_VALUE) && (Config.hasProperty("workload.hasConflicts"))) {
 	        	Reporter.addTx(
 	            		sim.getSimID(),
 	            		transaction.getID(), 
 	            		transaction.getSize(), 
 	            		transaction.getValue(),
-	            		getTime());        		
-        	} else {
-	        	Reporter.addTx(
-	            		sim.getSimID(),
-	            		transaction.getID(), 
-	            		transaction.getSize(), 
-	            		transaction.getValue(),
+		        		node.getID(),
 	            		getTime(),
 	            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()));
+        	} else {
+        		Reporter.addTx(
+	            		sim.getSimID(),
+	            		transaction.getID(), 
+	            		transaction.getSize(), 
+	            		transaction.getValue(),
+		        		node.getID(),
+	            		getTime());      		
         	}
 		}
         

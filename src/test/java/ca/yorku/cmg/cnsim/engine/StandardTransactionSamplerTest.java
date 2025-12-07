@@ -58,7 +58,7 @@ class StandardTransactionSamplerTest {
 			s.setTxArrivalIntervalRate(lambda);
 			interv += s.getNextTransactionArrivalInterval();
 		}
-		System.out.println("Average interval:" + ((float) interv)/((float) rounds));
+		//System.out.println("Average interval:" + ((float) interv)/((float) rounds));
 		assertEquals(250,((float) interv)/((float) rounds),50);
 	}
 
@@ -105,24 +105,22 @@ class StandardTransactionSamplerTest {
 	 */
 	
 	
+
     @Test
     void testInvalidAlpha() {
-        assertThrows(IllegalArgumentException.class, () -> s.getConflict(1, 10, -0.1));
-        assertThrows(IllegalArgumentException.class, () -> s.getConflict(1, 10, 1.1));
+        assertThrows(IllegalArgumentException.class, () -> s.getConflict(1, 10, -0.1, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> s.getConflict(1, 10, 1.1, 0.5));
     }
 
     @Test
     void testInvalidId() {
-        assertThrows(IllegalArgumentException.class, () -> s.getConflict(0, 10, 0.5));
-        assertThrows(IllegalArgumentException.class, () -> s.getConflict(11, 10, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> s.getConflict(0, 10, 0.5, 0.5));
+        assertThrows(IllegalArgumentException.class, () -> s.getConflict(11, 10, 0.5, 0.5));
     }
 
     @Test
     void testSingleIDThrowsException() {
-        // Expect IllegalArgumentException because no other ID exists
-        assertThrows(IllegalArgumentException.class, () -> {
-            s.getConflict(1, 1, 0.5);
-        });
+        assertThrows(IllegalArgumentException.class, () -> s.getConflict(1, 1, 0.5, 0.5));
     }
 
     @Test
@@ -130,79 +128,63 @@ class StandardTransactionSamplerTest {
         int N = 100;
         int id = 50;
         double alpha = 0.5;
+        double likelihood = 1.0;
 
         for (int i = 0; i < 1000; i++) {
-            int result = s.getConflict(id, N, alpha);
-            assertTrue(result >= 0 && result <= N, "Result should be within [0, N] it was " + result);
+            int result = s.getConflict(id, N, alpha, likelihood);
+            assertTrue(result == -1 || (result >= 1 && result <= N), 
+                "Result should be -1 or within [1, N], was " + result);
         }
     }
-
-
- 
 
     @Test
     void testAlphaZeroProducesMostlyNearWithFrequencies() {
         int N = 100;
         int id = 50;
         double alpha = 0.0;
+        double likelihood = 1.0;
         int trials = 1000;
 
-        // Map to track frequency of each sampled ID
         Map<Integer, Integer> frequencies = new HashMap<>();
         s.setSeed(18);
+
         for (int i = 0; i < trials; i++) {
-            int result = s.getConflict(id, N, alpha);
-            frequencies.put(result, frequencies.getOrDefault(result, 0) + 1);
+            int result = s.getConflict(id, N, alpha, likelihood);
+            if (result != -1) {
+                frequencies.put(result, frequencies.getOrDefault(result, 0) + 1);
+            }
         }
 
-        // Print frequencies
-        System.err.println("Frequencies of sampled IDs:");
-        frequencies.entrySet().stream()
-                   .sorted(Map.Entry.comparingByKey())
-                   .forEach(entry -> 
-                       System.err.println("ID " + entry.getKey() + ": " + entry.getValue())
-                   );
-
-        // Assert that all sampled values are “near” the target ID (±2)
+        // Check that all results are “near” the target ID (±10)
         for (int r : frequencies.keySet()) {
-            assertTrue(Math.abs(r - id) <= 10,"Alpha=0 should produce near id, got " + r);
+            assertTrue(Math.abs(r - id) <= 10, "Alpha=0 should produce near id, got " + r);
         }
     }
-	
-    
-    
+
     @Test
     void testAlphaOneProducesFullRangeWithFrequencies() {
         int N = 100;
         int id = 50;
         double alpha = 1.0;
+        double likelihood = 1.0;
         int trials = 10000;
 
-        // Map to track frequency of each sampled ID
         Map<Integer, Integer> frequencies = new HashMap<>();
 
         for (int i = 0; i < trials; i++) {
-            int result = s.getConflict(id, N, alpha);
-            frequencies.put(result, frequencies.getOrDefault(result, 0) + 1);
+            int result = s.getConflict(id, N, alpha, likelihood);
+            if (result != -1) {
+                frequencies.put(result, frequencies.getOrDefault(result, 0) + 1);
+            }
         }
 
-        // Print frequencies
-        System.err.println("Frequencies of sampled IDs:");
-        frequencies.entrySet().stream()
-                   .sorted(Map.Entry.comparingByKey())
-                   .forEach(entry -> 
-                       System.err.println("ID " + entry.getKey() + ": " + entry.getValue())
-                   );
+        // Check that low and high IDs are reached (forward-only)
+        boolean lowFound = frequencies.keySet().stream().anyMatch(v -> v <= id + 5);
+        boolean highFound = frequencies.keySet().stream().anyMatch(v -> v > N - 10);
 
-        // Check that low (<10) and high (>90) IDs are reached
-        boolean lowFound = frequencies.keySet().stream().anyMatch(v -> v < 10);
-        boolean highFound = frequencies.keySet().stream().anyMatch(v -> v > 90);
-
-        assertTrue(lowFound, "Alpha=1 should reach lower IDs");
-        assertTrue(highFound, "Alpha=1 should reach higher IDs");
+        assertTrue(lowFound, "Alpha=1 should reach near the start IDs (forward-only)");
+        assertTrue(highFound, "Alpha=1 should reach high IDs");
     }
-    
-    
     
 	@Test
 	@Tag("exclude")
