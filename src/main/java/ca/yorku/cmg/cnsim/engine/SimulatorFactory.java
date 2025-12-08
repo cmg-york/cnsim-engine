@@ -232,7 +232,7 @@ public abstract class SimulatorFactory {
 				//set the registry to the simulation object for use by nodes.
 				s.setConflictRegistry(registry);
 				
-				System.err.println("Registry says: " + registry.toString());
+				//System.err.println("Registry says: " + registry.toString());
 			}
 		}
 	}

@@ -1,9 +1,6 @@
 package ca.yorku.cmg.cnsim.engine.transaction;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class txConflictRegistryTest {

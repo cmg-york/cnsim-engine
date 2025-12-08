@@ -2,7 +2,6 @@ package ca.yorku.cmg.cnsim.engine.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
@@ -121,7 +120,7 @@ public class TransactionWorkload extends TransactionGroup {
 			TxConflictRegistry reg, 
 			double dispersion, double likelihood) {
 		
-		System.err.print("I count: [");
+		//System.err.print("I count: [");
 		for (Transaction tx : getAllTransactions()) {
 			if (reg.getMatch((int) tx.getID()) == -2) {
 				int conflict = sampler.getTransactionSampler().getConflict(
@@ -144,7 +143,7 @@ public class TransactionWorkload extends TransactionGroup {
 			}
 			
 		}
-		System.err.println("]");
+		//System.err.println("]");
 	}
 
 	
