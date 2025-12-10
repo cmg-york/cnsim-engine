@@ -178,6 +178,12 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
         return(result);
     }
     
+    @Override
+    //Decided at the Simulation level where there is access to the corresponding NodeSet 
+	public int getArrivalNode() {
+		return -1;
+	}
+    
     /**
      * Returns a random integer between the given bounds (inclusive).
      * <p>
@@ -191,9 +197,63 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      */
     @Override
     public int getRandomNum(int min, int max) {
-        return(sampler.getTransactionSampler().getRandom().nextInt((max - min) + 1) + min);
+        //return(sampler.getTransactionSampler().getRandom().nextInt((max - min) + 1) + min);
+    	return(random.nextInt((max - min) + 1) + min);
     }
 
+    
+    /**
+     * Pick a random match for a given ID with distance bias controlled by alpha.
+     * 
+     * @param id    Target ID (1 .. N)
+     * @param N     Total number of IDs
+     * @param dispersion Closeness parameter [0,1]:
+     *              0 -> almost always near 'id'
+     *              1 -> can pick anywhere in range (near edges possible)
+     * @param likelihood The likelihood that the transaction has a conflict.
+     * @return      Randomly chosen matching ID
+     */
+    public int getConflict(int id, int N, double dispersion, double likelihood) {
+        if (dispersion < 0 || dispersion > 1) {
+            throw new IllegalArgumentException("alpha must be in [0,1]");
+        }
+        if (id < 1 || id > N) {
+            throw new IllegalArgumentException("id must be in [1, N]");
+        }
+        if (N <= 1) {
+            throw new IllegalArgumentException("Cannot pick a conflict when only one ID exists");
+        }
+        
+        
+        // No conflict based on likelihood
+        if (random.nextDouble() >= likelihood) {
+            return -1;
+        }
+        
+        // Compute the maximum possible forward distance
+        int maxDistance = N - id;
+        
+        if (maxDistance == 0) {
+            return -1; // no forward conflict possible
+        }
+
+        // Sample uniform random number
+        double U = random.nextDouble(); // [0,1)
+        
+        // Exponential distance biased by dispersion (alpha)
+        int d = (int) Math.floor(-Math.log(U) * Math.pow(maxDistance, dispersion));
+
+        // Ensure we move at least 1 forward
+        if (d < 1) d = 1;
+
+        // Candidate is always forward
+        int candidate = id + d;
+        if (candidate > N) candidate = N; // clamp
+
+        return candidate;
+    }
+    
+    
     
     /**
      * Loads configuration values from {@linkplain Config} for transaction sampling.

@@ -71,6 +71,19 @@ public abstract class AbstractTransactionSampler implements ISowable {
 	 */
     public abstract long getNextTransactionSize() throws Exception;
 
+    
+	/** 
+	 * Returns the next transaction arrival Node.
+	 * <p>
+	 * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+	 * </p>
+	 * 
+	 * @return Node ID
+	 * @throws IllegalStateException if the file is exhausted and no alternative sampler is defined
+	 */
+	public abstract int getArrivalNode() throws IllegalStateException;
+    
+    
 	/**
 	 * Return a random number from min to max (inclusive)
 	 * @param min The minimum. 
@@ -78,6 +91,21 @@ public abstract class AbstractTransactionSampler implements ISowable {
 	 * @return The random integer
 	 */
     public abstract int getRandomNum(int min, int max);
+
+
+    /**
+     * Pick a random match for a given ID with distance bias controlled by alpha.
+     * 
+     * @param id    Target ID (1 .. N)
+     * @param N     Total number of IDs (ignored if conflict comes predefined)
+     * @param dispersion Closeness parameter [0,1]:
+     *              0 -> almost always near 'id'
+     *              1 -> can pick anywhere in range (near edges possible)
+     *              (ignored if conflict comes predefined)
+     * @param likelihood The likelihood that the transaction has a conflict.
+     * @return      Chosen matching ID
+     */
+    public abstract int getConflict(int id, int N, double dispersion, double likelihood);
 
 
     

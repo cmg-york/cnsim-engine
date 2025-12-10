@@ -79,7 +79,8 @@ public class TransactionWorkload extends TransactionGroup {
         t = new Transaction(trID,
                 currTime,
                 sampler.getTransactionSampler().getNextTransactionFeeValue(),
-                sampler.getTransactionSampler().getNextTransactionSize());
+                sampler.getTransactionSampler().getNextTransactionSize(),
+                sampler.getTransactionSampler().getArrivalNode());
         
         if (trID == sampler.getTransactionSampler().getSeedChangeTx()) {
         	if (sampler.getTransactionSampler().seedUpdateEnabled()) {
@@ -106,6 +107,43 @@ public class TransactionWorkload extends TransactionGroup {
 			rtx.add(getTransaction(sampler.getTransactionSampler().getRandomNum(0, Math.round((getCount()-1)*percentile))));
 		}
 		return rtx;
+	}
+
+	/**
+	 * Updates the given TxConflictRegistry with conflicts based on the specified dispersion and likelihood.
+	 * @param reg The TxConflictRegistry to be updated.
+	 * @param dispersion The dispersion parameter controlling the closeness of conflicts. In [0,1].
+	 * @param likelihood The likelihood of a transaction having a conflict. In [0,1]
+	 * @return The updated TxConflictRegistry.
+	 */
+	public void updateConflicts(
+			TxConflictRegistry reg, 
+			double dispersion, double likelihood) {
+		
+		//System.err.print("I count: [");
+		for (Transaction tx : getAllTransactions()) {
+			if (reg.getMatch((int) tx.getID()) == -2) {
+				int conflict = sampler.getTransactionSampler().getConflict(
+						(int) tx.getID(),
+						getAllTransactions().size(), 
+						dispersion, likelihood);
+				
+				if ((conflict == -1) || (reg.getMatch(conflict) != -2)) {
+					reg.noMatch((int) tx.getID());
+					//System.err.print("(" + tx.getID() + " <-> " + -1 + "), ");
+				} else {
+					if (conflict <= tx.getID()) {
+						throw new IllegalStateException("Conflicting ID must be larger than current tx ID");
+					}
+					reg.setMatch((int) tx.getID(), conflict);
+					//System.err.print("(" + tx.getID() + " <-> " + conflict + "), ");
+				}
+			} else {
+				//System.err.print("(" + tx.getID() + " <-> " + reg.getMatch((int) tx.getID()) + "), ");
+			}
+			
+		}
+		//System.err.println("]");
 	}
 
 	

@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.List;
+
 
 /**
  * A list containing various transactions. Can be used as a block or other needed grouping (e.g. pool).
@@ -19,6 +21,9 @@ public class TransactionGroup implements ITxContainer {
     protected float totalValue;
     protected float totalSize;
 
+    BitSet contents = new BitSet();
+    
+    
     ////////// Constructors //////////
 
     /**
@@ -38,6 +43,7 @@ public class TransactionGroup implements ITxContainer {
         for (Transaction t : initial) {
             totalValue += t.getValue();
             totalSize += t.getSize();
+            contents.set((int) t.getID());
         }
     }
 
@@ -48,10 +54,9 @@ public class TransactionGroup implements ITxContainer {
      * Transaction ID must run from {@code 1} to {@code n} strictly increasing by 1 at each step  (error otherwise). Time must not decrease as transactions IDs increase.
      * Time Created: a long integer representing the number of milliseconds (ms) from a fixed time 0.
      * Total Value: in user defined tokens depending on network.
-     * TODO: Is this bytes?
      * Total Size: in bytes
      * First Arrival NodeID: the node at which the transaction first arrives
-     *
+     * NOTE: FOR TESTING ONLY. Samplers are responsible for loading transactions.
      * @param fileName  A name to the text file containing the transactions.
      * @param hasHeader Whether the file has a header.
      * @throws IOException Error finding or reading the file.
@@ -105,9 +110,11 @@ public class TransactionGroup implements ITxContainer {
         totalValue = 0;
         totalSize = 0;
         group = initial;
+        contents = new BitSet();
         for (Transaction t : initial) {
             totalValue += t.getValue();
             totalSize += t.getSize();
+            contents.set((int) t.getID());
         }
     }
 
@@ -117,6 +124,7 @@ public class TransactionGroup implements ITxContainer {
     @Override
     public void addTransaction(Transaction t) {
         group.add(t);
+        contents.set((int) t.getID());
         totalSize += t.getSize();
         totalValue += t.getValue();
     }
@@ -126,22 +134,27 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public void removeTransaction(Transaction t) {
-        if (!group.contains(t)) return;
+    	removeTransaction(t.getID());
+    	
+        /* if (!group.contains(t)) return;
         group.remove(t);
+        contents.clear((int) t.getID());
         totalSize -= t.getSize();
         totalValue -= t.getValue();
+        */
     }
 
-
+    
     /**
      * Like removeTransaction(Transaction) but with ID as an argument. 
      * See {@linkplain ITxContainer#removeTransaction(Transaction)}.
      * @param txID
      */
-    public void removeTransaction(int txID) {
+    public void removeTransaction(long txID) {
         Transaction t = getTransactionById((int) txID);
         if (!group.contains(t)) return;
         group.remove(t);
+        contents.clear((int) txID);
         totalSize -= t.getSize();
         totalValue -= t.getValue();
     }
@@ -153,6 +166,13 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public Transaction removeNextTx() {
+    	
+    	int firstSet = contents.nextSetBit(0);
+        if (firstSet >= 0) {
+            contents.clear(firstSet); // clear it
+        }
+    	
+    	
         Transaction t = group.removeFirst();
         totalSize -= t.getSize();
         totalValue -= t.getValue();
@@ -167,6 +187,11 @@ public class TransactionGroup implements ITxContainer {
         for (Transaction t : g.getTransactions()) {
             this.removeTransaction(t);
         }
+        
+        // Compute c = a AND NOT b
+        BitSet notB = (BitSet) g.getBitSet().clone();
+        notB.flip(0, Math.max(contents.length(), g.getBitSet().length())); // invert all bits up to max length
+        contents.and(notB); // c = contents AND (NOT g)
     }
 
     ////////// Examine Content //////////
@@ -176,6 +201,9 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public boolean contains(Transaction t) {
+    	
+    	if (true) return(contains_BitSet(t));
+
         for (Transaction r : group) {
             if (r.getID() == t.getID()) {
                 return true;
@@ -183,12 +211,20 @@ public class TransactionGroup implements ITxContainer {
         }
         return false;
     }
-
+    
+    public boolean contains_BitSet(Transaction t) {
+    	return(contents.get((int) t.getID())); 
+    }
+    
+    
     /**
      * See {@linkplain ITxContainer#contains(long)}.
      */
     @Override
     public boolean contains(long txID) {
+    	
+    	if (true) return(contains_BitSet(txID));
+    	
         for (Transaction r : group) {
             if (r.getID() == txID) {
                 return true;
@@ -196,7 +232,12 @@ public class TransactionGroup implements ITxContainer {
         }
         return false;
     }
-
+    
+    public boolean contains_BitSet(long txID) {
+    	return(contents.get((int) txID)); 
+    }
+    
+    
     /**
      * Check if the group overlaps with another transaction group, i.e.,
      * there is a transaction in {@code p} that also exists in the current group.
@@ -223,6 +264,9 @@ public class TransactionGroup implements ITxContainer {
      * @return {@code true} of there is at least one transaction in {@code g} that is contained in the group, {@code false}, otherwise.
      */
     public boolean overlapsWith(TransactionGroup g) {
+    	
+    	if (true) return(overlapsWith_BitSet(g));
+    		
         for (Transaction r : group) {
             for (Transaction t : g.getTransactions()) {
                 if (t.getID() == r.getID()) {
@@ -233,6 +277,12 @@ public class TransactionGroup implements ITxContainer {
         return false;
     }
 
+    
+    public boolean overlapsWith_BitSet(TransactionGroup g) {
+    	return(contents.intersects(g.getBitSet()));
+    }
+    
+    
     /**
      * Retrieves a TransactionGroup containing the top N transactions based on
      * a given size limit and comparator.
@@ -243,6 +293,12 @@ public class TransactionGroup implements ITxContainer {
      * exceed sizeLimit based on given comparator.
      */
     public TransactionGroup getTopN(float sizeLimit, Comparator<Transaction> comp) {
+    	
+    	//TODO: maintain three arrays of values, sizes, and ratios
+    	// 		short O(n log n)
+    	//		traverse until full O(n)
+    	// OR YOU CAN LEAVE IT ALONE
+    	
         if (sizeLimit < 0) {
             throw new IllegalArgumentException(String.format("Size limit (%f) must be a positive integer", sizeLimit));
         }
@@ -306,6 +362,12 @@ public class TransactionGroup implements ITxContainer {
     public List<Transaction> getTransactions() {
         return group;
     }
+    
+    
+    public BitSet getBitSet() {
+    	return (contents);
+    }
+    
 
     /**
      * Get the transaction of the group at index {@code index}. Does not check if index exists.

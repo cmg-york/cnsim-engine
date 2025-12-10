@@ -161,7 +161,7 @@ public class TransactionGroupTest {
         float valueBefore = pool.getValue();
         Transaction existingTransaction = pool.getTransactions().get(1);
 
-        pool.removeTransaction(pool.getTransactions().get(1));
+        pool.removeTransaction(pool.getTransactions().get(1).getID());
 
         assertFalse(pool.getTransactions().contains(existingTransaction));
         assertFalse(pool.contains(existingTransaction));
@@ -175,7 +175,7 @@ public class TransactionGroupTest {
         float sizeBefore = pool.getSize();
         float valueBefore = pool.getValue();
 
-        pool.removeTransaction(otherTransaction);
+        pool.removeTransaction(otherTransaction.getID());
 
         assertFalse(pool.getTransactions().contains(otherTransaction));
         assertArrayEquals(groupBefore.toArray(), pool.getTransactions().toArray());
@@ -185,7 +185,7 @@ public class TransactionGroupTest {
 
     @Test
     public void testRemoveTransaction_emptyPool() {
-        emptyPool.removeTransaction(otherTransaction);
+        emptyPool.removeTransaction(otherTransaction.getID());
 
         assertTrue(emptyPool.getTransactions().isEmpty());
         assertEquals(0, emptyPool.getSize());
@@ -361,4 +361,74 @@ public class TransactionGroupTest {
     public void testGetTopN_invalidSizeLimit() {
         assertThrows(IllegalArgumentException.class, () -> pool.getTopN(-1, comparator));
     }
+    
+    
+    @Test
+    public void testContainsOverlaps() {
+        assertEquals("{100,101,102}", pool.printIDs(","));
+        TransactionGroup other = new TransactionGroup(new ArrayList<>(Arrays.asList(
+                new Transaction(100, 1000, 322, 1892),
+                new Transaction(103, 1001, 183, 9374),
+                new Transaction(104, 1002, 238, 4192))));
+        
+        TransactionGroup other2 = new TransactionGroup(new ArrayList<>(Arrays.asList(
+                new Transaction(105, 1000, 322, 1892),
+                new Transaction(103, 1001, 183, 9374),
+                new Transaction(104, 1002, 238, 4192))));
+        
+        
+        TransactionGroup other3 = new TransactionGroup(new ArrayList<>(Arrays.asList(
+                new Transaction(100, 1000, 322, 1892),
+                new Transaction(101, 1001, 183, 9374),
+                new Transaction(102, 1002, 238, 4192)
+        )));
+        
+        TransactionGroup other4 = new TransactionGroup(new ArrayList<>(Arrays.asList(
+                new Transaction(105, 1000, 322, 1892),
+                new Transaction(102, 1001, 183, 9374),
+                new Transaction(106, 1002, 238, 4192))));
+        
+        TransactionGroup other5 = new TransactionGroup(new ArrayList<>(Arrays.asList(
+                new Transaction(105, 1000, 322, 1892),
+                new Transaction(110, 1001, 183, 9374),
+                new Transaction(102, 1002, 238, 4192))));
+
+        assertTrue(pool.overlapsWith(other));
+        assertTrue(pool.contains(100));
+        assertTrue(pool.contains(101));
+        assertTrue(pool.contains(102));
+        assertFalse(pool.contains(103));
+        
+        assertFalse(pool.overlapsWith(other2));
+        assertFalse(other2.contains(100));
+        assertFalse(other2.contains(101));
+        assertFalse(other2.contains(102));
+        assertTrue(other2.contains(103));
+        assertTrue(other2.contains(104));
+        assertTrue(other2.contains(105));
+        assertTrue(other2.contains(new Transaction(105, 1, 1, 1)));
+        
+        assertTrue(pool.overlapsWith(other3));
+        assertTrue(pool.overlapsWith(other4));
+        assertTrue(pool.overlapsWith(other5));
+        
+        assertFalse(pool.overlapsWithByObj(other));
+        assertFalse(pool.overlapsWithByObj(other3));
+        
+        /* Extract a group */
+        pool.extractGroup(other);
+        assertEquals("{101,102}", pool.printIDs(","));
+        assertEquals(2, pool.getCount());
+        assertFalse(pool.contains(100));
+        assertTrue(pool.contains(101));
+        assertTrue(pool.contains(102));
+        
+        pool.extractGroup(other3);
+        assertEquals("{}", pool.printIDs(","));
+        assertEquals(0, pool.getCount());
+        assertFalse(pool.contains(101));
+        assertFalse(pool.contains(102));
+        
+    }
+    
 }
