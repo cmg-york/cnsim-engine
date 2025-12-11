@@ -84,14 +84,28 @@ public class Event_NewTransactionArrival extends Event {
         
         if (Reporter.reportsTransactions()) {
         	if ((transaction.getID() <= Integer.MAX_VALUE) && (Config.hasProperty("workload.hasConflicts"))) {
-	        	Reporter.addTx(
-	            		sim.getSimID(),
-	            		transaction.getID(), 
-	            		transaction.getSize(), 
-	            		transaction.getValue(),
-		        		node.getID(),
-	            		getTime(),
-	            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()));
+        		if (Config.hasProperty("workload.hasDependencies")) {
+    	        	Reporter.addTx(
+    	            		sim.getSimID(),
+    	            		transaction.getID(), 
+    	            		transaction.getSize(), 
+    	            		transaction.getValue(),
+    		        		node.getID(),
+    	            		getTime(),
+    	            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()),
+    	            		sim.getDependencyRegistry().toString((int) transaction.getID())
+    	        			);
+        		} else {
+		        	Reporter.addTx(
+		            		sim.getSimID(),
+		            		transaction.getID(), 
+		            		transaction.getSize(), 
+		            		transaction.getValue(),
+			        		node.getID(),
+		            		getTime(),
+		            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()),
+		            		"-1");
+        		}
         	} else {
         		Reporter.addTx(
 	            		sim.getSimID(),
@@ -99,7 +113,9 @@ public class Event_NewTransactionArrival extends Event {
 	            		transaction.getSize(), 
 	            		transaction.getValue(),
 		        		node.getID(),
-	            		getTime());      		
+	            		getTime(),
+	            		-1,
+	            		"-1");      		
         	}
 		}
         

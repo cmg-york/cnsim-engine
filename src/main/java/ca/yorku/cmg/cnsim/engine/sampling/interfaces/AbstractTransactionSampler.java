@@ -1,5 +1,6 @@
 package ca.yorku.cmg.cnsim.engine.sampling.interfaces;
 
+import java.util.BitSet;
 import java.util.Random;
 
 import ca.yorku.cmg.cnsim.engine.config.Config;
@@ -108,7 +109,9 @@ public abstract class AbstractTransactionSampler implements ISowable {
     public abstract int getConflict(int id, int N, double dispersion, double likelihood);
 
 
-    
+
+    public abstract BitSet randomDependencies(int id, float dispersion, int countMean, float countSD);
+
     
     /*
      * 

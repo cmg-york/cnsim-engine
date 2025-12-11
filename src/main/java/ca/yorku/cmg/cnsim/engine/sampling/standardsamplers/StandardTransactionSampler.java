@@ -1,5 +1,10 @@
 package ca.yorku.cmg.cnsim.engine.sampling.standardsamplers;
 
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
@@ -251,6 +256,52 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
         if (candidate > N) candidate = N; // clamp
 
         return candidate;
+    }
+    
+    
+    
+    /**
+     * Generate a random dependency for Transaction txID
+     *
+     * @param txID        Transaction for which dependencies are generated. An integer greater than 0.
+     * @param dispersion  float [0..1], measures how far from txID the numbers are
+     * @param countMean  expected number of dependencies (0..txID-1)
+     * @param countSD    standard deviation for number of dependencies
+     * @return a BitSet of dependencies, or null if no dependencies
+     */
+    public BitSet randomDependencies(int j, float dispersion, int countMean, float countSD) {
+
+        if (j <= 1) return null;
+
+        // 1. Draw N from normal distribution
+        int N = (int) Math.round(countMean + random.nextGaussian() * countSD);
+        N = Math.max(0, N); // make non-negative
+        if (N == 0) return null;
+
+        int maxDep = j - 1;
+        N = Math.min(N, maxDep); // cannot pick more than j-1 numbers
+
+        BitSet deps = new BitSet(j);
+
+        // 2. Create list of all possible numbers < j
+        List<Integer> candidates = new ArrayList<>(IntStream.range(1, j).boxed().toList());
+
+        // 3. Assign a weight to each candidate based on left-tail normal bias
+        List<Double> keys = new ArrayList<>();
+        for (int num : candidates) {
+            // approximate left-tail normal: higher numbers less likely
+            keys.add(Math.pow(random.nextDouble(), 1.0 / Math.max(dispersion, 0.0001)));
+        }
+
+        // 4. Sort candidates by keys descending → biased selection
+        candidates.sort((a, b) -> Double.compare(keys.get(b - 1), keys.get(a - 1)));
+
+        // 5. Pick first N numbers
+        for (int i = 0; i < N; i++) {
+            deps.set(candidates.get(i));
+        }
+
+        return deps;
     }
     
     

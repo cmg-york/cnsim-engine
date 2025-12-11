@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -31,98 +32,101 @@ import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
  * @see AbstractTransactionSampler
  */
 public class FileBasedTransactionSampler extends AbstractTransactionSampler {
-	
-    /** Path to the CSV file containing the transaction workload */
-    String transactionsFilePath;
 
-    /** Optional alternative sampler for additional transactions if the file is too short */
-    AbstractTransactionSampler alternativeSampler = null;
+	/** Path to the CSV file containing the transaction workload */
+	String transactionsFilePath;
 
-    /** Number of transactions required according to configuration */
-    /** TODO-JIRA: Config validation */
-    private int requiredTransactionLines = Config.getPropertyInt("workload.numTransactions");
+	/** Optional alternative sampler for additional transactions if the file is too short */
+	AbstractTransactionSampler alternativeSampler = null;
 
-    /** Arrival time of the last transaction (milliseconds) */
-    private float lastArrivalTime = 0;
+	/** Number of transactions required according to configuration */
+	/** TODO-JIRA: Config validation */
+	private int requiredTransactionLines = Config.getPropertyInt("workload.numTransactions");
 
-    /** Queue of transaction sizes read from file */
-    private Queue<Long> transactionSizes = new LinkedList<>();
+	/** Arrival time of the last transaction (milliseconds) */
+	private float lastArrivalTime = 0;
 
-    /** Queue of transaction fees read from file */
-    private Queue<Float> transactionFeeValues = new LinkedList<>();
+	/** Queue of transaction sizes read from file */
+	private Queue<Long> transactionSizes = new LinkedList<>();
 
-    /** Queue of arrival node ids */
-    private Queue<Integer> transactionNodeIDs = new LinkedList<>();
-    
-    /** Queue of transaction arrival times read from file (milliseconds) */
-    private final Queue<Long> transactionArrivalTimes = new LinkedList<>();
+	/** Queue of transaction fees read from file */
+	private Queue<Float> transactionFeeValues = new LinkedList<>();
 
-    /** Queue of conflicting IDs */
-    private ArrayList<Integer> conflictingTxs = new ArrayList<>();
-    
-    
+	/** Queue of arrival node ids */
+	private Queue<Integer> transactionNodeIDs = new LinkedList<>();
 
-    // -----------------------------------------------------------------
-    // CONSTRUCTORS
-    // -----------------------------------------------------------------
+	/** Queue of transaction arrival times read from file (milliseconds) */
+	private final Queue<Long> transactionArrivalTimes = new LinkedList<>();
 
-    /**
-     * Creates a {@linkplain FileBasedTransactionSampler} that reads transactions from a file.
-     * 
-     * @param transactionsFilePath Path to the CSV file containing transaction data
-     */
-    public FileBasedTransactionSampler(String transactionsFilePath){
-    	this.transactionsFilePath = transactionsFilePath;
-    	try {
+	/** ArrayList of conflicting IDs */
+	private ArrayList<Integer> conflictingTxs = new ArrayList<>();
+
+	/** ArrayList of conflicting IDs */
+	private ArrayList<BitSet> dependencies = new ArrayList<>();
+
+
+	// -----------------------------------------------------------------
+	// CONSTRUCTORS
+	// -----------------------------------------------------------------
+
+	/**
+	 * Creates a {@linkplain FileBasedTransactionSampler} that reads transactions from a file.
+	 * 
+	 * @param transactionsFilePath Path to the CSV file containing transaction data
+	 */
+	public FileBasedTransactionSampler(String transactionsFilePath){
+		this.transactionsFilePath = transactionsFilePath;
+		try {
 			loadTransactionWorkload();
 		} catch (Exception e) {
 			//TODO-JIRA: unified error reporting
 			Debug.e(this, "Error loading workload: " + e.getMessage());
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
-    }
- 
-    /**
-     * Creates a {@linkplain FileBasedTransactionSampler} with an alternative sampler.
-     * <p>
-     * The alternative sampler is used when the file does not contain enough transactions
-     * as specified in configuration.
-     * 
-     * @param transactionsFilePath Path to the CSV file containing transaction data
-     * @param randomSampler        Alternative {@linkplain AbstractTransactionSampler} for missing transactions
-     */
-    public FileBasedTransactionSampler(String transactionsFilePath, AbstractTransactionSampler randomSampler) {
-    	this.alternativeSampler = randomSampler;
-    	this.transactionsFilePath = transactionsFilePath;
-    	try {
+	}
+
+	/**
+	 * Creates a {@linkplain FileBasedTransactionSampler} with an alternative sampler.
+	 * <p>
+	 * The alternative sampler is used when the file does not contain enough transactions
+	 * as specified in configuration.
+	 * 
+	 * @param transactionsFilePath Path to the CSV file containing transaction data
+	 * @param randomSampler        Alternative {@linkplain AbstractTransactionSampler} for missing transactions
+	 */
+	public FileBasedTransactionSampler(String transactionsFilePath, AbstractTransactionSampler randomSampler) {
+		this.alternativeSampler = randomSampler;
+		this.transactionsFilePath = transactionsFilePath;
+		try {
 			loadTransactionWorkload();
 		} catch (Exception e) {
 			//TODO-JIRA: unified error reporting
 			System.err.println("Error loading workload: " + e.getMessage());
-			System.exit(-1);
+			e.printStackTrace();
 		}
-    }
-    
-    
-    // -----------------------------------------------------------------
-    // WORKLOAD LOADING
-    // -----------------------------------------------------------------
+	}
 
-    /**
-     * Loads the transaction workload from the file.
-     * 
-     * @throws Exception if the file contains fewer transactions than required and no alternative sampler is defined
-     */
-    public void loadTransactionWorkload() throws Exception {
-    	loadTransactionWorkload(true);
-    }
-    
-    /**
-     * Loads the transaction workload from the file, optionally skipping the header.
-     * 
-     * @param hasHeaders True if the first line is a header and should be skipped
-     * @throws Exception if the file contains fewer transactions than required and no alternative sampler is defined
-     * TODO: incorporate into centralized error and debug reporting.  
+
+	// -----------------------------------------------------------------
+	// WORKLOAD LOADING
+	// -----------------------------------------------------------------
+
+	/**
+	 * Loads the transaction workload from the file.
+	 * 
+	 * @throws Exception if the file contains fewer transactions than required and no alternative sampler is defined
+	 */
+	public void loadTransactionWorkload() throws Exception {
+		loadTransactionWorkload(true);
+	}
+
+	/**
+	 * Loads the transaction workload from the file, optionally skipping the header.
+	 * 
+	 * @param hasHeaders True if the first line is a header and should be skipped
+	 * @throws Exception if the file contains fewer transactions than required and no alternative sampler is defined
+	 * TODO: incorporate into centralized error and debug reporting.  
 
 	public void loadTransactionWorkload(boolean hasHeaders) throws Exception {
 		int lineCount = 0;
@@ -160,236 +164,307 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 			Debug.w(this,"Transaction file contains more lines than required transactions as per configuration file. Required: "	+ requiredTransactionLines + ", Found: " + lineCount);
 		}
 	}
-	*/
-	
-	
-	
+	 */
+
+
+
 	public void loadTransactionWorkload(boolean hasHeaders) throws Exception {
-	    int lineCount = 0;
-	    String line;
-	    try (BufferedReader br = new BufferedReader(new FileReader(transactionsFilePath))) {
-	        while ((line = br.readLine()) != null) {
-	            lineCount++;
-	            String[] values = line.split(",");
-	            
-	            // Skip lines that don't have at least 4 columns
-	            if (values.length < 5) {
-	                continue;
-	            }
-	            
-	            // Skip first line if headers
-	            if (hasHeaders && lineCount == 1) {
-	                continue;
-	            }
-	            
-	            try {
-	                transactionSizes.add(Long.parseLong(values[1].trim()));
-	                transactionFeeValues.add(Float.parseFloat(values[2].trim()));
-	                transactionNodeIDs.add(Integer.parseInt(values[3].trim()));
-	                transactionArrivalTimes.add(Long.parseLong(values[4].trim()));
+		int lineCount = 0;
+		String line;
+		try (BufferedReader br = new BufferedReader(new FileReader(transactionsFilePath))) {
+			while ((line = br.readLine()) != null) {
+				lineCount++;
+				String[] values = line.split(",");
 
-	                // Optional 5th column: conflictingTx
-	                if (values.length >= 6) {
-	                    try {
-	                        conflictingTxs.add(Integer.parseInt(values[5].trim()));
-	                    } catch (NumberFormatException e) {
-	                        System.err.println("Error parsing conflictingTx for line: " + line + " — storing as -1");
-	                        conflictingTxs.add(-1); // fallback if parsing fails
-	                    }
-	                } else {
-	                    conflictingTxs.add(-1); // default if column missing
-	                }
-	                
-	            } catch (NumberFormatException e) {
-	                System.err.println("Error parsing transaction line: " + line);
-	            }
-	        }
-	    } catch (IOException e) {
-	        Debug.e(this,"Error loading workload: no such file or directory.");
-	        throw e;
-	    }
+				// Skip lines that don't have at least 4 columns
+				if (values.length < 5) {
+					continue;
+				}
 
-	    if (hasHeaders) lineCount--;
-	    
-	    if (lineCount < requiredTransactionLines) {
-	        if (alternativeSampler == null) {
-	            throw new Exception("The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Define alternative sampler for the additional intervals or update config file.");
-	        } else {
-	            Debug.p(1,this,"The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Additional arrivals to be drawn from alternative sampler.");
-	        }
-	    } else if (lineCount > requiredTransactionLines) {
-	        Debug.w(this,"Transaction file contains more lines than required transactions as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount);
-	    }
+				// Skip first line if headers
+				if (hasHeaders && lineCount == 1) {
+					continue;
+				}
+
+				try {
+					transactionSizes.add(Long.parseLong(values[1].trim()));
+					transactionFeeValues.add(Float.parseFloat(values[2].trim()));
+					transactionNodeIDs.add(Integer.parseInt(values[3].trim()));
+					transactionArrivalTimes.add(Long.parseLong(values[4].trim()));
+
+					switch (values.length) {
+					case 7: //has both conflicting Tx and dependencies
+						dependencies.add(parseToBitSet(values[6].trim()));
+					case 6: //has conflicting Tx
+						try {
+							conflictingTxs.add(Integer.parseInt(values[5].trim()));
+						} catch (NumberFormatException e) {
+							System.err.println("Error parsing conflictingTx for line: " + line + 
+									" — storing as -1");
+							conflictingTxs.add(-1); // fallback if parsing fails
+						}
+						break;
+					default:
+						conflictingTxs.add(-1);
+					}
+					
+				} catch (NumberFormatException e) {
+					Debug.e("Error parsing transaction line: " + line);
+					Debug.e("1: " + Long.parseLong(values[1].trim()));
+					Debug.e("2: " + Float.parseFloat(values[1].trim()));
+					Debug.e("3: " + Integer.parseInt(values[3].trim()));
+					Debug.e("4: " + Long.parseLong(values[4].trim()));
+					System.exit(-1);
+				}
+			}
+		} catch (IOException e) {
+			Debug.e(this,"Error loading workload: no such file or directory.");
+			throw e;
+		}
+
+		if (hasHeaders) lineCount--;
+
+		if (lineCount < requiredTransactionLines) {
+			if (alternativeSampler == null) {
+				throw new Exception("The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Define alternative sampler for the additional intervals or update config file.");
+			} else {
+				Debug.p(1,this,"The transaction file does not contain enough lines as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount + ". Additional arrivals to be drawn from alternative sampler.");
+			}
+		} else if (lineCount > requiredTransactionLines) {
+			Debug.w(this,"Transaction file contains more lines than required transactions as per configuration file. Required: " + requiredTransactionLines + ", Found: " + lineCount);
+		}
 	}
-	
-	
-	
+
+
+
 
 	// -----------------------------------------------------------------
-    // SAMPLING ROUTINES
-    // -----------------------------------------------------------------
+	// SAMPLING ROUTINES
+	// -----------------------------------------------------------------
 
-    /**
-     * Returns the next transaction arrival interval in milliseconds.
-     * <p>
-     * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
-     * </p>
-     * 
-     * @return interval until the next transaction in milliseconds
-     * @throws Exception if the file is exhausted and no alternative sampler is defined
-     */
-    @Override
-    public float getNextTransactionArrivalInterval() throws Exception {
-    	float arrivalTime;
-    	float interval;
-    	
-    	if (!transactionArrivalTimes.isEmpty()) {
-    		arrivalTime = transactionArrivalTimes.poll();
-    		interval = arrivalTime - lastArrivalTime;
-    		lastArrivalTime = arrivalTime;
-    	} else if (alternativeSampler != null) {
-    		interval = alternativeSampler.getNextTransactionArrivalInterval();
-    	} else {
-    		Debug.e(this,"getNextTransactionArrivalInterval(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-    		throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-    	}
-        return (interval); 
-    }
+	/**
+	 * Returns the next transaction arrival interval in milliseconds.
+	 * <p>
+	 * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+	 * </p>
+	 * 
+	 * @return interval until the next transaction in milliseconds
+	 * @throws Exception if the file is exhausted and no alternative sampler is defined
+	 */
+	@Override
+	public float getNextTransactionArrivalInterval() throws Exception {
+		float arrivalTime;
+		float interval;
 
-    /**
-     * Returns the next transaction fee value.
-     * <p>
-     * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
-     * </p>
-     * 
-     * @return transaction fee value
-     * @throws Exception if the file is exhausted and no alternative sampler is defined
-     */
-    @Override
-    public float getNextTransactionFeeValue() throws Exception {
-    	if (!transactionFeeValues.isEmpty()) {
-    		return(transactionFeeValues.poll());
-    	} else if (alternativeSampler != null) {
-    		return(alternativeSampler.getNextTransactionFeeValue());
-    	} else {
-    		Debug.e(this,"getNextTransactionFeeValue(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-    		throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-    	}
-    }
+		if (!transactionArrivalTimes.isEmpty()) {
+			arrivalTime = transactionArrivalTimes.poll();
+			interval = arrivalTime - lastArrivalTime;
+			lastArrivalTime = arrivalTime;
+		} else if (alternativeSampler != null) {
+			interval = alternativeSampler.getNextTransactionArrivalInterval();
+		} else {
+			Debug.e(this,"getNextTransactionArrivalInterval(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+			throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+		}
+		return (interval); 
+	}
 
-    /** 
-    * Returns the next transaction size.
-    * <p>
-    * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
-    * </p>
-    * 
-    * @return transaction size
-    * @throws Exception if the file is exhausted and no alternative sampler is defined
-    */
-    @Override
-    public long getNextTransactionSize() throws Exception {
-    	if (!transactionSizes.isEmpty()) {
-    		return(transactionSizes.poll());
-    	} else if (alternativeSampler != null) {
-    		return(alternativeSampler.getNextTransactionSize());
-    	} else {
-    		Debug.e(this,"getNextTransactionSize(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-    		throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-    	}
-    }
-    
+	/**
+	 * Returns the next transaction fee value.
+	 * <p>
+	 * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+	 * </p>
+	 * 
+	 * @return transaction fee value
+	 * @throws Exception if the file is exhausted and no alternative sampler is defined
+	 */
+	@Override
+	public float getNextTransactionFeeValue() throws Exception {
+		if (!transactionFeeValues.isEmpty()) {
+			return(transactionFeeValues.poll());
+		} else if (alternativeSampler != null) {
+			return(alternativeSampler.getNextTransactionFeeValue());
+		} else {
+			Debug.e(this,"getNextTransactionFeeValue(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+			throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+		}
+	}
 
-    
-    /** 
-     * Returns the next transaction size.
-     * <p>
-     * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
-     * </p>
-     * 
-     * @return transaction size
-     * @throws Exception if the file is exhausted and no alternative sampler is defined
-     */
-     @Override
-     public int getArrivalNode() {
-     	if (!transactionNodeIDs.isEmpty()) {
-     		return(transactionNodeIDs.poll());
-     	} else if (alternativeSampler != null) {
-     		return(alternativeSampler.getArrivalNode());
-     	} else {
-     		Debug.e(this,"getArrivalNode(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-     		throw new IllegalStateException("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
-     	}
-     }
+	/** 
+	 * Returns the next transaction size.
+	 * <p>
+	 * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+	 * </p>
+	 * 
+	 * @return transaction size
+	 * @throws Exception if the file is exhausted and no alternative sampler is defined
+	 */
+	@Override
+	public long getNextTransactionSize() throws Exception {
+		if (!transactionSizes.isEmpty()) {
+			return(transactionSizes.poll());
+		} else if (alternativeSampler != null) {
+			return(alternativeSampler.getNextTransactionSize());
+		} else {
+			Debug.e(this,"getNextTransactionSize(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+			throw new Exception("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+		}
+	}
 
-    
-    
-    /**
-     * Returns a uniformly sampled integer in the given range.
-     * <p>
-     * Delegates to the alternative sampler.
-     * </p>
-     */
-    @Override
-    public int getRandomNum(int min, int max) {
-        return(alternativeSampler.getRandomNum(min, max));
-    }
 
-    
+
+	/** 
+	 * Returns the next transaction size.
+	 * <p>
+	 * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+	 * </p>
+	 * 
+	 * @return transaction size
+	 * @throws Exception if the file is exhausted and no alternative sampler is defined
+	 */
+	@Override
+	public int getArrivalNode() {
+		if (!transactionNodeIDs.isEmpty()) {
+			return(transactionNodeIDs.poll());
+		} else if (alternativeSampler != null) {
+			return(alternativeSampler.getArrivalNode());
+		} else {
+			Debug.e(this,"getArrivalNode(): Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+			throw new IllegalStateException("Transaction file has less transactions than specified in configuration file. Alternative Sampler not specified.");
+		}
+	}
+
+
+
+	/**
+	 * Returns a uniformly sampled integer in the given range.
+	 * <p>
+	 * Delegates to the alternative sampler.
+	 * </p>
+	 */
+	@Override
+	public int getRandomNum(int min, int max) {
+		return(alternativeSampler.getRandomNum(min, max));
+	}
+
+
 	@Override
 	public int getConflict(int id, int N, double alpha, double likelihood) {
 		int conf;
 		if (id <= conflictingTxs.size()) {
 			conf = conflictingTxs.get(id-1);
 			//System.err.println("File conflict for  " + id + " is " + conf);
-			return (conf);
 		} else {
 			conf = alternativeSampler.getConflict(id, N, alpha, likelihood);
 			//System.err.println("Rand conflict for  " + id + " is " + conf);
-			return (conf);
+		}
+		return (conf);
+	}
+
+	@Override
+	public BitSet randomDependencies(int id, float dispersion, int countMean, float countSD) {
+		if (id <= dependencies.size()) {
+			return(dependencies.get(id-1));
+		} else {
+			return(alternativeSampler.randomDependencies(id, dispersion, countMean, countSD));
 		}
 	}
-    
-    
-    
-    
+
+
 	// -----------------------------------------------------------------
-    // SEED MANAGEMENT
-    // -----------------------------------------------------------------
+	// SEED MANAGEMENT
+	// -----------------------------------------------------------------
 
-    
-    /**
-     * Updates the seed in the alternative sampler.
-     * @see ca.yorku.cmg.cnsim.engine.sampling.interfaces.IMultiSowable#updateSeed()
-     * @see ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardTransactionSampler#updateSeed()
 
-     */
+	/**
+	 * Updates the seed in the alternative sampler.
+	 * @see ca.yorku.cmg.cnsim.engine.sampling.interfaces.IMultiSowable#updateSeed()
+	 * @see ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardTransactionSampler#updateSeed()
+
+	 */
 	@Override
 	public void updateSeed() {
 		alternativeSampler.updateSeed();
 	}
 
-    /**
-     * Returns the transaction ID at which the seed will change.
-     * <p>
-     * Delegates to the alternative sampler.
-     * </p>
-     */
+	/**
+	 * Returns the transaction ID at which the seed will change.
+	 * <p>
+	 * Delegates to the alternative sampler.
+	 * </p>
+	 */
 	@Override
 	public long getSeedChangeTx() {
 		return(alternativeSampler.getSeedChangeTx());
 	}
 
-    /**
-     * Returns whether seed updates are enabled.
-     * <p>
-     * Delegates to the alternative sampler.
-     * </p>
-     */
+	/**
+	 * Returns whether seed updates are enabled.
+	 * <p>
+	 * Delegates to the alternative sampler.
+	 * </p>
+	 */
 	@Override
 	public boolean seedUpdateEnabled() {
 		return(alternativeSampler.seedUpdateEnabled());
 	}
+	
+	
+	
+	
+	// -----------------------------------------------------------------
+	// HELPER
+	// -----------------------------------------------------------------
 
+	public static BitSet parseToBitSet(String s) {
+	    if (s == null) {
+	        throw new IllegalArgumentException("Input cannot be null");
+	    }
+
+	    String trimmed = s.trim();
+
+	    // Special case: "-1" means empty bitset
+	    if (trimmed.equals("-1")) {
+	        return new BitSet();
+	    }
+
+	    // Must start with '{' and end with '}'
+	    if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) {
+	        throw new IllegalArgumentException("Input must be of the form {1,2,3} or -1");
+	    }
+
+	    // Extract inner content
+	    String content = trimmed.substring(1, trimmed.length() - 1).trim();
+
+	    // Empty braces "{}" are not allowed
+	    if (content.isEmpty()) {
+	        throw new IllegalArgumentException("Empty braces {} are not permitted; use -1 for empty");
+	    }
+
+	    BitSet bitSet = new BitSet();
+
+	    String[] parts = content.split(";");
+	    for (String part : parts) {
+	        String p = part.trim();
+	        if (p.isEmpty()) {
+	            throw new IllegalArgumentException("Empty entry inside braces: " + s);
+	        }
+	        int index;
+	        try {
+	            index = Integer.parseInt(p);
+	        } catch (NumberFormatException e) {
+	            throw new IllegalArgumentException("Invalid integer value: " + p);
+	        }
+
+	        if (index < 0) {
+	            throw new IllegalArgumentException("Negative bit index: " + index);
+	        }
+
+	        bitSet.set(index);
+	    }
+
+	    return bitSet;
+	}
 
 
 }

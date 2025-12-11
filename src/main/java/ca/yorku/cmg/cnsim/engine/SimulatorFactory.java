@@ -13,6 +13,7 @@ import ca.yorku.cmg.cnsim.engine.sampling.factories.NodeSamplerFactory;
 import ca.yorku.cmg.cnsim.engine.sampling.factories.TransactionSamplerFactory;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
 import ca.yorku.cmg.cnsim.engine.transaction.TxConflictRegistry;
+import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 
 
 /**
@@ -237,6 +238,30 @@ public abstract class SimulatorFactory {
 		}
 	}
 	
+	
+	
+	private void createDependencyRegistry(Simulation s) {
+		if (Config.hasProperty("workload.hasDependencies")) { 
+			if (Config.getPropertyBoolean("workload.hasDependencies")) {
+				float dispersion = Config.getPropertyFloat("workload.dependencies.dispersion");
+				int countMean = Config.getPropertyInt("workload.dependencies.countMean");
+				float countSD = Config.getPropertyFloat("workload.dependencies.countSD");
+				
+				int N = s.getWorkload().getCount();
+				
+				//Create the registry of the appropriate size:
+				TxDependencyRegistry registry = new TxDependencyRegistry(N);
+				
+				//Update the registry with random conflicts
+				s.getWorkload().updateDependencies(registry, dispersion, countMean, countSD);
+				
+				//set the registry to the simulation object for use by nodes.
+				s.setDependencyRegistry(registry);
+			}
+		}
+	}
+	
+	
 	/**
 	 * Sets a hard termination time for the simulation based on the
 	 * {@code sim.terminate.atTime} property in {@linkplain Config}.
@@ -333,6 +358,10 @@ public abstract class SimulatorFactory {
 		/** Create Conflict Registry 
 		 */
 		createConflictRegistry(s);
+
+		/** Create Dependency Registry 
+		 */
+		createDependencyRegistry(s);
 		
 		/** Schedule belief reporting events */
 		scheduleBeliefReports(s);

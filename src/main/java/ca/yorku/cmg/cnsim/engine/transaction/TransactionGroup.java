@@ -21,6 +21,9 @@ public class TransactionGroup implements ITxContainer {
     protected float totalValue;
     protected float totalSize;
 
+    
+    private static final ThreadLocal<BitSet> SCRATCH =
+            ThreadLocal.withInitial(BitSet::new);
     BitSet contents = new BitSet();
     
     
@@ -235,6 +238,28 @@ public class TransactionGroup implements ITxContainer {
     
     public boolean contains_BitSet(long txID) {
     	return(contents.get((int) txID)); 
+    }
+    
+    
+
+    public boolean satisfiesDependenciesOf(Transaction tx,TxDependencyRegistry registry) {
+    	return(registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get()));
+    }
+    
+    public boolean satisfiesDependenciesOf(long txID,TxDependencyRegistry registry) {
+    	return(registry.dependenciesMetFast((int) txID,contents,SCRATCH.get()));
+    }  
+    
+    public boolean satisfiesDependenciesOf(BitSet set) {
+    	return(fullyContainsSet(set));
+    }
+    
+    public boolean fullyContainsSet(BitSet set) {
+        BitSet scratch = SCRATCH.get();   // thread-private scratch
+        scratch.clear();
+        scratch.or(set);
+        scratch.andNot(contents);
+        return scratch.isEmpty();
     }
     
     

@@ -11,6 +11,7 @@ import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
 import ca.yorku.cmg.cnsim.engine.transaction.TxConflictRegistry;
+import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 
 import java.util.PriorityQueue;
 
@@ -45,6 +46,7 @@ public class Simulation {
 	protected Sampler sampler;
 	
 	private TxConflictRegistry conflictRegistry;
+	private TxDependencyRegistry dependencyRegistry;
 	
 	private TransactionWorkload workload;
 
@@ -282,6 +284,18 @@ public class Simulation {
 		this.conflictRegistry = conflictRegistry;
 	}
 
+	
+	public TxDependencyRegistry getDependencyRegistry() {
+		return dependencyRegistry;
+	}
+
+
+	public void setDependencyRegistry(TxDependencyRegistry depRegistry) {
+		this.dependencyRegistry = depRegistry;
+	}
+	
+	
+	
 	public TransactionWorkload getWorkload() {
 		return workload;
 	}

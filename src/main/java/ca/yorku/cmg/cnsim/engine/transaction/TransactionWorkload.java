@@ -147,6 +147,17 @@ public class TransactionWorkload extends TransactionGroup {
 	}
 
 	
+	public void updateDependencies(TxDependencyRegistry reg, float dispersion, int countMean, float countSD) {
+		//System.err.print("I count: [");
+		for (Transaction tx : getAllTransactions()) {
+			reg.addDependencies((int) tx.getID(), 
+					sampler.getTransactionSampler().randomDependencies((int) tx.getID(), 
+							dispersion, countMean, countSD));
+		}
+	}
+	
+	
+	
     //TODO Why did not used get group directly
 	public List<Transaction> getAllTransactions() {
     	return getTransactions();
@@ -163,6 +174,8 @@ public class TransactionWorkload extends TransactionGroup {
     public TransactionWorkload(String fileName, boolean hasHeader) throws Exception {
     	super(fileName, hasHeader);
     }
+
+
 
 }
     
