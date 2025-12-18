@@ -83,7 +83,10 @@ public class Event_ContainerValidation extends Event {
             		System.currentTimeMillis() - Simulation.sysStartTime, 
             		this.getClass().getSimpleName() + status, 
             		node.getID(), 
-            		container.getID());
+            		container.getID(),
+            		//TODO: add the pool content here
+	        		""
+            		);
         }
     }
 

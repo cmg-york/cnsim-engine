@@ -147,11 +147,11 @@ public class TransactionWorkload extends TransactionGroup {
 	}
 
 	
-	public void updateDependencies(TxDependencyRegistry reg, float dispersion, int countMean, float countSD) {
+	public void updateDependencies(TxDependencyRegistry reg, boolean mandatory, float dispersion, int countMean, float countSD) {
 		//System.err.print("I count: [");
 		for (Transaction tx : getAllTransactions()) {
 			reg.addDependencies((int) tx.getID(), 
-					sampler.getTransactionSampler().randomDependencies((int) tx.getID(), 
+					sampler.getTransactionSampler().randomDependencies((int) tx.getID(), mandatory, 
 							dispersion, countMean, countSD));
 		}
 	}

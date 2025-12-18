@@ -135,7 +135,7 @@ public class Reporter {
 		} catch (IOException e) {e.printStackTrace();}
 		
 		//Prepare the reporting structures
-		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID");
+		eventLog.add("SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID, Info");
 		//inputTxLog.add("SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)");
 		inputTxLog.add("SimID, TxID, Size, Value, NodeID, ArrivalTime, ConflictID, DependencyIDs");
 		//nodeLog.add("SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles");
@@ -252,7 +252,7 @@ public class Reporter {
 	 * @param objInvolved The ID of the object involved in the event (e.g., transaction ID), or -1 if none.
 	 */    
 	public static void addEvent(int simID, long evtID, long simTime, long sysTime, 
-			String evtType, int nodeInvolved, long objInvolved) {
+			String evtType, int nodeInvolved, long objInvolved, String misc) {
 		if (Reporter.reportEvents)
 			eventLog.add(simID + "," + 
 					evtID + "," + 
@@ -260,7 +260,8 @@ public class Reporter {
 					sysTime + "," +
 					evtType + "," +
 					nodeInvolved + "," +
-					objInvolved);
+					objInvolved + "," +
+					misc);
 	}
 
     /**

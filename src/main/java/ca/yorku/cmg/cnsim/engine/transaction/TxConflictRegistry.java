@@ -29,6 +29,10 @@ public class TxConflictRegistry {
         Arrays.fill(match, -2L); // -2 means "uninitialized"
     }
 
+    public void neutralize() {
+    	Arrays.fill(match, -1L); // -1 means no conflict
+    }
+    
     /**
      * Gets the partner of ID 'id'.
      * Returns -1 if unmatched.

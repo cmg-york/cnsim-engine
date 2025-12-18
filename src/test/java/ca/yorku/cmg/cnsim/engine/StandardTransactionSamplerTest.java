@@ -201,7 +201,7 @@ class StandardTransactionSamplerTest {
     
     @Test
     public void testNoDependenciesForJ1() {
-        BitSet deps = s.randomDependencies(1, 0.5f, 2, 1f);
+        BitSet deps = s.randomDependencies(1, false, 0.5f, 2, 1f);
         assertNull(deps, "J=1 should have no dependencies");
     }
 
@@ -209,7 +209,7 @@ class StandardTransactionSamplerTest {
     public void testNumberOfDependenciesWithinBounds() {
     	for (int j = 2; j <= 20; j++) {
     	    final int currentJ = j;  // fix for lambda capture
-    	    BitSet deps = s.randomDependencies(currentJ, 0.5f, 5, 2f);
+    	    BitSet deps = s.randomDependencies(currentJ, false, 0.5f, 5, 2f);
     	    if (deps != null) {
     	        assertTrue(deps.cardinality() <= currentJ - 1, "Too many dependencies for j=" + currentJ);
     	        assertTrue(deps.stream().allMatch(x -> x >= 1 && x < currentJ), "Dependency out of range");
@@ -222,14 +222,14 @@ class StandardTransactionSamplerTest {
     public void testCountMeanandSDEffect(RepetitionInfo rep) {
         int j = 5;
         s.setSeed(rep.getCurrentRepetition());
-        BitSet deps = s.randomDependencies(j, 1.0f, 1, 0.1f);
+        BitSet deps = s.randomDependencies(j, false, 1.0f, 1, 0.1f);
         if (deps != null) {
         	assertFalse(deps.cardinality() > 3, "Small count sd should not produce more than two numbers");
 	        //Debug.e(1,j + " (disp = 0.1, count = 1, sd = 0.1): " + deps.stream().boxed().collect(Collectors.toList()) + " -> " + deps.cardinality());
         }
 
         // Large dispersion → can include low numbers
-        deps = s.randomDependencies(j, 1.0f, 2, 10f);
+        deps = s.randomDependencies(j, false, 1.0f, 2, 10f);
         if (deps != null) {
             assertFalse(deps.cardinality() <= 2, "Small count sd should produce more than two numbers");
             //Debug.e(1, j + " (disp = 1.0, count = 2, sd = 10): " + deps.stream().boxed().collect(Collectors.toList()) + " -> " + deps.cardinality());
@@ -239,7 +239,7 @@ class StandardTransactionSamplerTest {
     
     @Test
     public void testZeroCountMean() {
-        BitSet deps = s.randomDependencies(10, 0.5f, 0, 0.1f);
+        BitSet deps = s.randomDependencies(10, false, 0.5f, 0, 0.1f);
         if (deps != null) {
             assertTrue(deps.cardinality() <= 1, "countMean=0 with low sd should produce very few dependencies");
         }
@@ -248,7 +248,7 @@ class StandardTransactionSamplerTest {
     @Test
     public void testMaxCountMean() {
         int j = 10;
-        BitSet deps = s.randomDependencies(j, 0.5f, 20, 2f); // countMean exceeds j-1
+        BitSet deps = s.randomDependencies(j, false, 0.5f, 20, 2f); // countMean exceeds j-1
         if (deps != null) {
             assertTrue(deps.cardinality() <= j - 1, "Cardinality must be capped at j-1");
         }
@@ -257,8 +257,8 @@ class StandardTransactionSamplerTest {
     @RepeatedTest(20)
     public void testRandomness() {
         int j = 15;
-        BitSet deps1 = s.randomDependencies(j, 0.5f, 5, 1f);
-        BitSet deps2 = s.randomDependencies(j, 0.5f, 5, 1f);
+        BitSet deps1 = s.randomDependencies(j, false, 0.5f, 5, 1f);
+        BitSet deps2 = s.randomDependencies(j, false, 0.5f, 5, 1f);
         if (deps1 != null && deps2 != null) {
             // They might coincidentally be equal; just warn if probability low
             assertFalse(deps1.equals(deps2) && deps1.cardinality() == 5,

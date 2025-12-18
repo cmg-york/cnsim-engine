@@ -69,7 +69,9 @@ public class Event_SeedUpdate extends Event {
 	        		System.currentTimeMillis() - Simulation.sysStartTime, 
 	        		this.getClass().getSimpleName(), 
 	        		-1, 
-	        		-1);
+	        		-1,
+	        		//TODO: show what the seed is
+	        		"");
         }
     }
 }

@@ -75,7 +75,8 @@ public class Event_TransactionPropagation extends Event {
 	        		System.currentTimeMillis() - Simulation.sysStartTime, 
 	        		this.getClass().getSimpleName(), 
 	        		node.getID(), 
-	        		trans.getID());
+	        		trans.getID(),
+	        		"");
         }
     }
 

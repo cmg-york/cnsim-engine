@@ -217,46 +217,55 @@ public abstract class SimulatorFactory {
 	 * @param s the {@linkplain Simulation} for which to create the conflict registry
 	 */
 	private void createConflictRegistry(Simulation s) {
+		int N = s.getWorkload().getCount();
+		
+		//Create the registry of the appropriate size: (may or may not be used)
+		TxConflictRegistry registry = new TxConflictRegistry(N);
+		
+		//set the registry to the simulation object for use by nodes.
+		s.setConflictRegistry(registry);
+		
 		if (Config.hasProperty("workload.hasConflicts")) { 
 			if (Config.getPropertyBoolean("workload.hasConflicts")) {
 				//Get the conflict sampling calculation parameters
 				double dispersion = Config.getPropertyDouble("workload.conflicts.dispersion");
 				double likelihood = Config.getPropertyDouble("workload.conflicts.likelihood");
-				int N = s.getWorkload().getCount();
-				
-				//Create the registry of the appropriate size:
-				TxConflictRegistry registry = new TxConflictRegistry(N);
-				
+
 				//Update the registry with random conflicts
 				s.getWorkload().updateConflicts(registry, dispersion, likelihood);
 				
-				//set the registry to the simulation object for use by nodes.
-				s.setConflictRegistry(registry);
-				
-				//System.err.println("Registry says: " + registry.toString());
+			} else {
+				registry.neutralize();
 			}
+		} else {
+			registry.neutralize();
 		}
 	}
 	
 	
 	
 	private void createDependencyRegistry(Simulation s) {
+		
+		int N = s.getWorkload().getCount();
+		
+		//Create the registry of the appropriate size:
+		TxDependencyRegistry registry = new TxDependencyRegistry(N);
+		
+		//set the registry to the simulation object for use by nodes.
+		s.setDependencyRegistry(registry);
+		
 		if (Config.hasProperty("workload.hasDependencies")) { 
 			if (Config.getPropertyBoolean("workload.hasDependencies")) {
 				float dispersion = Config.getPropertyFloat("workload.dependencies.dispersion");
 				int countMean = Config.getPropertyInt("workload.dependencies.countMean");
 				float countSD = Config.getPropertyFloat("workload.dependencies.countSD");
+				boolean mandatory = false;
+				if (Config.hasProperty("workload.dependencies.mandatory")) {
+					mandatory = Config.getPropertyBoolean("workload.dependencies.mandatory");
+				}
+						//Update the registry with random conflicts
+				s.getWorkload().updateDependencies(registry, mandatory, dispersion, countMean, countSD);
 				
-				int N = s.getWorkload().getCount();
-				
-				//Create the registry of the appropriate size:
-				TxDependencyRegistry registry = new TxDependencyRegistry(N);
-				
-				//Update the registry with random conflicts
-				s.getWorkload().updateDependencies(registry, dispersion, countMean, countSD);
-				
-				//set the registry to the simulation object for use by nodes.
-				s.setDependencyRegistry(registry);
 			}
 		}
 	}

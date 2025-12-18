@@ -62,7 +62,8 @@ public class Event_Report_BeliefReport extends Event {
 	        		System.currentTimeMillis() - Simulation.sysStartTime, 
 	        		this.getClass().getSimpleName(), 
 	        		-1, 
-	        		-1);
+	        		-1,
+	        		"");
         }
     }
 }

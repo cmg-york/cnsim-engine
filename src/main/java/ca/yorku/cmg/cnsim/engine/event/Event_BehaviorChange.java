@@ -237,6 +237,8 @@ public class Event_BehaviorChange extends Event {
 				" - " + e.getMessage());
 		}
 		
+		String msg = "Node " + " switching to " + this.newBehavior + " from " + this.oldBehavior + " targeting " + this.targetTransactionID + " with " + requiredConfirmations + "required confirmations";
+		
 		// Report the event if reporting is enabled
 		if (Reporter.reportsEvents()) {
 			Reporter.addEvent(
@@ -246,7 +248,8 @@ public class Event_BehaviorChange extends Event {
 				System.currentTimeMillis() - Simulation.sysStartTime,
 				this.getClass().getSimpleName(),
 				node.getID(),
-				-1L // No specific transaction or container involved
+				-1L, // No specific transaction or container involved
+				msg
 			);
 		}
 	}

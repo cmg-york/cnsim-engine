@@ -197,6 +197,15 @@ public class TransactionGroup implements ITxContainer {
         contents.and(notB); // c = contents AND (NOT g)
     }
 
+    
+
+	public void addGroup(TransactionGroup g) {
+        for (Transaction t : g.getTransactions()) {
+            this.addTransaction(t);
+        }
+	}
+    
+    
     ////////// Examine Content //////////
 
     /**
@@ -240,19 +249,45 @@ public class TransactionGroup implements ITxContainer {
     	return(contents.get((int) txID)); 
     }
     
-    
-
     public boolean satisfiesDependenciesOf(Transaction tx,TxDependencyRegistry registry) {
     	return(registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get()));
     }
     
-    public boolean satisfiesDependenciesOf(long txID,TxDependencyRegistry registry) {
+    public boolean satisfiesDependenciesOf(long txID, TxDependencyRegistry registry) {
     	return(registry.dependenciesMetFast((int) txID,contents,SCRATCH.get()));
     }  
+
+    public boolean satisfiesDependenciesOf_Incl_3rdGroup(long txID, TransactionGroup g, TxDependencyRegistry registry) {
+    	BitSet allTogether = (BitSet) contents.clone();
+		allTogether.or(g.getBitSet());
+    	return(registry.dependenciesMetFast((int) txID,allTogether,SCRATCH.get()));
+    }  
     
-    public boolean satisfiesDependenciesOf(BitSet set) {
-    	return(fullyContainsSet(set));
+    
+    
+    public boolean satisfiesDependenciesOf(TransactionGroup set, TxDependencyRegistry registry) {
+    	boolean satisfied = true;
+    	for (Transaction tx: set.getTransactions()) {
+    		satisfied = satisfied && registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get());
+    	}
+    	return satisfied;
     }
+    
+    public boolean satisfiesDependenciesOf_InclSelf(TransactionGroup set, TxDependencyRegistry registry) {
+    	boolean satisfied = true;
+    	for (Transaction tx: set.getTransactions()) {
+    		BitSet allTogether = (BitSet) contents.clone();
+    		allTogether.or(set.getBitSet());
+    		satisfied = 
+    				satisfied 
+    				&& 
+    				(
+    						registry.dependenciesMetFast((int) tx.getID(),allTogether,SCRATCH.get())
+    				);
+    	}
+    	return satisfied;
+    }
+    
     
     public boolean fullyContainsSet(BitSet set) {
         BitSet scratch = SCRATCH.get();   // thread-private scratch

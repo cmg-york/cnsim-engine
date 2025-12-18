@@ -84,7 +84,9 @@ public class Event_ContainerArrival extends Event {
 	        		System.currentTimeMillis() - Simulation.sysStartTime, 
 	        		this.getClass().getSimpleName(), 
 	        		node.getID(), 
-	        		container.getID());
+	        		container.getID(),
+	        		container.printIDs(";")
+	        		);
 		}
     }
 

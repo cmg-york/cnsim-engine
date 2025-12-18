@@ -362,11 +362,11 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 	}
 
 	@Override
-	public BitSet randomDependencies(int id, float dispersion, int countMean, float countSD) {
+	public BitSet randomDependencies(int id, boolean mandatory, float dispersion, int countMean, float countSD) {
 		if (id <= dependencies.size()) {
 			return(dependencies.get(id-1));
 		} else {
-			return(alternativeSampler.randomDependencies(id, dispersion, countMean, countSD));
+			return(alternativeSampler.randomDependencies(id, mandatory, dispersion, countMean, countSD));
 		}
 	}
 

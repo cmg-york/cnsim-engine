@@ -4,6 +4,8 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 
+import ca.yorku.cmg.cnsim.engine.Debug;
+
 	public final class TxDependencyRegistry {
 
 	    private final int size;
@@ -62,10 +64,14 @@ import java.util.List;
 
 	    // Even faster if you can afford a reusable temp BitSet per thread:
 	    public boolean dependenciesMetFast(int j, BitSet satisfiedBits, BitSet scratch) {
-	        scratch.clear();
-	        scratch.or(deps[j]);
-	        scratch.andNot(satisfiedBits);
-	        return scratch.isEmpty();
+	    	if (deps[j] != null) {
+	    		scratch.clear();
+	    		scratch.or(deps[j]);
+	    		scratch.andNot(satisfiedBits);
+	    		return scratch.isEmpty();
+	    	} else {
+	    		return (true);
+	    	}
 	    }
 	    
 	    public String toString(int txID) {

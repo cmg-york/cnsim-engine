@@ -110,7 +110,7 @@ public abstract class AbstractTransactionSampler implements ISowable {
 
 
 
-    public abstract BitSet randomDependencies(int id, float dispersion, int countMean, float countSD);
+    public abstract BitSet randomDependencies(int id, boolean mandatory, float dispersion, int countMean, float countSD);
 
     
     /*

@@ -79,7 +79,8 @@ public class Event_NewTransactionArrival extends Event {
 	        		System.currentTimeMillis() - Simulation.sysStartTime, 
 	        		this.getClass().getSimpleName(), 
 	        		node.getID(), 
-	        		transaction.getID());
+	        		transaction.getID(),
+	        		"");
         }
         
         if (Reporter.reportsTransactions()) {

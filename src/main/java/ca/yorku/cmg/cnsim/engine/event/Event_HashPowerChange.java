@@ -82,7 +82,9 @@ public class Event_HashPowerChange extends Event {
 				System.currentTimeMillis() - Simulation.sysStartTime,
 				this.getClass().getSimpleName(),
 				node.getID(),
-				-1L // No specific transaction or container involved
+				-1L, // No specific transaction or container involved
+				//TODO: Add some description here
+				""
 			);
 		}
 	}
