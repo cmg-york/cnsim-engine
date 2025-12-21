@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TxConflictRegistry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.transaction</a> &gt; <span class="el_source">TxConflictRegistry.java</span></div><h1>TxConflictRegistry.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.transaction;
+
+import java.util.Arrays;
+
+public class TxConflictRegistry {
+
+    private final long[] match;   // 1-indexed
+    private final int size;
+
+    /**
+     * Creates a registry for conflicts between IDs 1..size.
+     */
+<span class="fc" id="L13">    public TxConflictRegistry(long size) {</span>
+<span class="fc bfc" id="L14" title="All 2 branches covered.">        if (size &lt; 1) {</span>
+<span class="fc" id="L15">            throw new IllegalArgumentException(</span>
+                &quot;TxConflictRegistry: size must be &gt;= 1, got &quot; + size
+            );
+        }
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (size &gt; Integer.MAX_VALUE) {</span>
+<span class="fc" id="L20">            throw new IllegalArgumentException(</span>
+                &quot;TxConflictRegistry: maximum size exceeded: &quot; + size
+            );
+        }
+
+<span class="fc" id="L25">        this.size = (int) size;</span>
+
+        // Allocate 1..N (index 0 unused)
+<span class="fc" id="L28">        match = new long[this.size + 1];</span>
+<span class="fc" id="L29">        Arrays.fill(match, -2L); // -2 means &quot;uninitialized&quot;</span>
+<span class="fc" id="L30">    }</span>
+
+    public void neutralize() {
+<span class="nc" id="L33">    	Arrays.fill(match, -1L); // -1 means no conflict</span>
+<span class="nc" id="L34">    }</span>
+    
+    /**
+     * Gets the partner of ID 'id'.
+     * Returns -1 if unmatched.
+     */
+    public long getMatch(int id) {
+<span class="fc" id="L41">        validateId(id);</span>
+<span class="fc" id="L42">        return match[id];</span>
+    }
+
+    /**
+     * Creates a conflict pair {@code (a &lt;-&gt; b)}.
+     * Overwrites previous matches if any.
+     */
+    public void setMatch(int a, int b) {
+<span class="fc" id="L50">        validateId(a);</span>
+<span class="fc" id="L51">        validateId(b);</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (a == b) {</span>
+<span class="nc" id="L53">            throw new IllegalArgumentException(&quot;Cannot match an ID with itself: &quot; + a);</span>
+        }
+
+        // Remove existing relationships
+<span class="fc" id="L57">        noMatch(a);</span>
+<span class="fc" id="L58">        noMatch(b);</span>
+
+<span class="fc" id="L60">        match[a] = b;</span>
+<span class="fc" id="L61">        match[b] = a;</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Removes any match for the given ID.
+     */
+    public void noMatch(int id) {
+<span class="fc" id="L68">        validateId(id);</span>
+<span class="fc" id="L69">        long partner = match[id];</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (partner &gt; 0) { // only remove if partner is a valid ID</span>
+<span class="nc" id="L71">            match[(int) partner] = -1;</span>
+        }
+<span class="fc" id="L73">        match[id] = -1;</span>
+<span class="fc" id="L74">    }</span>
+    
+    
+
+    public boolean uninitialized(int id) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">    	return(match[id] == -2);</span>
+    }
+    
+    private void validateId(int id) {
+<span class="pc bpc" id="L83" title="2 of 4 branches missed.">        if (id &lt; 1 || id &gt; size) {</span>
+<span class="nc" id="L84">            throw new IllegalArgumentException(</span>
+                &quot;ID must be between 1 and &quot; + size + &quot;, got &quot; + id
+            );
+        }
+<span class="fc" id="L88">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L92">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L93">        sb.append(&quot;[&quot;);</span>
+
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (int i = 1; i &lt; match.length; i++) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (i &gt; 1) {</span>
+<span class="nc" id="L97">                sb.append(&quot;, &quot;);</span>
+            }
+<span class="nc" id="L99">            sb.append(&quot;(&quot;)</span>
+<span class="nc" id="L100">              .append(i)</span>
+<span class="nc" id="L101">              .append(&quot; &lt;-&gt; &quot;)</span>
+<span class="nc" id="L102">              .append(match[i])</span>
+<span class="nc" id="L103">              .append(&quot;)&quot;);</span>
+        }
+
+<span class="nc" id="L106">        sb.append(&quot;]&quot;);</span>
+<span class="nc" id="L107">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

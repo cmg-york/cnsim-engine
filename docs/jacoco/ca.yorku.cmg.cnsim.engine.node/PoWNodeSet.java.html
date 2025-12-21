@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PoWNodeSet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.node</a> &gt; <span class="el_source">PoWNodeSet.java</span></div><h1>PoWNodeSet.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.node;
+
+import java.util.ArrayList;
+
+import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+
+/**
+ * Represents a collection of {@linkplain IMiner} objects participating in a network simulation.
+ * &lt;p&gt;
+ * A {@code NodeSet} maintains references to all nodes created by an {@linkplain AbstractNodeFactory},
+ * tracks aggregate metrics, and provides mechanisms for
+ * random and direct node selection. It also supports bulk node creation and reporting.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;Typical usage:&lt;/p&gt;
+ * TODO: check the bitcoin case 
+ *
+ * @author  Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @see AbstractNodeFactory
+ * @see IMiner
+ * @see Simulation
+ */
+public class PoWNodeSet extends NodeSet {
+
+	/** The total hash power of all honest nodes in the NodeSet. */
+	float totalHonestHP;
+
+
+
+	// -----------------------------------------------------------------
+	// CONSTRUCTORS
+	// -----------------------------------------------------------------
+
+
+	/**
+	 * Constructs a new {@code NodeSet} using the provided {@linkplain AbstractNodeFactory}.
+	 *
+	 * @param nf the node factory used to create new nodes
+	 */
+	public PoWNodeSet(AbstractNodeFactory nf) {
+<span class="fc" id="L42">		super();</span>
+<span class="fc" id="L43">		nodes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L44">		nodeFactory = nf;</span>
+<span class="fc" id="L45">	}</span>
+
+
+	// ---------------------------------------------
+	// Node Addition Methods
+	// ---------------------------------------------
+
+	/**
+	 * Adds a single node to the {@code NodeSet} using the configured factory.
+	 *
+	 * @throws Exception if an error occurs while creating or initializing the node
+	 */
+	@Override
+	public void addNode() throws Exception {
+<span class="nc" id="L59">		INode n = nodeFactory.createNewNode();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if (n instanceof IMiner) {</span>
+<span class="nc" id="L61">			IMiner o = (IMiner) n;</span>
+<span class="nc" id="L62">			nodes.add(o);</span>
+<span class="nc" id="L63">			totalHonestHP += o.getHashPower();</span>
+<span class="nc" id="L64">		} else {</span>
+<span class="nc" id="L65">			throw new IllegalStateException(&quot;PoWNodeSet: Node created is not an IMiner instance.&quot;);</span>
+		}
+<span class="nc" id="L67">	}</span>
+
+
+
+	// -----------------------------------------------------------------
+	// CLOSING
+	// -----------------------------------------------------------------
+
+
+	/**
+	 * Performs cleanup and final reporting for all nodes in this {@code NodeSet}.
+	 * &lt;p&gt;
+	 * This typically occurs at the end of a simulation run. Each node is closed
+	 * and its statistics are recorded using {@linkplain Reporter#addNode(int, int, float, float, float, float)}.
+	 * &lt;/p&gt;
+	 */
+	@Override
+	public void closeNodes() {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		for (INode n: getNodes()) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">			if (n instanceof IMiner) {</span>
+<span class="nc" id="L87">				n.close(n);</span>
+<span class="nc" id="L88">				IMiner miner = (IMiner) n;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">				if (Reporter.reportsNodeEvents()) {</span>
+<span class="nc" id="L90">					Reporter.addNode(Simulation.currentSimulationID, miner.getID(), miner.getHashPower(), miner.getElectricPower(), miner.getElectricityCost(), miner.getTotalCycles());</span>
+				}				
+<span class="nc" id="L92">			} else {</span>
+<span class="nc" id="L93">				throw new IllegalStateException(&quot;Node in PoWNodeSet is not an IMiner instance.&quot;);</span>
+			}
+
+<span class="nc" id="L96">		}</span>
+<span class="nc" id="L97">	}</span>
+
+
+	// -----------------------------------------------------------------
+	// Other
+	// -----------------------------------------------------------------
+
+	/**
+	 * Returns the total honest hash power (sum of hash powers of all honest nodes).
+	 *
+	 * @return total honest hash power
+	 */
+	public float getTotalHonestHP() {
+<span class="nc" id="L110">		return totalHonestHP;</span>
+	}
+
+
+
+
+
+	// -----------------------------------------------------------------
+	// DEBUGGING AND PRINTING
+	// -----------------------------------------------------------------
+
+	/**
+	 * Returns a formatted string containing details for all nodes in this {@code NodeSet}.
+	 * FIXME: it is not clear if this is H/s or GH/s
+	 * &lt;p&gt;The output includes:&lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;Node ID&lt;/li&gt;
+	 *   &lt;li&gt;Hash power (H/sec)&lt;/li&gt;
+	 *   &lt;li&gt;Whether malicious&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @return a formatted string representation of all nodes
+	 */
+	public String debugPrintNodeSet() {
+<span class="nc" id="L134">		String s = &quot;&quot;;</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">		for(int i = 0; i&lt; nodes.size();i++){</span>
+
+<span class="nc bnc" id="L137" title="All 2 branches missed.">			if (nodes.get(i) instanceof IMiner) {</span>
+<span class="nc" id="L138">				IMiner n = (IMiner) nodes.get(i);</span>
+<span class="nc" id="L139">				s = s + &quot;Node ID:&quot; + n.getID() + </span>
+<span class="nc" id="L140">						&quot;\t Hashpower: &quot; + n.getHashPower() + &quot; (H/sec)&quot; +</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">						&quot;\t Malicious?: &quot; + (n == getMalicious()) +</span>
+						&quot;\n&quot;;
+<span class="nc" id="L143">			} else {</span>
+<span class="nc" id="L144">				throw new IllegalStateException(&quot;Node in PoWNodeSet is not an IMiner instance.&quot;);</span>
+			}
+		}
+<span class="nc" id="L147">		return (s);</span>
+	}
+
+	/**
+	 * Generates a CSV-style representation of the node set, where each line
+	 * corresponds to a node and contains:
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;Node ID&lt;/li&gt;
+	 *   &lt;li&gt;Electric power&lt;/li&gt;
+	 *   &lt;li&gt;Hash power&lt;/li&gt;
+	 *   &lt;li&gt;Electricity cost&lt;/li&gt;
+	 *   &lt;li&gt;Cost per GH&lt;/li&gt;
+	 *   &lt;li&gt;Average connectedness&lt;/li&gt;
+	 *   &lt;li&gt;Total cycles&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @return an array of strings, each describing one node
+	 */
+	public String[] printNodeSet() {
+<span class="nc" id="L166">		String s[] = new String[nodes.size()];</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		for(int i = 0; i&lt; nodes.size();i++) {</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (nodes.get(i) instanceof IMiner) {</span>
+<span class="nc" id="L169">				IMiner n = (IMiner) nodes.get(i);</span>
+
+<span class="nc" id="L171">				s[i] = n.getID() + &quot;,&quot; + </span>
+<span class="nc" id="L172">						+ n.getElectricPower() + &quot;,&quot;</span>
+<span class="nc" id="L173">						+ n.getHashPower() + &quot;,&quot;</span>
+<span class="nc" id="L174">						+ n.getElectricityCost() + &quot;,&quot; </span>
+<span class="nc" id="L175">						+ n.getCostPerGH() + &quot;,&quot;</span>
+<span class="nc" id="L176">						+ n.getAverageConnectedness() + &quot;,&quot;</span>
+<span class="nc" id="L177">						+ n.getTotalCycles();</span>
+<span class="nc" id="L178">			} else {</span>
+<span class="nc" id="L179">				throw new IllegalStateException(&quot;Node in PoWNodeSet is not an IMiner instance&quot;);</span>
+			}
+		}
+<span class="nc" id="L182">		return (s);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

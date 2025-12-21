@@ -130,7 +130,7 @@ public class Event_BehaviorChange extends Event {
 	 * @param time the simulation time at which the event occurs
 	 * @param targetTransactionID the target transaction ID for tracking confirmations (required if requiredConfirmations > 0)
 	 * @param requiredConfirmations the number of block confirmations to wait after target transaction (0 = immediate)
-	 * @throws IllegalArgumentException if newBehavior is null or if requiredConfirmations > 0 but targetTransactionID < 0
+	 * @throws IllegalArgumentException if newBehavior is null or if {@code requiredConfirmations > 0} but {@code targetTransactionID < 0}
 	 */
 	public Event_BehaviorChange(INode node, String newBehavior, long time, int targetTransactionID, int requiredConfirmations) {
 		super();

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Event_ContainerArrival.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.event</a> &gt; <span class="el_source">Event_ContainerArrival.java</span></div><h1>Event_ContainerArrival.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.event;
+
+import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
+import ca.yorku.cmg.cnsim.engine.node.INode;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
+
+/**
+ * Represents an event that signifies the arrival of a propagated transaction container
+ * (e.g., a validated block) at a particular node within the simulation network.
+ * &lt;p&gt;
+ * This event models the network propagation of containers between nodes.
+ * When triggered, it invokes {@linkplain INode#event_NodeReceivesPropagatedContainer(ITxContainer)}
+ * on the receiving node, simulating that the node has received a new container from peers.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;Additionally, this event logs its occurrence through the {@linkplain Reporter} system,
+ * allowing detailed analysis of timing and node-to-node communication.&lt;/p&gt;
+ *
+ * &lt;p&gt;Example:&lt;/p&gt;
+ * TODO: add this example from bitcoin
+ *
+ * @author
+ *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @see INode
+ * @see INode#event_NodeReceivesPropagatedContainer(ITxContainer)
+ * @see ITxContainer
+ * @see Simulation
+ * @see Reporter
+ */
+public class Event_ContainerArrival extends Event {  
+	
+	/** The transaction container (e.g., block) being propagated. */
+    private ITxContainer container;
+    
+    /** The node at which this container arrives. */
+    private INode node;
+
+    
+    /**
+     * Constructs a new {@code Event_ContainerArrival} representing the arrival
+     * of a specific {@linkplain ITxContainer} at a given {@linkplain IMiner}.
+     *
+     * @param txc  the container (block or transaction group) that has arrived
+     * @param n    the node receiving the container
+     * @param time the simulation time at which this event occurs
+     */
+    public Event_ContainerArrival(ITxContainer txc, INode n, long time){
+<span class="nc" id="L50">    	super();</span>
+<span class="nc" id="L51">        this.node = n;</span>
+<span class="nc" id="L52">        this.container = txc;</span>
+<span class="nc" id="L53">        super.setTime(time);</span>
+<span class="nc" id="L54">    }</span>
+    
+
+
+    /**
+     * Executes the event’s behavior within the given simulation context.
+     * &lt;p&gt;
+     * This method triggers the receiving node’s reaction to the arrival of the
+     * container and logs the event via {@linkplain Reporter}. The event is timestamped
+     * both with simulation time and system wall-clock time.
+     * &lt;/p&gt;
+     *
+     * @param sim the active {@linkplain Simulation} instance
+     * @see INode#event_NodeReceivesPropagatedContainer(ITxContainer)
+     *
+     * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Currently, all container arrival events are automatically logged.
+     * Future revisions may make this conditional based on configuration
+     * parameters (see TODO comment in implementation).&lt;/p&gt;
+     */
+    @Override
+    public void happen(Simulation sim) {
+<span class="nc" id="L75">        super.happen(sim);</span>
+<span class="nc" id="L76">        node.event_NodeReceivesPropagatedContainer(container);</span>
+        //TODO: this should be conditional on some configuration parameter
+        //TODO: how this reports to the parent reporting
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (Reporter.reportsEvents()) {</span>
+<span class="nc" id="L80">	        Reporter.addEvent(</span>
+<span class="nc" id="L81">	        		sim.getSimID(),</span>
+<span class="nc" id="L82">	        		this.getEvtID(), </span>
+<span class="nc" id="L83">	        		this.getTime(), </span>
+<span class="nc" id="L84">	        		System.currentTimeMillis() - Simulation.sysStartTime, </span>
+<span class="nc" id="L85">	        		this.getClass().getSimpleName(), </span>
+<span class="nc" id="L86">	        		node.getID(), </span>
+<span class="nc" id="L87">	        		container.getID(),</span>
+<span class="nc" id="L88">	        		container.printIDs(&quot;;&quot;)</span>
+	        		);
+		}
+<span class="nc" id="L91">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

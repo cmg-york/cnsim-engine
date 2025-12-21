@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Simulation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine</a> &gt; <span class="el_source">Simulation.java</span></div><h1>Simulation.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine;
+
+
+import ca.yorku.cmg.cnsim.engine.event.Event;
+import ca.yorku.cmg.cnsim.engine.event.EventTimeComparator;
+import ca.yorku.cmg.cnsim.engine.event.Event_NewTransactionArrival;
+import ca.yorku.cmg.cnsim.engine.network.AbstractNetwork;
+import ca.yorku.cmg.cnsim.engine.node.NodeSet;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
+import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
+import ca.yorku.cmg.cnsim.engine.transaction.TransactionWorkload;
+import ca.yorku.cmg.cnsim.engine.transaction.TxConflictRegistry;
+import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
+
+import java.util.PriorityQueue;
+
+
+/*
+ * TODO: Complete and reformat the comments.
+ */
+
+/**
+ * The central class of any simulation
+ *  
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * 
+ */
+public class Simulation {
+
+	public static long currTime; //Current simulation time
+	public static long sysStartTime; //Real start time of the simulation
+	public static long sysEndTime; //Real end time of the simulation
+<span class="fc" id="L34">	public static int currentSimulationID = 1; //The ID of the current simulation</span>
+
+	private int simID; //The ID of this simulation
+
+<span class="fc" id="L38">	private final EventTimeComparator comp = new EventTimeComparator();</span>
+	
+	//The main Events Queue
+<span class="fc" id="L41">	protected PriorityQueue&lt;Event&gt; queue = new PriorityQueue&lt;&gt;(comp);</span>
+	
+	//The network relating to the simulator
+	private AbstractNetwork net;
+
+	protected Sampler sampler;
+	
+	private TxConflictRegistry conflictRegistry;
+	private TxDependencyRegistry dependencyRegistry;
+	
+	private TransactionWorkload workload;
+
+<span class="fc" id="L53">	public int totalqueuedTransactions = 0;</span>
+<span class="fc" id="L54">	private long latestKnownEventTime = 0;</span>
+
+	//Externally set termination time
+<span class="fc" id="L57">	private long terminationTime = 0;</span>
+	
+	//Event statistics
+<span class="fc" id="L60">	private long numEventsScheduled = 0;</span>
+<span class="fc" id="L61">	private long numEventsProcessed = 0;</span>
+
+	
+	
+	/* 
+	 * 
+	 *  C O N S T R U C T O R S
+	 * 
+	 */
+	
+	
+<span class="fc" id="L72">	public Simulation(int simID) {</span>
+<span class="fc" id="L73">		this.simID = simID;</span>
+<span class="fc" id="L74">		currentSimulationID = simID;</span>
+<span class="fc" id="L75">	}</span>
+
+	
+	public Simulation(Sampler a, int simID) {
+<span class="nc" id="L79">		this(simID);</span>
+<span class="nc" id="L80">	    this.sampler = a;</span>
+<span class="nc" id="L81">	}</span>
+	
+	
+
+	/*
+	 * 
+	 * S T A T I S T I C S 
+	 * 
+	 */
+	
+	
+	public String getStatistics() {
+		String s;
+<span class="nc" id="L94">		s = &quot;    Total Simulation Time: &quot; + currTime + &quot; (ms)\n&quot;;</span>
+<span class="nc" id="L95">		s = s + &quot;    Total Real Time: &quot; + (sysEndTime - sysStartTime) + &quot; (ms)\n&quot;;</span>
+<span class="nc" id="L96">		s = s + &quot;    Speed-up factor: &quot; + currTime/(sysEndTime - sysStartTime) + &quot;\n&quot;;</span>
+<span class="nc" id="L97">		s = s + &quot;    Total Events Scheduled: &quot; + numEventsScheduled + &quot;\n&quot;;</span>
+<span class="nc" id="L98">		s = s + &quot;    Total Events Processed: &quot; + numEventsProcessed + &quot;\n&quot;;</span>
+<span class="nc" id="L99">		return(s);</span>
+	}
+	
+
+	
+	
+	/*
+	 * 
+	 *  E V E N T   S C H E D U L I N G   R O U T I NE S
+	 * 
+	 */
+	
+	
+
+	/**
+	 * Schedules an event by adding it to the queue.
+	 *
+	 * @param e The Event object to be scheduled.
+	 */
+	public void schedule(Event e) {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		if (e.getTime() &gt; this.latestKnownEventTime) {</span>
+<span class="nc" id="L120">			this.latestKnownEventTime = e.getTime();</span>
+		}
+<span class="nc" id="L122">		numEventsScheduled++;</span>
+<span class="nc" id="L123">	    queue.add(e);</span>
+<span class="nc" id="L124">	}</span>
+
+	
+	/**
+	 * TODO: this needs to be moved to the TransactionWorkload class. Propose a refactoring.
+	 * 
+	 * Schedules a set of transactions given in the form of a TransactionWorkload object by adding them to the events queue.
+	 * For each transaction in the TransactionSet, an Event_NewTransactionArrival event is created and scheduled.
+	 * If the transaction's nodeID is -1, a random node from the network's NodeSet is selected.
+	 * Otherwise, the transaction is assigned to the specific node with the given nodeID.
+	 *
+	 * @param ts The TransactionWorkload object containing the set of transactions to be scheduled.
+	 */
+	public void schedule(TransactionWorkload ts) {
+        Event_NewTransactionArrival e;
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		for (Transaction t : ts.getTransactions()) {</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">			if (t.getNodeID() == -1) {</span>
+<span class="nc" id="L141">				e = new Event_NewTransactionArrival(t, this.net.getNodeSet().pickRandomNode(), t.getCreationTime());</span>
+			} else {
+<span class="nc" id="L143">				e = new Event_NewTransactionArrival(t, this.net.getNodeSet().pickSpecificNode(t.getNodeID()), t.getCreationTime());</span>
+			}
+<span class="nc" id="L145">	        this.schedule(e);</span>
+<span class="nc" id="L146">		}</span>
+<span class="nc" id="L147">		this.totalqueuedTransactions += ts.getCount();</span>
+<span class="nc" id="L148">	}</span>
+
+	
+	
+	/**
+	 * 
+	 *  M A I N   S I M U L A T I O N   L O O P
+	 * 
+	 */
+
+	
+	/**
+	 * Runs the main loop of the simulation.
+	 * The method continuously processes events from the queue until it is empty.
+	 * For each event in the queue, the method performs the following steps:
+	 * 1. Retrieves the next event from the front of the queue by using the `poll` method, which also removes it from the queue.
+	 * 2. Updates the current global simulation time to match the time of the retrieved event.
+	 * 3. Calls the `happen` method on the event object, passing the current object (`this`) as an argument to handle the event.
+	 */
+	
+	public void run() {
+	    //MainLoop
+<span class="nc" id="L170">		sysStartTime = System.currentTimeMillis();</span>
+	    Event e;
+<span class="nc bnc" id="L172" title="All 2 branches missed.">	    while (!queue.isEmpty()){</span>
+<span class="nc" id="L173">	        e = queue.poll(); //it removes the last element of the queue</span>
+<span class="nc" id="L174">	        numEventsProcessed++;</span>
+<span class="nc" id="L175">            Simulation.currTime = e.getTime();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (Simulation.currTime &gt; this.terminationTime) {</span>
+<span class="nc" id="L177">            	System.out.println(&quot;\n\n    Sim #&quot; + this.getSimID() + &quot;: reached termination time. Ignoring remaining queue and exiting.&quot;);</span>
+<span class="nc" id="L178">            	break;</span>
+            }
+<span class="nc" id="L180">            e.happen(this);</span>
+	    }
+<span class="nc" id="L182">		sysEndTime = System.currentTimeMillis();</span>
+		
+<span class="nc" id="L184">		Reporter.addExecTimeEntry(this.simID, currTime, sysStartTime, sysEndTime, numEventsScheduled, numEventsProcessed);</span>
+		
+<span class="nc" id="L186">	}</span>
+	
+	
+	public void closeNodes() {
+<span class="nc" id="L190">		getNodeSet().closeNodes();</span>
+<span class="nc" id="L191">	}</span>
+	
+	
+	/*
+	 * 
+	 * G E T T E R S   A N D  S E T T E R S
+	 * 
+	 */
+	
+	
+	public long getLatestKnownEventTime() {
+<span class="nc" id="L202">		return latestKnownEventTime;</span>
+	}
+
+	public long getNumEventsScheduled() {
+<span class="nc" id="L206">		return numEventsScheduled;</span>
+	}
+	
+	public long getNumEventsProcessed() {
+<span class="nc" id="L210">		return numEventsProcessed;</span>
+	}
+
+	public void setTerminationTime(long terminationTime) {
+<span class="nc" id="L214">		this.terminationTime = terminationTime;</span>
+<span class="nc" id="L215">	}</span>
+
+		
+	public int getSimID() {
+<span class="nc" id="L219">		return (simID);</span>
+	}
+
+
+	/**
+	 * Retrieves the network associated with this Simulation object.
+	 *
+	 * @return The AbstractNetwork object representing the network.
+	 */
+	public AbstractNetwork getNetwork() {
+<span class="nc" id="L229">	    return net;</span>
+	}
+
+	
+	/**
+	 * Sets the network associated with this Simulation object.
+	 *
+	 * @param net The AbstractNetwork object to be set as the network.
+	 */
+	public void setNetwork(AbstractNetwork net) {
+<span class="fc" id="L239">	    this.net = net;</span>
+<span class="fc" id="L240">	}</span>
+
+	
+	/**
+	 * Retrieves the Sampler object associated with this Simulation object.
+	 *
+	 * @return The Sampler object representing the sampler.
+	 */
+	public Sampler getSampler() {
+<span class="nc" id="L249">	    return sampler;</span>
+	}
+
+	
+	/**
+	 * Sets the Sampler associated with this object.
+	 *
+	 * @param sampler The Sampler object to be set as the sampler.
+	 */
+	public void setSampler(Sampler sampler) {
+<span class="nc" id="L259">	    this.sampler = sampler;</span>
+<span class="nc" id="L260">	}</span>
+	
+	
+	/**
+	 * Retrieves the NodeSet (set of participating nodes) from the associated Network object.
+	 *
+	 * @return The NodeSet object representing the set of nodes in the network.
+	 */
+	public NodeSet getNodeSet() {
+<span class="fc" id="L269">	    return(this.net.getNodeSet());</span>
+	}
+
+
+	public PriorityQueue&lt;Event&gt; getQueue() {
+<span class="nc" id="L274">		return queue;</span>
+	}
+	
+	
+	public TxConflictRegistry getConflictRegistry() {
+<span class="nc" id="L279">		return conflictRegistry;</span>
+	}
+
+
+	public void setConflictRegistry(TxConflictRegistry conflictRegistry) {
+<span class="nc" id="L284">		this.conflictRegistry = conflictRegistry;</span>
+<span class="nc" id="L285">	}</span>
+
+	
+	public TxDependencyRegistry getDependencyRegistry() {
+<span class="nc" id="L289">		return dependencyRegistry;</span>
+	}
+
+
+	public void setDependencyRegistry(TxDependencyRegistry depRegistry) {
+<span class="nc" id="L294">		this.dependencyRegistry = depRegistry;</span>
+<span class="nc" id="L295">	}</span>
+	
+	
+	
+	public TransactionWorkload getWorkload() {
+<span class="nc" id="L300">		return workload;</span>
+	}
+
+	public void setWorkload(TransactionWorkload workload) {
+<span class="nc" id="L304">		this.workload = workload;</span>
+<span class="nc" id="L305">	}</span>
+	
+	
+}
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

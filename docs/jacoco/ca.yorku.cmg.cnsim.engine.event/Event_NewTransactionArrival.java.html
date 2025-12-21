@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Event_NewTransactionArrival.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.event</a> &gt; <span class="el_source">Event_NewTransactionArrival.java</span></div><h1>Event_NewTransactionArrival.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.event;
+
+import ca.yorku.cmg.cnsim.engine.ProgressBar;
+import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
+import ca.yorku.cmg.cnsim.engine.node.INode;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
+import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
+
+
+/**
+ * Represents an event corresponding to the arrival of a new external (client) transaction 
+ * at a node within the simulation. 
+ * &lt;p&gt;
+ * When this event occurs, the associated node receives a new transaction 
+ * from a client, the event and transaction are recorded by the {@linkplain Reporter}, 
+ * and progress tracking is updated via the {@linkplain ProgressBar}.
+ * &lt;/p&gt;
+ *
+ * @author Sotirios Liaskos
+ * @see INode#event_NodeReceivesClientTransaction(Transaction, long)
+ * @see Reporter
+ * @see ProgressBar
+ */
+public class Event_NewTransactionArrival extends Event {
+	
+	/** The new transaction arriving at the node. */
+    private Transaction transaction;
+    
+    /** The node where the transaction arrives. */
+    private INode node;
+    
+    /** 
+     * Tracks the total number of queued transactions across all events. 
+     */
+<span class="nc" id="L37">    public static int totalqueuedTransactions = 0;</span>
+    
+    /**
+     * Constructs a new {@code Event_NewTransactionArrival}.
+     *
+     * @param tx    the new transaction that arrives.
+     * @param n     the node where the transaction arrives.
+     * @param time  the simulation time at which the event occurs.
+     */
+    public Event_NewTransactionArrival(Transaction tx, INode n, long time) {
+<span class="nc" id="L47">    	super();</span>
+<span class="nc" id="L48">        this.node = n;</span>
+<span class="nc" id="L49">        this.transaction = tx;</span>
+<span class="nc" id="L50">        super.setTime(time);</span>
+<span class="nc" id="L51">    }</span>
+
+
+
+    /**
+     * Executes the event logic for a new transaction arrival.
+     * &lt;p&gt;
+     * This method notifies the node of the transaction reception, 
+     * logs the event and transaction to the reporter, and updates 
+     * the progress bar. If the transaction is marked as seed-changing, 
+     * the node sampler seeds are also updated.
+     * &lt;/p&gt;
+     *
+     * @param sim the simulation instance in which the event occurs.
+     * @see INode#event_NodeReceivesClientTransaction(Transaction, long)
+     * @see AbstractNodeSampler#updateSeed()
+     */
+    @Override
+    public void happen(Simulation sim) {
+<span class="nc" id="L70">        super.happen(sim);</span>
+<span class="nc" id="L71">        node.event_NodeReceivesClientTransaction(transaction, getTime());</span>
+        
+        
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (Reporter.reportsEvents()) {</span>
+<span class="nc" id="L75">	        Reporter.addEvent(</span>
+<span class="nc" id="L76">	        		sim.getSimID(),</span>
+<span class="nc" id="L77">	        		getEvtID(), </span>
+<span class="nc" id="L78">	        		getTime(), </span>
+<span class="nc" id="L79">	        		System.currentTimeMillis() - Simulation.sysStartTime, </span>
+<span class="nc" id="L80">	        		this.getClass().getSimpleName(), </span>
+<span class="nc" id="L81">	        		node.getID(), </span>
+<span class="nc" id="L82">	        		transaction.getID(),</span>
+	        		&quot;&quot;);
+        }
+        
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (Reporter.reportsTransactions()) {</span>
+<span class="nc bnc" id="L87" title="All 4 branches missed.">        	if ((transaction.getID() &lt;= Integer.MAX_VALUE) &amp;&amp; (Config.hasProperty(&quot;workload.hasConflicts&quot;))) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        		if (Config.hasProperty(&quot;workload.hasDependencies&quot;)) {</span>
+<span class="nc" id="L89">    	        	Reporter.addTx(</span>
+<span class="nc" id="L90">    	            		sim.getSimID(),</span>
+<span class="nc" id="L91">    	            		transaction.getID(), </span>
+<span class="nc" id="L92">    	            		transaction.getSize(), </span>
+<span class="nc" id="L93">    	            		transaction.getValue(),</span>
+<span class="nc" id="L94">    		        		node.getID(),</span>
+<span class="nc" id="L95">    	            		getTime(),</span>
+<span class="nc" id="L96">    	            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()),</span>
+<span class="nc" id="L97">    	            		sim.getDependencyRegistry().toString((int) transaction.getID())</span>
+    	        			);
+        		} else {
+<span class="nc" id="L100">		        	Reporter.addTx(</span>
+<span class="nc" id="L101">		            		sim.getSimID(),</span>
+<span class="nc" id="L102">		            		transaction.getID(), </span>
+<span class="nc" id="L103">		            		transaction.getSize(), </span>
+<span class="nc" id="L104">		            		transaction.getValue(),</span>
+<span class="nc" id="L105">			        		node.getID(),</span>
+<span class="nc" id="L106">		            		getTime(),</span>
+<span class="nc" id="L107">		            		(int) sim.getConflictRegistry().getMatch((int) transaction.getID()),</span>
+		            		&quot;-1&quot;);
+        		}
+        	} else {
+<span class="nc" id="L111">        		Reporter.addTx(</span>
+<span class="nc" id="L112">	            		sim.getSimID(),</span>
+<span class="nc" id="L113">	            		transaction.getID(), </span>
+<span class="nc" id="L114">	            		transaction.getSize(), </span>
+<span class="nc" id="L115">	            		transaction.getValue(),</span>
+<span class="nc" id="L116">		        		node.getID(),</span>
+<span class="nc" id="L117">	            		getTime(),</span>
+	            		-1,
+	            		&quot;-1&quot;);      		
+        	}
+		}
+        
+<span class="nc" id="L123">        ProgressBar.printProgress((int) transaction.getID(),sim.totalqueuedTransactions,4);</span>
+
+        // If the transaction has been marked (at TransactionWorkload) as seed changing.
+        // update the node seeds. (Transaction Sampler seeds have been updated at workload creation).
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (transaction.isSeedChanging()) {</span>
+<span class="nc" id="L128">        	sim.getSampler().getNodeSampler().updateSeed();</span>
+        }
+        
+<span class="nc" id="L131">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

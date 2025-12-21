@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportEventFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.reporter</a> &gt; <span class="el_source">ReportEventFactory.java</span></div><h1>ReportEventFactory.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.reporter;
+
+import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.event.Event_Report_BeliefReport;
+
+
+/**
+ * Factory class for scheduling periodic {@linkplain Event_Report_BeliefReport} events
+ * in a {@linkplain Simulation}. To be used during, e.g., simulation setup.
+ * &lt;p&gt;
+ * Provides methods to schedule belief reporting either at fixed time intervals or based
+ * on a specified number of reports over the simulation duration.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * The scheduled events can then be executed by the simulation to collect and report
+ * the beliefs of nodes at the specified times.
+ * &lt;/p&gt;
+ * 
+ * @author
+ *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ */
+<span class="nc" id="L23">public class ReportEventFactory {</span>
+	
+	/**
+	 * Schedules {@linkplain Event_Report_BeliefReport} events at fixed intervals
+	 * throughout the simulation duration, adjusted by an offset.
+	 * &lt;p&gt;
+	 * Events are scheduled starting from the specified interval up to the latest
+	 * known event time in the simulation plus the offset.
+	 * &lt;/p&gt;
+	 *
+	 * @param interval  the time interval between consecutive belief report events
+	 * @param sim       the {@linkplain Simulation simulation} instance where events are scheduled
+	 * @param offset    a time offset added to the latest known event time to determine scheduling range
+	 */
+	public void scheduleBeliefReports_Interval(long interval, Simulation sim, long offset) {
+		long t, max;
+<span class="nc" id="L39">		t = interval;</span>
+<span class="nc" id="L40">		max = sim.getLatestKnownEventTime() + offset;</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		while (t &lt;= max) {</span>
+<span class="nc" id="L42">			sim.schedule(new Event_Report_BeliefReport(t));</span>
+<span class="nc" id="L43">			t += interval;</span>
+		}
+<span class="nc" id="L45">	}</span>
+	
+	/**
+	 * Schedules a specified number of {@linkplain Event_Report_BeliefReport} events
+	 * evenly distributed over the simulation duration, adjusted by an offset.
+	 * &lt;p&gt;
+	 * The interval between events is calculated based on the total duration
+	 * (latest known event time plus offset) divided by the desired count of events.
+	 * &lt;/p&gt;
+	 *
+	 * @param count   the total number of belief report events to schedule
+	 * @param sim     the {@linkplain Simulation simulation} instance where events are scheduled
+	 * @param offset  a time offset added to the latest known event time to determine scheduling range
+	 */
+	public void scheduleBeliefReports_Count(long count, Simulation sim, long offset) {
+<span class="nc" id="L60">		long interval = (sim.getLatestKnownEventTime() + offset)/count;</span>
+<span class="nc" id="L61">		scheduleBeliefReports_Interval(interval, sim, offset);</span>
+<span class="nc" id="L62">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

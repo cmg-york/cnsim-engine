@@ -43,7 +43,7 @@ public class TxConflictRegistry {
     }
 
     /**
-     * Creates a conflict pair (a <-> b).
+     * Creates a conflict pair {@code (a <-> b)}.
      * Overwrites previous matches if any.
      */
     public void setMatch(int a, int b) {

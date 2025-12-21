@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTransactionSampler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.sampling.interfaces</a> &gt; <span class="el_source">AbstractTransactionSampler.java</span></div><h1>AbstractTransactionSampler.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.sampling.interfaces;
+
+import java.util.BitSet;
+import java.util.Random;
+
+import ca.yorku.cmg.cnsim.engine.config.Config;
+import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
+
+/*
+ * TODO: Complete and reformat comments  
+ */
+
+/**
+ * A sampler for Transaction objects. Accepts size and value means and standard 
+ * deviations and produces random samples of transactions and inter-arrival times.
+ *    
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ */
+public abstract class AbstractTransactionSampler implements ISowable {
+	
+	protected Sampler sampler;
+	protected Random random;
+	protected long randomSeed;
+	
+	protected float txArrivalIntervalRate; //How often transactions arrive at the system. 
+    protected float txSizeMean;
+    protected float txSizeSD;
+    protected float txValueMean;
+    protected float txValueSD;
+
+    
+    
+    /*
+     * 
+     * C O N S T R U C T O R S
+     *  
+     */
+    
+<span class="fc" id="L39">    protected AbstractTransactionSampler(){</span>
+<span class="fc" id="L40">   		this.random = new Random();</span>
+<span class="fc" id="L41">   		random.setSeed(randomSeed);</span>
+<span class="fc" id="L42">   		LoadConfig();</span>
+<span class="fc" id="L43">    }</span>
+    
+    
+	
+    /*
+     * 
+     * S A M P LI N G   F U N C T I O N S
+     *   
+     */
+	
+	
+	/**
+	 * Returns the next sampled transaction interval in milliseconds.
+	 * @return The next sampled transaction interval (msec).
+	 * @throws Exception 
+	 */
+    public abstract float getNextTransactionArrivalInterval() throws Exception;
+    
+    /**
+     * Get a sample transaction fee value.
+     * @return Transaction fee value (local tokens).
+     * @throws Exception 
+     */
+    public abstract float getNextTransactionFeeValue() throws Exception;
+
+	/**
+	 * Returns a sample of a transaction size in bytes.
+	 * @return The generated transaction size in bytes.
+	 * @throws Exception 
+	 */
+    public abstract long getNextTransactionSize() throws Exception;
+
+    
+	/** 
+	 * Returns the next transaction arrival Node.
+	 * &lt;p&gt;
+	 * Pulls from the file queues; if the file is exhausted, uses the alternative sampler.
+	 * &lt;/p&gt;
+	 * 
+	 * @return Node ID
+	 * @throws IllegalStateException if the file is exhausted and no alternative sampler is defined
+	 */
+	public abstract int getArrivalNode() throws IllegalStateException;
+    
+    
+	/**
+	 * Return a random number from min to max (inclusive)
+	 * @param min The minimum. 
+	 * @param max The maximum. 
+	 * @return The random integer
+	 */
+    public abstract int getRandomNum(int min, int max);
+
+
+    /**
+     * Pick a random match for a given ID with distance bias controlled by alpha.
+     * 
+     * @param id    Target ID (1 .. N)
+     * @param N     Total number of IDs (ignored if conflict comes predefined)
+     * @param dispersion Closeness parameter [0,1]:
+     *              0 -&gt; almost always near 'id'
+     *              1 -&gt; can pick anywhere in range (near edges possible)
+     *              (ignored if conflict comes predefined)
+     * @param likelihood The likelihood that the transaction has a conflict.
+     * @return      Chosen matching ID
+     */
+    public abstract int getConflict(int id, int N, double dispersion, double likelihood);
+
+
+
+    public abstract BitSet randomDependencies(int id, boolean mandatory, float dispersion, int countMean, float countSD);
+
+    
+    /*
+     * 
+     * S E E D   M A N A G E M E N T  
+     * 
+     */
+    
+    /**
+     * Move to the next seed on the list 
+     */
+    public abstract void updateSeed();
+    
+    /**
+     * The transaction at which seed is automatically going to update 
+     */
+    public abstract long getSeedChangeTx();
+
+    /**
+     * Enable seed updating 
+     */
+    public abstract boolean seedUpdateEnabled();
+	
+
+	
+    // -----------------------------------------------------------------
+    // CONFIGURATION
+    // -----------------------------------------------------------------
+
+    /**
+     * Loads configuration values from {@linkplain Config} for transaction sampling.
+     */
+    public void LoadConfig() {
+<span class="fc" id="L147">        this.setTxArrivalIntervalRate(Config.getPropertyFloat(&quot;workload.lambda&quot;)); </span>
+<span class="fc" id="L148">        this.setTxSizeMean(Config.getPropertyFloat(&quot;workload.txSizeMean&quot;));</span>
+<span class="fc" id="L149">        this.setTxSizeSD(Config.getPropertyFloat(&quot;workload.txSizeSD&quot;));</span>
+<span class="fc" id="L150">        this.setTxFeeValueMean(Config.getPropertyFloat(&quot;workload.txFeeValueMean&quot;));</span>
+<span class="fc" id="L151">        this.setTxFeeValueSD(Config.getPropertyFloat(&quot;workload.txFeeValueSD&quot;));</span>
+<span class="fc" id="L152">    }</span>
+
+	
+    
+    
+    /*
+     * 
+     * G E T T E R S   A N D   S E T T E R S    
+     * 
+     */
+    
+
+	/**
+	 * Returns the transaction arrival rate (in the entire system, arriving in random nodes) in transactions per second (Tx/sec) 
+	 * @return Transaction arrival rate in Tx/sec
+	 */
+	public float getTxArrivalIntervalRate() {
+<span class="nc" id="L169">        return txArrivalIntervalRate;</span>
+    }
+
+	/**
+	 * Sets the transaction arrival rate (in the entire system, arriving in random nodes) in transactions per second (Tx/sec)
+	 * @param txArrivalIntervalRate Transaction arrival rate in Tx/sec
+	 */
+	public void setTxArrivalIntervalRate(float txArrivalIntervalRate) {
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    	if(txArrivalIntervalRate &lt; 0)</span>
+<span class="nc" id="L178">    		throw new ArithmeticException(&quot;Transaction Arrival Interval Rate &lt; 0&quot;);</span>
+<span class="fc" id="L179">        this.txArrivalIntervalRate = txArrivalIntervalRate;</span>
+<span class="fc" id="L180">    }</span>
+	
+	/**
+	 * Returns the mean transaction size in bytes 
+	 * @return The mean transaction size in bytes
+	 */
+	public float getTxSizeMean() {
+<span class="nc" id="L187">        return txSizeMean;</span>
+    }
+
+	/**
+	 * Sets the mean transaction size in bytes
+	 * @param txSizeMean The mean transaction size in bytes  
+	 */
+	public void setTxSizeMean(float txSizeMean) {
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">    	if(txSizeMean &lt; 0)</span>
+<span class="nc" id="L196">    		throw new ArithmeticException(&quot;Transaction size mean &lt; 0&quot;);</span>
+<span class="fc" id="L197">        this.txSizeMean = txSizeMean;</span>
+<span class="fc" id="L198">    }</span>
+
+	/**
+	 * Returns the standard deviation of transaction sizes in bytes
+	 * @return The standard deviation in transaction sizes in bytes
+	 */
+	public float getTxSizeSD() {
+<span class="nc" id="L205">        return txSizeSD;</span>
+    }
+
+	/**
+	 * Sets the standard deviation of transaction sizes in bytes
+	 * @param txSizeSD The standard deviation in transaction sizes in bytes
+	 */
+	public void setTxSizeSD(float txSizeSD) {
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">    	if(txSizeSD &lt; 0)</span>
+<span class="nc" id="L214">    		throw new ArithmeticException(&quot;Transaction Size Standard Deviation &lt; 0&quot;);</span>
+<span class="fc" id="L215">        this.txSizeSD = txSizeSD;</span>
+<span class="fc" id="L216">    }</span>
+
+	/**
+	 * Returns the mean transaction fee value.
+	 *
+	 * @return The mean transaction fee value (local tokens).
+	 */
+	public float getTxFeeValueMean() {
+<span class="nc" id="L224">        return txValueMean;</span>
+    }
+	
+	/**
+	 * Sets the mean transaction fee value.
+	 *
+	 * @param txValueMean The mean transaction fee value to be set (local tokens).
+	 * @throws ArithmeticException if the provided value is less than 0.
+	 */
+	public void setTxFeeValueMean(float txValueMean) {
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">    	if(txValueMean &lt; 0)</span>
+<span class="nc" id="L235">    		throw new ArithmeticException(&quot;Transaction Value Mean &lt; 0&quot;);</span>
+<span class="fc" id="L236">        this.txValueMean = txValueMean;</span>
+<span class="fc" id="L237">    }</span>
+	
+	/**
+	 * Returns the standard deviation of transaction fee value.
+	 *
+	 * @return The standard deviation of transaction fee value (in local tokens).
+	 */
+	public float getTxFeeValueSD() {
+<span class="nc" id="L245">        return txValueSD;</span>
+    }
+	
+	/**
+	 * Sets the standard deviation of transaction fee value.
+	 *
+	 * @param txValueSD The standard deviation of transaction fee value to be set.
+	 * @throws ArithmeticException if the provided value is less than 0.
+	 */
+	public void setTxFeeValueSD(float txValueSD) {
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">    	if(txValueSD &lt; 0)</span>
+<span class="nc" id="L256">    		throw new ArithmeticException(&quot;Transaction Value Standard Deviation &lt; 0&quot;);</span>
+<span class="fc" id="L257">        this.txValueSD = txValueSD;</span>
+<span class="fc" id="L258">    }</span>
+	
+    public Sampler getSampler() {
+<span class="nc" id="L261">		return sampler;</span>
+	}
+
+	public void setSampler(Sampler sampler) {
+<span class="nc" id="L265">		this.sampler = sampler;</span>
+<span class="nc" id="L266">	}</span>
+	
+	public Random getRandom() {
+<span class="nc" id="L269">		return random;</span>
+	}
+
+	public void setRandom(Random random) {
+<span class="nc" id="L273">		this.random = random;</span>
+<span class="nc" id="L274">	}</span>
+	
+    public void setSeed(long seed) {
+<span class="fc" id="L277">    	randomSeed = seed;</span>
+<span class="fc" id="L278">    	random.setSeed(seed);</span>
+<span class="fc" id="L279">    }</span>
+
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Event_HashPowerChange.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.event</a> &gt; <span class="el_source">Event_HashPowerChange.java</span></div><h1>Event_HashPowerChange.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.event;
+
+import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.node.IMiner;
+import ca.yorku.cmg.cnsim.engine.node.INode;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+
+/**
+ * Represents an event that changes the hashpower of a node in the simulation.
+ * &lt;p&gt;
+ * When this event occurs, the associated node's hashpower is updated to the
+ * new specified value. This allows for dynamic changes in mining power during
+ * the simulation, such as simulating hardware upgrades, network changes, or
+ * other events that affect a node's computational capacity.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The event can be scheduled at any simulation time to change a node's hashpower
+ * at that point in the simulation timeline.
+ * &lt;/p&gt;
+ *
+ * @author Amirreza Radjou for the Conceptual Modeling Group @ York University
+ * @see IMiner#setHashPower(float)
+ * @see IMiner#getHashPower()
+ * @see Reporter
+ */
+public class Event_HashPowerChange extends Event {
+	
+	/** The node whose hashpower will be changed. */
+	private IMiner node;
+	
+	/** The new hashpower value to set (in Gigahashes per second). */
+	private float newHashPower;
+	
+	/** The previous hashpower value (for reporting purposes). */
+	private float oldHashPower;
+	
+	/**
+	 * Constructs a new {@code Event_HashPowerChange}.
+	 *
+	 * @param node the node whose hashpower will be changed (must implement {@link IMiner})
+	 * @param newHashPower the new hashpower value in Gigahashes per second (GH/s)
+	 * @param time the simulation time at which the event occurs
+	 * @throws IllegalArgumentException if the node is not an instance of {@link IMiner} or if newHashPower is negative
+	 */
+	public Event_HashPowerChange(INode node, float newHashPower, long time) {
+<span class="fc" id="L46">		super();</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		if (!(node instanceof IMiner)) {</span>
+<span class="nc" id="L48">			throw new IllegalArgumentException(&quot;Node must implement IMiner interface to change hashpower&quot;);</span>
+		}
+<span class="fc bfc" id="L50" title="All 2 branches covered.">		if (newHashPower &lt; 0) {</span>
+<span class="fc" id="L51">			throw new IllegalArgumentException(&quot;Hash power cannot be negative: &quot; + newHashPower);</span>
+		}
+<span class="fc" id="L53">		this.node = (IMiner) node;</span>
+<span class="fc" id="L54">		this.newHashPower = newHashPower;</span>
+<span class="fc" id="L55">		this.oldHashPower = this.node.getHashPower();</span>
+<span class="fc" id="L56">		super.setTime(time);</span>
+<span class="fc" id="L57">	}</span>
+	
+	/**
+	 * Executes the event logic for changing a node's hashpower.
+	 * &lt;p&gt;
+	 * This method updates the node's hashpower to the new value and logs
+	 * the event to the reporter if event reporting is enabled.
+	 * &lt;/p&gt;
+	 *
+	 * @param sim the simulation instance in which the event occurs
+	 * @see IMiner#setHashPower(float)
+	 */
+	@Override
+	public void happen(Simulation sim) {
+<span class="fc" id="L71">		super.happen(sim);</span>
+		
+		// Update the node's hashpower
+<span class="fc" id="L74">		node.setHashPower(newHashPower);</span>
+		
+		// Report the event if reporting is enabled
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if (Reporter.reportsEvents()) {</span>
+<span class="nc" id="L78">			Reporter.addEvent(</span>
+<span class="nc" id="L79">				sim.getSimID(),</span>
+<span class="nc" id="L80">				getEvtID(),</span>
+<span class="nc" id="L81">				getTime(),</span>
+<span class="nc" id="L82">				System.currentTimeMillis() - Simulation.sysStartTime,</span>
+<span class="nc" id="L83">				this.getClass().getSimpleName(),</span>
+<span class="nc" id="L84">				node.getID(),</span>
+				-1L, // No specific transaction or container involved
+				//TODO: Add some description here
+				&quot;&quot;
+			);
+		}
+<span class="fc" id="L90">	}</span>
+	
+	/**
+	 * Returns the node whose hashpower is being changed.
+	 *
+	 * @return the node instance
+	 */
+	public IMiner getNode() {
+<span class="fc" id="L98">		return node;</span>
+	}
+	
+	/**
+	 * Returns the new hashpower value that will be set.
+	 *
+	 * @return the new hashpower in GH/s
+	 */
+	public float getNewHashPower() {
+<span class="fc" id="L107">		return newHashPower;</span>
+	}
+	
+	/**
+	 * Returns the previous hashpower value (before the change).
+	 *
+	 * @return the old hashpower in GH/s
+	 */
+	public float getOldHashPower() {
+<span class="fc" id="L116">		return oldHashPower;</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

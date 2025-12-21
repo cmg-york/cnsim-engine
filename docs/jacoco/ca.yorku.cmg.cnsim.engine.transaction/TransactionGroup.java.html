@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionGroup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.transaction</a> &gt; <span class="el_source">TransactionGroup.java</span></div><h1>TransactionGroup.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.transaction;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Comparator;
+import java.util.List;
+
+
+/**
+ * A list containing various transactions. Can be used as a block or other needed grouping (e.g. pool).
+ *
+ * @author Sotirios Liaskos for the Enterprise Systems Group @ York University
+ */
+public class TransactionGroup implements ITxContainer {
+
+    private List&lt;Transaction&gt; group;
+    protected int groupID;
+    protected float totalValue;
+    protected float totalSize;
+
+    
+<span class="fc" id="L25">    private static final ThreadLocal&lt;BitSet&gt; SCRATCH =</span>
+<span class="fc" id="L26">            ThreadLocal.withInitial(BitSet::new);</span>
+<span class="fc" id="L27">    BitSet contents = new BitSet();</span>
+    
+    
+    ////////// Constructors //////////
+
+    /**
+     * Plain constructor, simply initializes the internal data structure.
+     */
+<span class="fc" id="L35">    public TransactionGroup() {</span>
+<span class="fc" id="L36">        group = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Accepts an already created ArrayList of transactions. Calculates the total value and size in the group.
+     *
+     * @param initial An already created ArrayList of transactions
+     */
+<span class="fc" id="L44">    public TransactionGroup(List&lt;Transaction&gt; initial) {</span>
+<span class="fc" id="L45">        group = initial;</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (Transaction t : initial) {</span>
+<span class="fc" id="L47">            totalValue += t.getValue();</span>
+<span class="fc" id="L48">            totalSize += t.getSize();</span>
+<span class="fc" id="L49">            contents.set((int) t.getID());</span>
+<span class="fc" id="L50">        }</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Loads a transaction group from a text file. Each line in the file is a separate transaction.
+     * Each transaction is a comma separated string containing the following information:
+     * Transaction ID, Time Created, Total Value, Total Size, First Arrival NodeID.
+     * Transaction ID must run from {@code 1} to {@code n} strictly increasing by 1 at each step  (error otherwise). Time must not decrease as transactions IDs increase.
+     * Time Created: a long integer representing the number of milliseconds (ms) from a fixed time 0.
+     * Total Value: in user defined tokens depending on network.
+     * Total Size: in bytes
+     * First Arrival NodeID: the node at which the transaction first arrives
+     * NOTE: FOR TESTING ONLY. Samplers are responsible for loading transactions.
+     * @param fileName  A name to the text file containing the transactions.
+     * @param hasHeader Whether the file has a header.
+     * @throws IOException Error finding or reading the file.
+     */
+    public TransactionGroup(String fileName, boolean hasHeader) throws IOException {
+<span class="fc" id="L68">        this();</span>
+
+        String l;
+<span class="fc" id="L71">        String delimiter = &quot;,&quot;;</span>
+
+<span class="fc" id="L73">        int tCount = 1;</span>
+<span class="fc" id="L74">        long lastTime = 0;</span>
+        int id;
+        long time;
+        float value;
+        float size;
+        int nodeID;
+
+<span class="fc" id="L81">        BufferedReader br = new BufferedReader(new FileReader(fileName));</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        while ((l = br.readLine()) != null) {</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (hasHeader) {</span>
+<span class="fc" id="L84">                hasHeader = false;</span>
+            } else {
+<span class="fc" id="L86">                String[] t = l.split(delimiter);</span>
+<span class="fc" id="L87">                id = Integer.parseInt(t[0]);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">                if (id != tCount)</span>
+<span class="fc" id="L89">                    throw new IllegalArgumentException(&quot;Error in workload file: transaction IDs must start from 1 and strictly increase by 1.&quot;);</span>
+<span class="fc" id="L90">                tCount++;</span>
+<span class="fc" id="L91">                time = Long.parseLong(t[1]);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">                if (time &lt; lastTime)</span>
+<span class="fc" id="L93">                    throw new IllegalArgumentException(&quot;Error in workload file: time must not decrease as transaction IDs increase.&quot;);</span>
+<span class="fc" id="L94">                lastTime = time;</span>
+<span class="fc" id="L95">                value = Float.parseFloat(t[2]);</span>
+<span class="fc" id="L96">                size = Float.parseFloat(t[3]);</span>
+<span class="fc" id="L97">                nodeID = Integer.parseInt(t[4]);</span>
+
+<span class="fc" id="L99">                this.addTransaction(new Transaction(id, time, value, size, nodeID));</span>
+<span class="fc" id="L100">            }</span>
+        }
+<span class="fc" id="L102">        br.close();</span>
+<span class="fc" id="L103">    }</span>
+
+    ////////// Modifiers //////////
+
+    /**
+     * Replace transaction group with a new one.
+     *
+     * @param initial An array list of {@linkplain Transaction} objects, to replace the existing one.
+     */
+    public void updateTransactionGroup(List&lt;Transaction&gt; initial) {
+<span class="fc" id="L113">        totalValue = 0;</span>
+<span class="fc" id="L114">        totalSize = 0;</span>
+<span class="fc" id="L115">        group = initial;</span>
+<span class="fc" id="L116">        contents = new BitSet();</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (Transaction t : initial) {</span>
+<span class="fc" id="L118">            totalValue += t.getValue();</span>
+<span class="fc" id="L119">            totalSize += t.getSize();</span>
+<span class="fc" id="L120">            contents.set((int) t.getID());</span>
+<span class="fc" id="L121">        }</span>
+<span class="fc" id="L122">    }</span>
+
+    /**
+     * See {@linkplain ITxContainer#addTransaction(Transaction)}.
+     */
+    @Override
+    public void addTransaction(Transaction t) {
+<span class="fc" id="L129">        group.add(t);</span>
+<span class="fc" id="L130">        contents.set((int) t.getID());</span>
+<span class="fc" id="L131">        totalSize += t.getSize();</span>
+<span class="fc" id="L132">        totalValue += t.getValue();</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * See {@linkplain ITxContainer#removeTransaction(Transaction)}.
+     */
+    @Override
+    public void removeTransaction(Transaction t) {
+<span class="fc" id="L140">    	removeTransaction(t.getID());</span>
+    	
+        /* if (!group.contains(t)) return;
+        group.remove(t);
+        contents.clear((int) t.getID());
+        totalSize -= t.getSize();
+        totalValue -= t.getValue();
+        */
+<span class="fc" id="L148">    }</span>
+
+    
+    /**
+     * Like removeTransaction(Transaction) but with ID as an argument. 
+     * See {@linkplain ITxContainer#removeTransaction(Transaction)}.
+     * @param txID
+     */
+    public void removeTransaction(long txID) {
+<span class="fc" id="L157">        Transaction t = getTransactionById((int) txID);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (!group.contains(t)) return;</span>
+<span class="fc" id="L159">        group.remove(t);</span>
+<span class="fc" id="L160">        contents.clear((int) txID);</span>
+<span class="fc" id="L161">        totalSize -= t.getSize();</span>
+<span class="fc" id="L162">        totalValue -= t.getValue();</span>
+<span class="fc" id="L163">    }</span>
+    
+    
+    
+    /**
+     * See {@linkplain ITxContainer#removeNextTx()}.
+     */
+    @Override
+    public Transaction removeNextTx() {
+    	
+<span class="fc" id="L173">    	int firstSet = contents.nextSetBit(0);</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (firstSet &gt;= 0) {</span>
+<span class="fc" id="L175">            contents.clear(firstSet); // clear it</span>
+        }
+    	
+    	
+<span class="fc" id="L179">        Transaction t = group.removeFirst();</span>
+<span class="fc" id="L180">        totalSize -= t.getSize();</span>
+<span class="fc" id="L181">        totalValue -= t.getValue();</span>
+<span class="fc" id="L182">        return t;</span>
+    }
+
+    /**
+     * See {@linkplain ITxContainer#extractGroup(TransactionGroup)}.
+     */
+    @Override
+    public void extractGroup(TransactionGroup g) {
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        for (Transaction t : g.getTransactions()) {</span>
+<span class="fc" id="L191">            this.removeTransaction(t);</span>
+<span class="fc" id="L192">        }</span>
+        
+        // Compute c = a AND NOT b
+<span class="fc" id="L195">        BitSet notB = (BitSet) g.getBitSet().clone();</span>
+<span class="fc" id="L196">        notB.flip(0, Math.max(contents.length(), g.getBitSet().length())); // invert all bits up to max length</span>
+<span class="fc" id="L197">        contents.and(notB); // c = contents AND (NOT g)</span>
+<span class="fc" id="L198">    }</span>
+
+    
+
+	public void addGroup(TransactionGroup g) {
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        for (Transaction t : g.getTransactions()) {</span>
+<span class="nc" id="L204">            this.addTransaction(t);</span>
+<span class="nc" id="L205">        }</span>
+<span class="nc" id="L206">	}</span>
+    
+    
+    ////////// Examine Content //////////
+
+    /**
+     * See {@linkplain ITxContainer#contains(Transaction)}.
+     */
+    @Override
+    public boolean contains(Transaction t) {
+    	
+<span class="fc" id="L217">    	if (true) return(contains_BitSet(t));</span>
+
+        for (Transaction r : group) {
+            if (r.getID() == t.getID()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean contains_BitSet(Transaction t) {
+<span class="fc" id="L228">    	return(contents.get((int) t.getID())); </span>
+    }
+    
+    
+    /**
+     * See {@linkplain ITxContainer#contains(long)}.
+     */
+    @Override
+    public boolean contains(long txID) {
+    	
+<span class="fc" id="L238">    	if (true) return(contains_BitSet(txID));</span>
+    	
+        for (Transaction r : group) {
+            if (r.getID() == txID) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean contains_BitSet(long txID) {
+<span class="fc" id="L249">    	return(contents.get((int) txID)); </span>
+    }
+    
+    public boolean satisfiesDependenciesOf(Transaction tx,TxDependencyRegistry registry) {
+<span class="nc" id="L253">    	return(registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get()));</span>
+    }
+    
+    public boolean satisfiesDependenciesOf(long txID, TxDependencyRegistry registry) {
+<span class="nc" id="L257">    	return(registry.dependenciesMetFast((int) txID,contents,SCRATCH.get()));</span>
+    }  
+
+    public boolean satisfiesDependenciesOf_Incl_3rdGroup(long txID, TransactionGroup g, TxDependencyRegistry registry) {
+<span class="nc" id="L261">    	BitSet allTogether = (BitSet) contents.clone();</span>
+<span class="nc" id="L262">		allTogether.or(g.getBitSet());</span>
+<span class="nc" id="L263">    	return(registry.dependenciesMetFast((int) txID,allTogether,SCRATCH.get()));</span>
+    }  
+    
+    
+    
+    public boolean satisfiesDependenciesOf(TransactionGroup set, TxDependencyRegistry registry) {
+<span class="nc" id="L269">    	boolean satisfied = true;</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">    	for (Transaction tx: set.getTransactions()) {</span>
+<span class="nc bnc" id="L271" title="All 4 branches missed.">    		satisfied = satisfied &amp;&amp; registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get());</span>
+<span class="nc" id="L272">    	}</span>
+<span class="nc" id="L273">    	return satisfied;</span>
+    }
+    
+    public boolean satisfiesDependenciesOf_InclSelf(TransactionGroup set, TxDependencyRegistry registry) {
+<span class="nc" id="L277">    	boolean satisfied = true;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">    	for (Transaction tx: set.getTransactions()) {</span>
+<span class="nc" id="L279">    		BitSet allTogether = (BitSet) contents.clone();</span>
+<span class="nc" id="L280">    		allTogether.or(set.getBitSet());</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">    		satisfied = </span>
+    				satisfied 
+    				&amp;&amp; 
+    				(
+<span class="nc bnc" id="L285" title="All 2 branches missed.">    						registry.dependenciesMetFast((int) tx.getID(),allTogether,SCRATCH.get())</span>
+    				);
+<span class="nc" id="L287">    	}</span>
+<span class="nc" id="L288">    	return satisfied;</span>
+    }
+    
+    
+    public boolean fullyContainsSet(BitSet set) {
+<span class="nc" id="L293">        BitSet scratch = SCRATCH.get();   // thread-private scratch</span>
+<span class="nc" id="L294">        scratch.clear();</span>
+<span class="nc" id="L295">        scratch.or(set);</span>
+<span class="nc" id="L296">        scratch.andNot(contents);</span>
+<span class="nc" id="L297">        return scratch.isEmpty();</span>
+    }
+    
+    
+    /**
+     * Check if the group overlaps with another transaction group, i.e.,
+     * there is a transaction in {@code p} that also exists in the current group.
+     *
+     * @param p The {@linkplain TransactionGroup} in question.
+     * @return {@code true} of there is at least one transaction in {@code p} that is contained in the group, {@code false}, otherwise.
+     */
+    public boolean overlapsWithByObj(TransactionGroup p) {
+<span class="fc" id="L309">        boolean result = false;</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        for (Transaction t : p.getTransactions()) {</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            if (group.contains(t)) {</span>
+<span class="fc" id="L312">                result = true;</span>
+<span class="fc" id="L313">                break;</span>
+            }
+<span class="fc" id="L315">        }</span>
+<span class="fc" id="L316">        return (result);</span>
+    }
+
+    /**
+     * As {@link TransactionGroup#overlapsWithByObj(TransactionGroup)} but criterion that is used is
+     * transaction ID.
+     *
+     * @param g The {@link TransactionGroup} object in question.
+     * @return {@code true} of there is at least one transaction in {@code g} that is contained in the group, {@code false}, otherwise.
+     */
+    public boolean overlapsWith(TransactionGroup g) {
+    	
+<span class="fc" id="L328">    	if (true) return(overlapsWith_BitSet(g));</span>
+    		
+        for (Transaction r : group) {
+            for (Transaction t : g.getTransactions()) {
+                if (t.getID() == r.getID()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    
+    public boolean overlapsWith_BitSet(TransactionGroup g) {
+<span class="fc" id="L342">    	return(contents.intersects(g.getBitSet()));</span>
+    }
+    
+    
+    /**
+     * Retrieves a TransactionGroup containing the top N transactions based on
+     * a given size limit and comparator.
+     *
+     * @param sizeLimit The maximum cumulative size (in bytes) of transactions allowed in the result.
+     * @param comp      The comparator used to sort the transactions.
+     * @return A {@link TransactionGroup} object containing the top N transactions that do not
+     * exceed sizeLimit based on given comparator.
+     */
+    public TransactionGroup getTopN(float sizeLimit, Comparator&lt;Transaction&gt; comp) {
+    	
+    	//TODO: maintain three arrays of values, sizes, and ratios
+    	// 		short O(n log n)
+    	//		traverse until full O(n)
+    	// OR YOU CAN LEAVE IT ALONE
+    	
+<span class="fc bfc" id="L362" title="All 2 branches covered.">        if (sizeLimit &lt; 0) {</span>
+<span class="fc" id="L363">            throw new IllegalArgumentException(String.format(&quot;Size limit (%f) must be a positive integer&quot;, sizeLimit));</span>
+        }
+
+<span class="fc" id="L366">        ArrayList&lt;Transaction&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L367">        List&lt;Transaction&gt; sortedGroup = group.stream().sorted(comp).toList();</span>
+
+<span class="fc" id="L369">        int i = 0;</span>
+<span class="fc" id="L370">        float sum = 0;</span>
+<span class="pc bpc" id="L371" title="1 of 4 branches missed.">        while ((sum &lt;= sizeLimit) &amp;&amp; (i &lt; sortedGroup.size())) {</span>
+<span class="fc" id="L372">            sum += sortedGroup.get(i).getSize();</span>
+<span class="fc" id="L373">            result.add(sortedGroup.get(i));</span>
+<span class="fc" id="L374">            i++;</span>
+        }
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">        if (sum &gt; sizeLimit) { //Last one was exceeding the limit.</span>
+<span class="fc" id="L377">            result.remove(i - 1);</span>
+        }
+<span class="fc" id="L379">        return (new TransactionGroup(result));</span>
+    }
+
+    ////////// Accessors //////////
+
+    /**
+     * See {@linkplain ITxContainer#getID()}.
+     */
+    @Override
+    public int getID() {
+<span class="nc" id="L389">        return groupID;</span>
+    }
+
+    /**
+     * See {@linkplain ITxContainer#getCount()}.
+     */
+    @Override
+    public int getCount() {
+<span class="fc" id="L397">        return (group.size());</span>
+    }
+
+    /**
+     * See {@linkplain ITxContainer#getSize()}.
+     */
+    @Override
+    public float getSize() {
+<span class="fc" id="L405">        return totalSize;</span>
+    }
+
+    /**
+     * See {@linkplain ITxContainer#getValue()}.
+     */
+    @Override
+    public float getValue() {
+<span class="fc" id="L413">        return totalValue;</span>
+    }
+
+    /**
+     * Return the ArrayList of transactions in the group
+     *
+     * @return An ArrayList of {@linkplain Transaction} objects representing the transactions in the group.
+     */
+    @Override
+    public List&lt;Transaction&gt; getTransactions() {
+<span class="fc" id="L423">        return group;</span>
+    }
+    
+    
+    public BitSet getBitSet() {
+<span class="fc" id="L428">    	return (contents);</span>
+    }
+    
+
+    /**
+     * Get the transaction of the group at index {@code index}. Does not check if index exists.
+     *
+     * @param index The index from {@code 0} to {@code n-1}
+     * @return A reference to the {@linkplain Transaction} at index {@code index}
+     */
+    public Transaction getTransaction(int index) {
+<span class="nc" id="L439">        return group.get(index);</span>
+    }
+
+    public Transaction getTransactionById(int txID) {
+<span class="fc bfc" id="L443" title="All 2 branches covered.">        for (Transaction r : group) {</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">            if (r.getID() == txID) {</span>
+<span class="fc" id="L445">            	return (r);</span>
+            }
+<span class="fc" id="L447">        }</span>
+<span class="fc" id="L448">    	return null;</span>
+    }
+    
+    
+    ////////// Print Group //////////
+
+    /**
+     * See {@linkplain ITxContainer#printIDs(String)}.
+     */
+    @Override
+    public String printIDs(String sep) {
+<span class="fc" id="L459">        StringBuilder s = new StringBuilder(&quot;{&quot;);</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">        for (Transaction t : group) {</span>
+<span class="fc" id="L461">            s.append(t.getID()).append(sep);</span>
+<span class="fc" id="L462">        }</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">        if (s.length() &gt; 1)</span>
+<span class="fc" id="L464">            s = new StringBuilder(s.substring(0, s.length() - 1) + &quot;}&quot;);</span>
+        else
+<span class="fc" id="L466">            s.append(&quot;}&quot;);</span>
+<span class="fc" id="L467">        return (s.toString());</span>
+    }
+
+    /**
+     * Generates a debug printout of the Transaction IDs in the pool.
+     *
+     * @return A string containing the IDs of the Transactions in the pool, separated by commas.
+     */
+    @SuppressWarnings(&quot;unused&quot;)
+    public String debugPrintPoolTx() {
+<span class="nc" id="L477">        StringBuilder s = new StringBuilder();</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">        for (Transaction t : group) {</span>
+<span class="nc" id="L479">            s.append(t.getID()).append(&quot;, &quot;);</span>
+<span class="nc" id="L480">        }</span>
+<span class="nc" id="L481">        return (s.toString());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

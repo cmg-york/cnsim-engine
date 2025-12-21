@@ -321,7 +321,7 @@ public class Reporter {
      * @param simTime Simulation time of arrival
      * @param nodeID The ID of the node at which the transaction first arrives.
      * @param conflictID The transaction ID with which the current transaction conflicts.
-     * @param depenencies a string of the form {txID1,txID2,...} specifying the transactions on which the current transaction depends. -1 if the transaction has no dependencies.
+     * @param dependencies a string of the form {txID1,txID2,...} specifying the transactions on which the current transaction depends. -1 if the transaction has no dependencies.
      */
 	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID, String dependencies) {
 		if (Reporter.reportTransactions)
@@ -417,14 +417,15 @@ public class Reporter {
 		errorLog.add(errorMsg);
 	}
 		
-	
 	/**
-	 * Adds an entry to the error log.   
-	 * @param errorMsg The custom error message.
+	 * Adds an entry to the execution time log with information about the simulation run time.
+	 * @param simID The simulation ID.
+	 * @param simTime The total simulation time.
+	 * @param sysStartTime The system start time of the simulation run.
+	 * @param sysEndTime The system end time of the simulation run.
+	 * @param numScheduled The number of events scheduled during the simulation.
+	 * @param numProcessed The number of events processed during the simulation.
 	 */
-	
-
-	
 	public static void addExecTimeEntry(int simID,
 			long simTime,
 			long sysStartTime,

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileBasedEndToEndNetwork.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.network</a> &gt; <span class="el_source">FileBasedEndToEndNetwork.java</span></div><h1>FileBasedEndToEndNetwork.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.network;
+
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+import ca.yorku.cmg.cnsim.engine.node.NodeSet;
+
+
+/**
+ * Represents a network where end-to-end throughput is loaded from a CSV file.  
+ * For each pair of nodes, a throughput value indicates the number of bits that can travel 
+ * from one node to the other in the unit of time (ignoring routing). This network is 
+ * typically an abstraction produced by applying all-possible-shortest-paths algorithms to the true 
+ * structure and throughput of a network. It is agnostic to the actual physical structure 
+ * or individual link throughputs.
+ * &lt;p&gt;
+ * The CSV file should contain rows describing the connections between nodes in the format:
+ * &lt;pre&gt;
+ * fromNodeID,toNodeID,throughput
+ * &lt;/pre&gt;
+ * Optionally, the first line can contain headers.
+ * &lt;p&gt;
+ * This class extends {@link AbstractNetwork} and initializes the network matrix
+ * based on the provided {@link NodeSet} and the data read from the file.
+ * &lt;/p&gt;
+ * 
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @see AbstractNetwork
+ */
+public class FileBasedEndToEndNetwork extends AbstractNetwork {
+
+	 /** Path to the CSV file describing the network throughput */
+	private String networkFilePath;
+	
+	
+    /**
+     * Constructs a FileBasedEndToEndNetwork from a NodeSet and a CSV file.
+     * The network throughput matrix is initialized based on the file contents.
+     * 
+     * @param ns the NodeSet representing the nodes in the network
+     * @param filename the path to the CSV file containing throughput data
+     * @throws Exception if the NodeSet exceeds the maximum allowed nodes, or if file parsing fails
+     */
+    public FileBasedEndToEndNetwork(NodeSet ns, String filename) throws Exception {
+<span class="nc" id="L47">        super(ns);</span>
+<span class="nc" id="L48">        networkFilePath = filename;</span>
+        try {
+<span class="nc" id="L50">			LoadFromFile();</span>
+<span class="nc" id="L51">		} catch (Exception e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L53">			e.printStackTrace();</span>
+<span class="nc" id="L54">		}</span>
+<span class="nc" id="L55">    }</span>
+    
+    /**
+     * Empty constructor for testing purposes.
+     * The network will not be initialized until {@link #LoadFromFile()} is called.
+     */
+<span class="nc" id="L61">    public FileBasedEndToEndNetwork(){</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Loads the network throughput matrix from the CSV file.
+     * Assumes the first line is a header.
+     * 
+     * @throws Exception if there is a problem reading the file or parsing the values
+     */
+    public void LoadFromFile() throws Exception {
+<span class="nc" id="L71">    	LoadFromFile(true);</span>
+<span class="nc" id="L72">    }</span>
+    
+    /**
+     * Loads the network throughput matrix from the CSV file.
+     * 
+     * @param hasHeaders true if the first line of the CSV file contains headers and should be skipped
+     * @throws Exception if there is a problem reading the file, parsing values, or invalid node IDs
+     */
+    public void LoadFromFile(boolean hasHeaders) throws Exception {
+<span class="nc" id="L81">    	int lineCount = 0;</span>
+        //read the file from file path
+<span class="nc" id="L83">        try(BufferedReader br = new BufferedReader(new FileReader(networkFilePath))) {</span>
+            String line;
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            while ((line = br.readLine()) != null) {</span>
+<span class="nc" id="L86">            	lineCount++;</span>
+<span class="nc" id="L87">                String[] values = line.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                if (values.length != 4) {</span>
+<span class="nc" id="L89">                    continue; // Skip lines that don't have exactly 3 values</span>
+                }
+<span class="nc bnc" id="L91" title="All 4 branches missed.">				if (hasHeaders &amp;&amp; lineCount == 1) {</span>
+<span class="nc" id="L92">					continue; // Skip first line</span>
+				}
+                try {
+<span class="nc" id="L95">                    int from = Integer.parseInt(values[0].trim());</span>
+<span class="nc" id="L96">                    int to = Integer.parseInt(values[1].trim());</span>
+<span class="nc" id="L97">                    float throughput = Float.parseFloat(values[2].trim());</span>
+                    //Debug.p(line);
+<span class="nc bnc" id="L99" title="All 8 branches missed.">                    if (from &lt; 0 || from &gt; Net.length || to &lt; 0 || to &gt; Net.length) {</span>
+<span class="nc" id="L100">                        throw new Exception(&quot;Invalid node ID in throughput (out of max ranger) line: &quot; + line);</span>
+                    }
+                    //check the number of nodes and put data based on that
+<span class="nc bnc" id="L103" title="All 4 branches missed.">                    if (from &gt; ns.getNodeSetCount() || to &gt; ns.getNodeSetCount()) {</span>
+<span class="nc" id="L104">                        throw new Exception(&quot;Invalid node ID in throughput line (ID not in nodeset): &quot; + line);</span>
+                    }
+<span class="nc" id="L106">                    this.setThroughput(from, to, throughput);</span>
+<span class="nc" id="L107">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L108">                    System.err.println(&quot;Error parsing throughput line: &quot; + line);</span>
+<span class="nc" id="L109">                }</span>
+<span class="nc" id="L110">            }</span>
+
+<span class="nc" id="L112">        } catch (IOException e) {</span>
+<span class="nc" id="L113">            e.printStackTrace();</span>
+<span class="nc" id="L114">        }</span>
+<span class="nc" id="L115">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

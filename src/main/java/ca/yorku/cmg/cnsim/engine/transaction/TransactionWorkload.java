@@ -114,7 +114,6 @@ public class TransactionWorkload extends TransactionGroup {
 	 * @param reg The TxConflictRegistry to be updated.
 	 * @param dispersion The dispersion parameter controlling the closeness of conflicts. In [0,1].
 	 * @param likelihood The likelihood of a transaction having a conflict. In [0,1]
-	 * @return The updated TxConflictRegistry.
 	 */
 	public void updateConflicts(
 			TxConflictRegistry reg, 

@@ -127,7 +127,8 @@ public class FileBasedTransactionSampler extends AbstractTransactionSampler {
 	 * @param hasHeaders True if the first line is a header and should be skipped
 	 * @throws Exception if the file contains fewer transactions than required and no alternative sampler is defined
 	 * TODO: incorporate into centralized error and debug reporting.  
-
+	*/
+	/*
 	public void loadTransactionWorkload(boolean hasHeaders) throws Exception {
 		int lineCount = 0;
 		String line;

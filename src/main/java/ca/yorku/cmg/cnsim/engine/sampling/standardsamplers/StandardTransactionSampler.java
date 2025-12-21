@@ -264,14 +264,16 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      * Generate a random dependency for Transaction txID
      *
      * @param txID        Transaction for which dependencies are generated. An integer greater than 0.
-     * @param mandatory  if {@ true}, at least one dependency will be created
+     * @param mandatory  if {@code true}, at least one dependency will be created
      * @param dispersion  float [0..1], measures how far from txID the numbers are
      * @param countMean  expected number of dependencies (0..txID-1)
      * @param countSD    standard deviation for number of dependencies
      * @return a BitSet of dependencies, or null if no dependencies
      */
-    public BitSet randomDependencies(int j, boolean mandatory, float dispersion, int countMean, float countSD) {
+    public BitSet randomDependencies(int txID, boolean mandatory, float dispersion, int countMean, float countSD) {
 
+    	int j = txID;
+    	
         if (j <= 1) return null;
 
         // 1. Draw N from normal distribution

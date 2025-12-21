@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reporter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.reporter</a> &gt; <span class="el_source">Reporter.java</span></div><h1>Reporter.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.reporter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
+import ca.yorku.cmg.cnsim.engine.config.Config;
+import ca.yorku.cmg.cnsim.engine.node.PoWNode;
+import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
+
+/**
+ * Provides centralized measurement and reporting for simulations.
+ * &lt;p&gt;
+ * The {@code Reporter} class is designed to be used via its static methods and handles
+ * the creation, logging, and flushing of simulation data for different categories:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;b&gt;Events:&lt;/b&gt; Records every processed event.&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Transactions:&lt;/b&gt; Records every transaction arrival.&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Nodes:&lt;/b&gt; Records information about each node in the simulation, typically at the end.&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Network events:&lt;/b&gt; Records network link events or bandwidth changes.&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Beliefs:&lt;/b&gt; Records nodes' beliefs about transactions, including optional short-format reports.&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Errors:&lt;/b&gt; Records runtime errors or issues during simulation execution.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * Additional reporting (e.g., structure or custom metrics) can be implemented in other classes.
+ * 
+ * &lt;p&gt;
+ * The class manages the log data in {@linkplain ArrayList} structures and flushes them to files
+ * when requested. Log files are created in a simulation-specific directory, based on the
+ * {@linkplain Config configuration} properties and a timestamped run identifier.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * Reporting can be selectively enabled or disabled per category using the static setter methods:
+ * {@linkplain #reportEvents(boolean)}, {@linkplain #reportTransactions(boolean)},
+ * {@linkplain #reportNodes(boolean)}, {@linkplain #reportNetEvents(boolean)},
+ * {@linkplain #reportBeliefs(boolean)}, and {@linkplain #reportBeliefsShort(boolean)}.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * All flush methods write the corresponding log to a CSV file (or TXT for errors) in the
+ * simulation output directory. File names include the run identifier to ensure uniqueness.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * The class is thread-unsafe; concurrent modifications to log data should be externally synchronized
+ * if multiple threads may report simultaneously.
+ * &lt;/p&gt;
+ *
+ * @author
+ *   Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ *
+ * @see PoWNode
+ * @see Transaction
+ * @see Config
+ */
+<span class="nc" id="L59">public class Reporter {</span>
+	
+	 /** Stores transaction arrival log lines. */
+<span class="fc" id="L62">	protected static ArrayList&lt;String&gt; inputTxLog = new ArrayList&lt;String&gt;();</span>
+	 
+	 /** Stores event log lines. */
+<span class="fc" id="L65">	protected static ArrayList&lt;String&gt; eventLog = new ArrayList&lt;String&gt;();</span>
+	
+	 /** Stores node log lines. */
+<span class="fc" id="L68">	protected static ArrayList&lt;String&gt; nodeLog = new ArrayList&lt;String&gt;();</span>
+	
+	/** Stores compact belief log lines. */
+<span class="fc" id="L71">	protected static ArrayList&lt;String&gt; netLog = new ArrayList&lt;String&gt;();</span>
+	
+	/** Stores belief log lines. */
+<span class="fc" id="L74">	protected static ArrayList&lt;String&gt; beliefLog = new ArrayList&lt;String&gt;();</span>
+	
+	/** Stores compact belief log lines. */
+<span class="fc" id="L77">	protected static ArrayList&lt;String&gt; beliefLogShort = new ArrayList&lt;String&gt;();</span>
+	
+	/** Counts belief entries for the short belief report. */
+<span class="fc" id="L80">	protected static BeliefEntryCounter beliefCounter = new BeliefEntryCounter();</span>
+	
+	/** Stores error log lines. */
+<span class="fc" id="L83">	protected static ArrayList&lt;String&gt; errorLog = new ArrayList&lt;String&gt;();</span>
+
+	/** Stores real run times and simulation statistics. */
+<span class="fc" id="L86">	protected static ArrayList&lt;String&gt; execTimeLog = new ArrayList&lt;String&gt;();</span>
+	
+	/** The unique identifier for the current simulation run, used in file naming. */
+	protected static String runId;
+	
+	/** The root directory for all simulation output files. */
+	protected static String path;
+	
+	/** The base directory for all simulation output files, configurable via {@code sim.output.directory}. Default is {@code ./log/} */
+<span class="fc" id="L95">	protected static String root = &quot;./log/&quot;;</span>
+	
+ 	/** Reporting control flags */
+	protected static boolean reportEvents;
+	protected static boolean reportTransactions;
+	protected static boolean reportNodes;
+	protected static boolean reportNetEvents;
+	protected static boolean reportBeliefs;
+	protected static boolean reportBeliefsShort;
+
+
+
+
+	
+	
+	// -----------------------------------------------------------------
+	// STATIC INITIALIZATION
+	// -----------------------------------------------------------------
+	
+	
+	// Static initialization block sets up paths, runId, and prepares log headers
+	static {
+<span class="fc" id="L117">		root = Config.getPropertyString(&quot;sim.output.directory&quot;);</span>
+
+<span class="fc" id="L119">		String label = &quot;&quot;;</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (Config.hasProperty(&quot;sim.experimentalLabel&quot;)) {</span>
+<span class="nc" id="L121">			label = Config.getPropertyString(&quot;sim.experimentalLabel&quot;) + &quot; - &quot;;</span>
+		}
+		
+		//ID the run
+<span class="fc" id="L125">		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(&quot;yyyy.MM.dd HH.mm.ss&quot;);  </span>
+<span class="fc" id="L126">		LocalDateTime now = LocalDateTime.now();</span>
+<span class="fc" id="L127">		runId = label + dtf.format(now);</span>
+<span class="fc" id="L128">		path = root + runId + &quot;/&quot;;</span>
+<span class="fc" id="L129">		new File(path).mkdirs();</span>
+		FileWriter writer;
+		try {
+<span class="fc" id="L132">			writer = new FileWriter(root + &quot;LatestFileName.txt&quot;);</span>
+<span class="fc" id="L133">			writer.write(runId + &quot;\n&quot;);</span>
+<span class="fc" id="L134">			writer.close();</span>
+<span class="pc" id="L135">		} catch (IOException e) {e.printStackTrace();}</span>
+		
+		//Prepare the reporting structures
+<span class="fc" id="L138">		eventLog.add(&quot;SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID, Info&quot;);</span>
+		//inputTxLog.add(&quot;SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)&quot;);
+<span class="fc" id="L140">		inputTxLog.add(&quot;SimID, TxID, Size, Value, NodeID, ArrivalTime, ConflictID, DependencyIDs&quot;);</span>
+		//nodeLog.add(&quot;SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles&quot;);
+<span class="fc" id="L142">		nodeLog.add(&quot;SimID, NodeID, HashPower, ElectricPower, ElectricityCost, TotalCycles&quot;);</span>
+		//netLog.add(&quot;SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)&quot;);
+<span class="fc" id="L144">		netLog.add(&quot;SimID, FromNodeID, ToNodeID, Bandwidth, Time&quot;);</span>
+		//beliefLog.add(&quot;SimID, Node ID, Transaction ID, Believes, Time (ms from start)&quot;);
+<span class="fc" id="L146">		beliefLog.add(&quot;SimID, NodeID, TxID, Believes, Time&quot;);</span>
+		//beliefLogShort.add(&quot;SimID, Transaction ID, Time (ms from start), Belief&quot;);
+<span class="fc" id="L148">		beliefLogShort.add(&quot;SimID, TxID, Time, Belief&quot;);</span>
+		
+<span class="fc" id="L150">		execTimeLog.add(&quot;SimID, SimTime, SysStartTime, SysEndTime, NumEventsScheduled, NumEventsProcessed&quot;);</span>
+<span class="fc" id="L151">	}</span>
+	
+	
+	
+	
+	// -----------------------------------------------------------------
+	// Methods to enable/disable or query report categories
+	// -----------------------------------------------------------------
+	
+	
+	public static void reportEvents(boolean reportEvents) {
+<span class="fc" id="L162">		Reporter.reportEvents = reportEvents;</span>
+<span class="fc" id="L163">	}</span>
+
+	public static void reportTransactions(boolean reportTransactions) {
+<span class="fc" id="L166">		Reporter.reportTransactions = reportTransactions;</span>
+<span class="fc" id="L167">	}</span>
+
+	public static void reportNodes(boolean reportNodes) {
+<span class="fc" id="L170">		Reporter.reportNodes = reportNodes;</span>
+<span class="fc" id="L171">	}</span>
+
+	public static void reportNetEvents(boolean reportNetEvents) {
+<span class="fc" id="L174">		Reporter.reportNetEvents = reportNetEvents;</span>
+<span class="fc" id="L175">	}</span>
+
+	public static void reportBeliefs(boolean reportBeliefs) {
+<span class="fc" id="L178">		Reporter.reportBeliefs = reportBeliefs;</span>
+<span class="fc" id="L179">	}</span>
+
+	public static void reportBeliefsShort(boolean reportBeliefsShort) {
+<span class="nc" id="L182">		Reporter.reportBeliefsShort = reportBeliefsShort;</span>
+<span class="nc" id="L183">	}</span>
+	
+	  /**
+     * Returns whether general events are being logged.
+     *
+     * @return {@code true} if event reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsEvents() {
+<span class="fc" id="L191">        return Reporter.reportEvents;</span>
+    }
+
+    /**
+     * Returns whether transaction events are being logged.
+     *
+     * @return {@code true} if transaction reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsTransactions() {
+<span class="nc" id="L200">        return Reporter.reportTransactions;</span>
+    }
+
+    /**
+     * Returns whether node events are being logged.
+     *
+     * @return {@code true} if node reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsNodeEvents() {
+<span class="nc" id="L209">        return Reporter.reportNodes;</span>
+    }
+
+    /**
+     * Returns whether network events are being logged.
+     *
+     * @return {@code true} if network event reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsNetEvents() {
+<span class="nc" id="L218">        return Reporter.reportNetEvents;</span>
+    }
+	
+	
+	public static boolean reportsBeliefs() {
+<span class="nc" id="L223">		return Reporter.reportBeliefs;</span>
+	}
+
+	public static boolean reportsBeliefsShort() {
+<span class="nc" id="L227">		return Reporter.reportBeliefsShort;</span>
+	}
+	
+	
+	
+	public static String getRunId() {
+<span class="nc" id="L233">		return(runId);</span>
+	}
+	
+	
+	// -----------------------------------------------------------------
+	// LOGGING METHODS
+	// -----------------------------------------------------------------
+	
+	
+	
+ 	/**
+	 * Adds an entry to the event log with information about the event.
+	 * 
+	 * @param simID The simulation ID.
+	 * @param evtID The event ID.
+	 * @param simTime The simulation time at which the event occurred.
+	 * @param sysTime The system time at which the event was processed.
+	 * @param evtType A string describing the type of event.
+	 * @param nodeInvolved The ID of the node involved in the event, or -1 if none.
+	 * @param objInvolved The ID of the object involved in the event (e.g., transaction ID), or -1 if none.
+	 */    
+	public static void addEvent(int simID, long evtID, long simTime, long sysTime, 
+			String evtType, int nodeInvolved, long objInvolved, String misc) {
+<span class="nc bnc" id="L256" title="All 2 branches missed.">		if (Reporter.reportEvents)</span>
+<span class="nc" id="L257">			eventLog.add(simID + &quot;,&quot; + </span>
+					evtID + &quot;,&quot; + 
+					simTime + &quot;,&quot; + 
+					sysTime + &quot;,&quot; +
+					evtType + &quot;,&quot; +
+					nodeInvolved + &quot;,&quot; +
+					objInvolved + &quot;,&quot; +
+					misc);
+<span class="nc" id="L265">	}</span>
+
+    /**
+     * Adds a transaction entry to the transaction log.
+     *
+     * @param simID Simulation ID
+     * @param txID Transaction ID
+     * @param size Transaction size in bytes TODO: verify it is bytes
+     * @param value Transaction value in tokens
+     * @param simTime Simulation time of arrival
+     * @param nodeID The ID of the node at which the transaction first arrives.
+     */
+	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
+<span class="nc" id="L279">			inputTxLog.add(simID + &quot;,&quot; +</span>
+					txID + &quot;,&quot; + 
+					size + &quot;,&quot; +
+					value + &quot;,&quot; +
+					nodeID  + &quot;,&quot; +
+					simTime  + &quot;,&quot; +
+					&quot;-1&quot;);
+<span class="nc" id="L286">	}</span>
+
+	
+    /**
+     * Adds a transaction entry to the transaction log including the ID of the transaction with 
+     * which the transaction in question conflicts. 
+     *
+     * @param simID Simulation ID
+     * @param txID Transaction ID
+     * @param size Transaction size in bytes TODO: verify it is bytes
+     * @param value Transaction value in tokens
+     * @param simTime Simulation time of arrival
+     * @param nodeID The ID of the node at which the transaction first arrives.
+     * @param conflictID The transaction ID with which the current transaction conflicts.
+     */
+	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID) {
+<span class="nc bnc" id="L302" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
+<span class="nc" id="L303">			inputTxLog.add(simID + &quot;,&quot; +</span>
+					txID + &quot;,&quot; + 
+					size + &quot;,&quot; +
+					value + &quot;,&quot; +
+					nodeID  + &quot;,&quot; +
+					simTime  + &quot;,&quot; +
+					conflictID);
+<span class="nc" id="L310">	}</span>
+	
+	
+    /**
+     * Adds a transaction entry to the transaction log including the ID of the transaction with 
+     * which the transaction in question conflicts. 
+     *
+     * @param simID Simulation ID
+     * @param txID Transaction ID
+     * @param size Transaction size in bytes TODO: verify it is bytes
+     * @param value Transaction value in tokens
+     * @param simTime Simulation time of arrival
+     * @param nodeID The ID of the node at which the transaction first arrives.
+     * @param conflictID The transaction ID with which the current transaction conflicts.
+     * @param dependencies a string of the form {txID1,txID2,...} specifying the transactions on which the current transaction depends. -1 if the transaction has no dependencies.
+     */
+	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID, String dependencies) {
+<span class="nc bnc" id="L327" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
+<span class="nc" id="L328">			inputTxLog.add(simID + &quot;,&quot; +</span>
+					txID + &quot;,&quot; + 
+					size + &quot;,&quot; +
+					value + &quot;,&quot; +
+					nodeID  + &quot;,&quot; +
+					simTime  + &quot;,&quot; +
+					conflictID + &quot;,&quot; +
+					dependencies);
+<span class="nc" id="L336">	}</span>
+	
+	 /**
+     * Adds a node entry to the node log.
+     *
+     * @param simID Simulation ID
+     * @param nodeID Node ID
+     * @param hashPower Hashing power in GH/s
+     * @param electricPower Electric power usage in Watts
+     * @param electricityCost Electricity cost in USD/kWh
+     * @param totalCycles Total hash cycles performed by the node
+     */
+	public static void addNode(int simID, int nodeID, float hashPower, float electricPower, 
+		float electricityCost, double totalCycles) {
+<span class="nc bnc" id="L350" title="All 2 branches missed.">			if (Reporter.reportsNodeEvents()) {</span>
+<span class="nc" id="L351">				nodeLog.add(simID + &quot;,&quot; +</span>
+					nodeID + &quot;,&quot; + 
+					hashPower + &quot;,&quot; +
+					electricPower + &quot;,&quot; +
+					electricityCost + &quot;,&quot; +
+					totalCycles);
+			}
+<span class="nc" id="L358">	}</span>
+	
+	
+	
+	/**
+	 * Adds an entry to the network log with information about an event that establishes 
+	 * or updates the bandwidth between two nodes. 
+	 * For static networks only initial network creation is reported here. 
+	 * For dynamic networks any change in the bandwidth between two nodes is reported.
+	 * Zero bandwidth means no link.  
+	 * @param simID The simulation ID.
+	 * @param from The node from which the link is established
+	 * @param to The node to which the link is established
+	 * @param bandwidth The speed of the link
+	 * @param simTime The time at which the event happened
+	 */
+	public static void addNetEvent(int simID, int from, int to, float bandwidth, long simTime) {
+<span class="nc bnc" id="L375" title="All 2 branches missed.">		if (Reporter.reportsNetEvents())</span>
+<span class="nc" id="L376">			netLog.add(simID + &quot;,&quot; +</span>
+					from + &quot;,&quot; + 
+					to + &quot;,&quot; +
+					bandwidth + &quot;,&quot; +
+					simTime);
+<span class="nc" id="L381">	}</span>
+	
+	
+	/**
+	 * Adds an entry to the belief log with information about a node's belief on a transaction.
+	 * @param simID The simulation ID.
+	 * @param node The node ID expressing the belief.
+	 * @param tx The transaction ID about which the belief is expressed.
+	 * @param degBelief The degree of belief (e.g., 1 for believes, 0 for does not believe).
+	 * @param simTime The simulation time at which the belief is recorded.
+	 */
+	public static void addBeliefEntry(
+			int simID, 
+			int node, 
+			long tx, 
+			float degBelief, 
+			long simTime) {
+<span class="nc bnc" id="L398" title="All 2 branches missed.">		if (Reporter.reportsBeliefs()) {</span>
+<span class="nc" id="L399">			beliefLog.add(simID + &quot;,&quot; +</span>
+					node + &quot;,&quot; +
+					tx + &quot;,&quot; +
+					degBelief + &quot;,&quot; +
+					simTime);
+		}
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">		if (Reporter.reportsBeliefsShort()) {</span>
+<span class="nc" id="L407">			beliefCounter.add(simID, tx, simTime, degBelief);</span>
+		}
+<span class="nc" id="L409">	}</span>
+	
+	
+	/**
+	 * Adds an entry to the error log.   
+	 * @param errorMsg The custom error message.
+	 */
+	public static void addErrorEntry(String errorMsg) {
+<span class="nc" id="L417">		errorLog.add(errorMsg);</span>
+<span class="nc" id="L418">	}</span>
+		
+	/**
+	 * Adds an entry to the execution time log with information about the simulation run time.
+	 * @param simID The simulation ID.
+	 * @param simTime The total simulation time.
+	 * @param sysStartTime The system start time of the simulation run.
+	 * @param sysEndTime The system end time of the simulation run.
+	 * @param numScheduled The number of events scheduled during the simulation.
+	 * @param numProcessed The number of events processed during the simulation.
+	 */
+	public static void addExecTimeEntry(int simID,
+			long simTime,
+			long sysStartTime,
+			long sysEndTime,
+			long numScheduled,
+			long numProcessed
+			) {
+<span class="nc" id="L436">		execTimeLog.add(simID + &quot;,&quot; + simTime + &quot;,&quot; + sysStartTime + &quot;,&quot; + sysEndTime + &quot;,&quot; + numScheduled + &quot;,&quot; + numProcessed);</span>
+<span class="nc" id="L437">	}</span>
+	
+	
+	
+	// -----------------------------------------------------------------
+	// FLUSH METHODS - write the logs to files
+	// -----------------------------------------------------------------
+	
+
+    /**
+     * Flushes (writes out and clears) all report buffers maintained by the simulation reporting subsystem.
+     * &lt;p&gt;
+     * This method triggers the flush operations for all built-in report categories,
+     * including event, input, node, network, belief, error, and configuration reports.
+     * It also invokes {@linkplain #flushCustomReports()} to handle any user-defined or extension reports.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method is {@code final} to ensure that subclasses cannot override it and
+     * potentially skip mandatory flush operations.
+     * &lt;/p&gt;
+     *
+     * &lt;b&gt;Implementation detail:&lt;/b&gt; This method delegates to specific flush methods for each report type.  Subclasses should extend reporting functionality through {@link #flushCustomReports()},
+     * not by overriding this method.
+     */
+	public static void flushAll() {
+<span class="nc" id="L462">		flushEvtReport();</span>
+<span class="nc" id="L463">		flushInputReport();</span>
+<span class="nc" id="L464">		flushNodeReport();</span>
+<span class="nc" id="L465">		flushNetworkReport();</span>
+<span class="nc" id="L466">		flushBeliefReport();</span>
+<span class="nc" id="L467">		flushErrorReport();</span>
+<span class="nc" id="L468">		flushConfig();</span>
+<span class="nc" id="L469">		flushExecTimeReport();</span>
+<span class="nc" id="L470">		flushCustomReports();</span>
+<span class="nc" id="L471">	}</span>
+	
+    /**
+     * Flushes any custom or extension-specific reports defined outside the core reporting system.
+     * &lt;p&gt;
+     * This method is a no-op by default but may be extended to include
+     * additional report flush operations specific to custom modules or simulations.
+     * &lt;/p&gt;
+     *
+     * &lt;b&gt;Implementation detail:&lt;/b&gt; Subclasses or extensions may override this method to implement their
+     * own flushing behavior for additional report types.
+     */
+	public static void flushCustomReports() {
+<span class="nc" id="L484">	}</span>
+
+	
+	/**
+	 * Save reporter's event log to file. File name is &quot;EventLog - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushEvtReport() {
+<span class="nc bnc" id="L491" title="All 2 branches missed.">		if (Reporter.reportEvents) {</span>
+			FileWriter writer;
+			try {
+<span class="nc" id="L494">				writer = new FileWriter(path + &quot;EventLog - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">				for(String str: eventLog) {</span>
+<span class="nc" id="L496">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L497">					}</span>
+<span class="nc" id="L498">				writer.close();</span>
+<span class="nc" id="L499">			} catch (IOException e) {</span>
+<span class="nc" id="L500">				e.printStackTrace();</span>
+<span class="nc" id="L501">			}</span>
+		}
+<span class="nc" id="L503">	}</span>
+	
+	/**
+	 * Save reporter's transaction log to file. File name is &quot;Input - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushInputReport() {
+<span class="nc bnc" id="L509" title="All 2 branches missed.">		if (Reporter.reportTransactions) {</span>
+			FileWriter writer;
+			try {
+<span class="nc" id="L512">				writer = new FileWriter(path + &quot;Input - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">				for(String str: inputTxLog) {</span>
+<span class="nc" id="L514">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L515">					}</span>
+<span class="nc" id="L516">				writer.close();</span>
+<span class="nc" id="L517">			} catch (IOException e) {</span>
+<span class="nc" id="L518">				e.printStackTrace();</span>
+<span class="nc" id="L519">			} </span>
+		}
+<span class="nc" id="L521">	}</span>
+	
+	
+	/**
+	 * Save reporter's node log to file. File name is &quot;Nodes - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushNodeReport() {
+<span class="nc bnc" id="L528" title="All 2 branches missed.">		if (Reporter.reportNodes) {</span>
+			FileWriter writer;
+			try {
+<span class="nc" id="L531">				writer = new FileWriter(path + &quot;Nodes - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L532" title="All 2 branches missed.">				for(String str: nodeLog) {</span>
+<span class="nc" id="L533">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L534">					}</span>
+<span class="nc" id="L535">				writer.close();</span>
+<span class="nc" id="L536">			} catch (IOException e) {</span>
+<span class="nc" id="L537">				e.printStackTrace();</span>
+<span class="nc" id="L538">			}</span>
+		}
+<span class="nc" id="L540">	}</span>
+	
+	
+	/**
+	 * Save reporter's network log to file. File name is &quot;NetLog - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushNetworkReport() {
+<span class="nc bnc" id="L547" title="All 2 branches missed.">		if (Reporter.reportNetEvents) {</span>
+			FileWriter writer;
+			try {
+<span class="nc" id="L550">				writer = new FileWriter(path + &quot;NetLog - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L551" title="All 2 branches missed.">				for(String str: netLog) {</span>
+<span class="nc" id="L552">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L553">					}</span>
+<span class="nc" id="L554">				writer.close();</span>
+<span class="nc" id="L555">			} catch (IOException e) {</span>
+<span class="nc" id="L556">				e.printStackTrace();</span>
+<span class="nc" id="L557">			}</span>
+		}
+<span class="nc" id="L559">	}</span>
+	
+	
+	/**
+	 * Save reporter's belief log to file. File name is &quot;BeliefLog - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushBeliefReport() {
+		FileWriter writer;
+		
+<span class="nc bnc" id="L568" title="All 2 branches missed.">		if (Reporter.reportBeliefs) {</span>
+			try {
+<span class="nc" id="L570">				writer = new FileWriter(path + &quot;BeliefLog - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L571" title="All 2 branches missed.">				for(String str: beliefLog) {</span>
+<span class="nc" id="L572">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L573">					}</span>
+<span class="nc" id="L574">				writer.close();</span>
+<span class="nc" id="L575">			} catch (IOException e) {</span>
+<span class="nc" id="L576">				e.printStackTrace();</span>
+<span class="nc" id="L577">			}</span>
+		}
+
+<span class="nc bnc" id="L580" title="All 2 branches missed.">		if (Reporter.reportBeliefsShort) {</span>
+			try {
+<span class="nc" id="L582">				writer = new FileWriter(path + &quot;BeliefLogShort - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc" id="L583">				writer.write(&quot;SimID, Transaction ID, Time (ms from start), Belief\n&quot;);</span>
+<span class="nc bnc" id="L584" title="All 2 branches missed.">				for(String str: beliefCounter.getEntries()) {</span>
+<span class="nc" id="L585">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L586">				}</span>
+<span class="nc" id="L587">				writer.close();</span>
+<span class="nc" id="L588">			} catch (IOException e) {</span>
+<span class="nc" id="L589">				e.printStackTrace();</span>
+<span class="nc" id="L590">			}</span>
+		}
+<span class="nc" id="L592">	}</span>
+	
+	
+	/**
+	 * Save reporter's error log to file. File name is &quot;ErrorLog - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushErrorReport() {
+		FileWriter writer;
+<span class="nc" id="L600">		boolean errorsExist = false;</span>
+		try {
+<span class="nc" id="L602">			writer = new FileWriter(path + &quot;ErrorLog - &quot; + runId + &quot;.txt&quot;);</span>
+<span class="nc bnc" id="L603" title="All 2 branches missed.">			for(String str: errorLog) {</span>
+<span class="nc" id="L604">				writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L605">				errorsExist = true;</span>
+<span class="nc" id="L606">			}</span>
+<span class="nc" id="L607">			writer.close();</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">			if (errorsExist) {</span>
+<span class="nc" id="L609">				System.err.println(&quot;    Errors were produced. Please check &quot; + path + &quot;ErrorLog - &quot; + runId + &quot;.txt&quot;);</span>
+			}
+<span class="nc" id="L611">		} catch (IOException e) {</span>
+<span class="nc" id="L612">			e.printStackTrace();</span>
+<span class="nc" id="L613">		}</span>
+<span class="nc" id="L614">	}</span>
+	
+	/**
+	 * Save reporter's execution time log to file. File name is &quot;RunTime - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushExecTimeReport() {
+		FileWriter writer;
+		try {
+<span class="nc" id="L622">			writer = new FileWriter(path + &quot;RunTime - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L623" title="All 2 branches missed.">			for(String str: execTimeLog) {</span>
+<span class="nc" id="L624">				  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L625">				}</span>
+<span class="nc" id="L626">			writer.close();</span>
+<span class="nc" id="L627">		} catch (IOException e) {</span>
+<span class="nc" id="L628">			e.printStackTrace();</span>
+<span class="nc" id="L629">		}</span>
+<span class="nc" id="L630">	}</span>
+	
+	
+	/**
+	 * Export configuration. File name is &quot;Config - [Simulation Date Time].csv&quot;
+	 */
+	public static void flushConfig() {
+		FileWriter writer;
+		try {
+<span class="nc" id="L639">			writer = new FileWriter(path + &quot;Config - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc" id="L640">			writer.write(&quot;Key, Value&quot; + System.lineSeparator());</span>
+<span class="nc" id="L641">			writer.write(Config.printPropertiesToString());</span>
+<span class="nc" id="L642">			writer.close();</span>
+<span class="nc" id="L643">		} catch (IOException e) {</span>
+<span class="nc" id="L644">			e.printStackTrace();</span>
+<span class="nc" id="L645">		} </span>
+<span class="nc" id="L646">	}</span>
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

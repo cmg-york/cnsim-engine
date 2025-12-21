@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Node.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.node</a> &gt; <span class="el_source">Node.java</span></div><h1>Node.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.node;
+
+import java.util.ArrayList;
+
+import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.event.Event;
+import ca.yorku.cmg.cnsim.engine.event.Event_ContainerArrival;
+import ca.yorku.cmg.cnsim.engine.event.Event_TransactionPropagation;
+import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
+import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
+import ca.yorku.cmg.cnsim.engine.transaction.TransactionGroup;
+
+/**
+ * Abstract class representing a node in a blockchain network.
+ * 
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * 
+ */
+public abstract class Node implements INode {
+
+<span class="fc" id="L21">	protected static int currID = 1;</span>
+	protected int ID;
+
+	protected Simulation sim;
+
+	protected TransactionGroup pool;
+	protected Event nextValidationEvent;
+
+<span class="fc" id="L29">	protected long networkInterfaceBusyUntil = -1;</span>
+
+	protected String behavior;
+	
+
+	
+
+	
+	// 
+	//   C O N S T R U C T O R
+	//
+	public Node(Simulation sim) {
+<span class="fc" id="L41">		super();</span>
+<span class="fc" id="L42">        this.sim = sim;</span>
+<span class="fc" id="L43">        pool = new TransactionGroup();</span>
+<span class="fc" id="L44">        ID = getNextNodeID();</span>
+<span class="fc" id="L45">	}</span>
+
+	// 
+	//   For testing only
+	//
+	public Node() {
+<span class="fc" id="L51">		super();</span>
+<span class="fc" id="L52">        pool = new TransactionGroup();</span>
+<span class="fc" id="L53">        ID = getNextNodeID();</span>
+<span class="fc" id="L54">	}</span>
+
+
+	// -----------------------------------------------------------------
+	// A C T I O N S
+	// -----------------------------------------------------------------
+	
+	
+	// -----------------------------------------------------------------
+	// POOL MANAGEMENT
+	// -----------------------------------------------------------------
+	
+	
+	/**
+	 * Adds a new transaction to the pool of unprocessed transactions
+	 * @param t The Transaction to be added.
+	 */
+	public void addTransactionToPool(Transaction t) {
+<span class="nc" id="L72">		getPool().addTransaction(t);</span>
+<span class="nc" id="L73">	}</span>
+	
+	/**
+	 * Removes the transactions included in transaction container from the pool.
+	 * @param removeThese The transaction container whose transactions are to be removed.
+	 */
+	public void removeFromPool(ITxContainer removeThese) {
+<span class="nc bnc" id="L80" title="All 4 branches missed.">		if ( (!pool.getTransactions().isEmpty()) &amp;&amp; (!removeThese.getTransactions().isEmpty()) )</span>
+<span class="nc" id="L81">			pool.getTransactions().removeAll(removeThese.getTransactions());</span>
+<span class="nc" id="L82">	}</span>
+
+	public void removeFromPool(Transaction removeThis) {
+<span class="nc bnc" id="L85" title="All 4 branches missed.">		if ( (!pool.getTransactions().isEmpty()) &amp;&amp; (removeThis != null) )</span>
+<span class="nc" id="L86">			pool.getTransactions().remove(removeThis);</span>
+<span class="nc" id="L87">	}</span>
+
+	public void removeFromPool(int removeThis) {
+<span class="nc bnc" id="L90" title="All 4 branches missed.">		if ( (!pool.getTransactions().isEmpty()) &amp;&amp; (removeThis &gt;= 0) )</span>
+			//pool.getTransactions().remove(removeThis);
+<span class="nc" id="L92">			pool.removeTransaction(removeThis);</span>
+<span class="nc" id="L93">	}</span>
+
+	
+	
+	// -----------------------------------------------------------------
+	// PROPAGATION ACTIONS
+	// -----------------------------------------------------------------
+	
+	/**
+	 * Computes the end time of the next transmission starting at or after the given
+	 * current time, taking into account the time until which the network interface
+	 * is already busy.
+	 *
+	 * &lt;p&gt;If the interface is free at {@code currTime}, meaning either it has never
+	 * been used (busy time = -1) or its busy-until time is earlier than
+	 * {@code currTime}, then the next transmission begins immediately at
+	 * {@code currTime} and ends at {@code currTime + transDuration}.
+	 *
+	 * &lt;p&gt;If the interface is still busy at {@code currTime}, the next transmission
+	 * begins only after {@code networkInterfaceBusyUntil}, and ends at
+	 * {@code networkInterfaceBusyUntil + transDuration}.
+	 *
+	 * @param currTime       the current simulation time (must be ≥ 0)
+	 * @param transDuration  the duration of the transmission (must be ≥ 0)
+	 * @return the time at which the next transmission will end
+	 */
+	 /*@ 
+	   @ requires currTime &gt;= 0;
+	   @ requires transDuration &gt;= 0;
+	   @
+	   @ // Case 1: interface free or never used
+	   @ ensures (networkInterfaceBusyUntil == -1 
+	   @          || networkInterfaceBusyUntil &lt; currTime)
+	   @        ==&gt; \result == currTime + transDuration;
+	   @
+	   @ // Case 2: interface busy past currTime
+	   @ ensures (networkInterfaceBusyUntil != -1
+	   @          &amp;&amp; networkInterfaceBusyUntil &gt;= currTime)
+	   @        ==&gt; \result == networkInterfaceBusyUntil + transDuration;
+	   @
+	   @ // Result is always at least currTime
+	   @ ensures \result &gt;= currTime;
+	   @
+	   @ // Does not modify object state
+	   @ assignable \nothing;
+	   @*/
+	public long getNextTransmissionEndTime(long currTime, long transDuration) {
+		long returnTime;
+
+<span class="fc bfc" id="L142" title="All 4 branches covered.">		if (currTime &lt; 0 || transDuration &lt; 0) {</span>
+<span class="fc" id="L143">			throw new RuntimeException(&quot;Both arguments must be non-negative.&quot;);</span>
+		}
+		
+<span class="fc bfc" id="L146" title="All 4 branches covered.">		if ((networkInterfaceBusyUntil == -1) || (networkInterfaceBusyUntil &lt; currTime )) {</span>
+			//Uninitalized or last transmission ended in the past.
+<span class="fc" id="L148">			returnTime = currTime + transDuration;</span>
+		} else { 
+			//Last transmission ends at networkInterfaceBusyUntil
+<span class="fc" id="L151">			returnTime = networkInterfaceBusyUntil + transDuration;</span>
+		}
+		
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">		if (returnTime &lt; currTime) {</span>
+<span class="nc" id="L155">			throw new RuntimeException(&quot;Next scheduled time is less than the current time.&quot;);</span>
+		}
+		
+<span class="fc" id="L158">		return(returnTime);</span>
+	}
+
+	/**
+	 * Sets the time until which the network interface is considered busy.
+	 *
+	 * &lt;p&gt;A value of -1 may be used to indicate that the interface has never been
+	 * used or is currently idle with no pending transmissions.
+	 *
+	 * @param latestBusyUntil the simulation time at which the interface will become free again
+	 */
+	 /*@
+	   @ // Allow any non-negative busy-until time
+	   @ requires latestBusyUntil &gt;= 0;
+	   @
+	   @ // State update: the field must equal the argument afterward
+	   @ ensures networkInterfaceBusyUntil == latestBusyUntil;
+	   @
+	   @ // Only this field is modified
+	   @ assignable networkInterfaceBusyUntil;
+	   @*/
+	public void setNetworkInterfaceBusyUntil(long latestBusyUntil) {
+<span class="fc" id="L180">		networkInterfaceBusyUntil  = latestBusyUntil;</span>
+<span class="fc" id="L181">	}</span>
+	
+	/**
+	 * Propagates the specified transaction container to other nodes in the simulation.
+	 * TODO: All time references should be on a global time parameter. 
+	 * @param txc The transaction container to be propagated.
+	 * @param time The current simulation time.
+	 */
+	public void broadcastContainer(ITxContainer txc, long time) {
+<span class="nc" id="L190">	    NodeSet nodes = sim.getNodeSet();</span>
+<span class="nc" id="L191">	    ArrayList&lt;INode&gt; ns_list = nodes.getNodes();</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">	    for (INode n : ns_list) {</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">	        if (!n.equals(this)){</span>
+<span class="nc" id="L194">	            long inter = sim.getNetwork().getTransmissionTime(this.getID(), n.getID(), txc.getSize());</span>
+<span class="nc" id="L195">	            long scheduleTime = getNextTransmissionEndTime(time, inter);</span>
+<span class="nc" id="L196">	            Event_ContainerArrival e = new Event_ContainerArrival(txc, n, scheduleTime);</span>
+<span class="nc" id="L197">	            sim.schedule(e);</span>
+<span class="nc" id="L198">	            setNetworkInterfaceBusyUntil(scheduleTime);</span>
+	        }
+<span class="nc" id="L200">	    }</span>
+<span class="nc" id="L201">	}</span>
+	
+	/**
+	 * 
+	 * Propagates the specified transaction to other nodes in the simulation.
+	 * @param t The transaction to be propagated.
+	 * @param time The current time in the simulation.
+	 */
+	public void broadcastTransaction(Transaction t, long time) {
+<span class="nc" id="L210">	    NodeSet nodes = sim.getNodeSet();</span>
+<span class="nc" id="L211">	    ArrayList&lt;INode&gt; ns_list = nodes.getNodes();</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">	    for (INode n : ns_list) {</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">	        if (!n.equals(this)){</span>
+<span class="nc" id="L214">	            long inter = sim.getNetwork().getTransmissionTime(this.getID(), n.getID(), t.getSize());</span>
+	            
+<span class="nc bnc" id="L216" title="All 2 branches missed.">	            if (inter&lt;0) {</span>
+<span class="nc" id="L217">	            	String error = &quot;Error in 'propagateTransaction' Negative interval between &quot; + this.getID() + &quot; and &quot; + n.getID() + &quot; for size &quot; + t.getSize() + &quot; of transaction &quot; + t.getID() +  &quot; interval is &quot; + inter;</span>
+<span class="nc" id="L218">	            	throw new RuntimeException(error);</span>
+	            }
+
+	            //TODO: do something more elaborate perhaps
+	            //inter += Config.getPropertyInt(&quot;net.propagationTime&quot;);
+	            
+<span class="nc" id="L224">	            long scheduleTime = getNextTransmissionEndTime(time, inter);</span>
+<span class="nc" id="L225">	            Event_TransactionPropagation e = new Event_TransactionPropagation(t, n, scheduleTime);</span>
+<span class="nc" id="L226">	            sim.schedule(e);</span>
+<span class="nc" id="L227">	            setNetworkInterfaceBusyUntil(scheduleTime);</span>
+	        }
+<span class="nc" id="L229">	    }</span>
+<span class="nc" id="L230">	}</span>
+
+	
+	// -----------------------------------------------------------------
+	// GETTERS AND SETTERS
+	// -----------------------------------------------------------------
+
+	
+	//
+	// ID MANAGEMENT
+	//
+	/**
+	 * Gets the next available ID for a node and increments the counter.
+	 * @return The next available ID for a node.
+	 */
+	public static int getNextNodeID() {
+<span class="fc" id="L246">	    return(currID++);</span>
+	}
+
+	/**
+	 * Resets the next available ID to 1. To be used for moving to the next experiment.
+	 */
+	public static void resetCurrID() {
+<span class="nc" id="L253">	    currID = 1;</span>
+<span class="nc" id="L254">	}</span>
+		
+	/**
+	 * Gets the ID of the node.
+	 * @return The ID of the node.
+	 */
+	public int getID() {
+<span class="nc" id="L261">	    return ID;</span>
+	}
+
+	//
+	// R E F E R E N C E S
+	//
+	/**
+	 * Gets the simulation associated with the node.
+	 * @param s The simulation associated with the node.
+	 */
+	@Override
+	public void setSimulation(Simulation s) {
+<span class="nc" id="L273">		sim = (Simulation) s;</span>
+<span class="nc" id="L274">	}</span>
+	
+	/**
+	 * Gets the simulation associated with the node.
+	 * @return The Simulation object associated with the node.
+	 */
+	public Simulation getSim() {
+<span class="nc" id="L281">	    return sim;</span>
+	}
+
+	/**
+	 * Gets the transaction pool of the node.
+	 * @return The transaction pool of the node.
+	 */
+	public TransactionGroup getPool() {
+<span class="nc" id="L289">	    return pool;</span>
+	}
+
+
+	/**
+	 * See ({@linkplain IMiner} interface.
+	 */
+	@Override
+	public float getAverageConnectedness() {
+<span class="nc" id="L298">		return(sim.getNetwork().getAvgTroughput(getID()));</span>
+	}
+
+
+	
+	// -----------------------------------------------------------------
+	// EVENT HANDLERS / BEHAVIORS
+	// -----------------------------------------------------------------
+		
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public abstract void event_NodeCompletesValidation(ITxContainer t, long time);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public abstract void event_NodeReceivesPropagatedTransaction(Transaction t, long time);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void event_PrintPeriodicReport(long time) {
+<span class="nc" id="L324">		this.periodicReport();</span>
+<span class="nc" id="L325">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void event_PrintBeliefReport(long[] sample, long time) {
+<span class="nc" id="L332">		this.beliefReport(sample, time);</span>
+<span class="nc" id="L333">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void event_PrintStructureReport(long time) {
+<span class="nc" id="L340">		this.structureReport();</span>
+<span class="nc" id="L341">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void event_NodeStatusReport(long time) {
+<span class="nc" id="L348">		this.nodeStatusReport();</span>
+<span class="nc" id="L349">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setBehavior(String behavior) {
+<span class="nc" id="L356">		this.behavior = behavior;</span>
+<span class="nc" id="L357">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getBehavior() {
+<span class="nc" id="L364">		return this.behavior;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

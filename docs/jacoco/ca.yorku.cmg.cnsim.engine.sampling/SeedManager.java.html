@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SeedManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.sampling</a> &gt; <span class="el_source">SeedManager.java</span></div><h1>SeedManager.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.sampling;
+
+import java.util.Arrays;
+import java.util.Random;
+
+/**
+ * Manages a circular sequence of random seeds for simulations.
+ * &lt;p&gt;
+ * A {@code SeedManager} maintains:
+ * &lt;ul&gt;
+ *   &lt;li&gt;An array of base seeds ({@code seedArray})&lt;/li&gt;
+ *   &lt;li&gt;A set of update flags ({@code seedUpdateFlags}) that determine whether
+ *       to offset the seed with the simulation ID&lt;/li&gt;
+ *   &lt;li&gt;A pointer ({@code currentIndex}) that cycles through the seeds&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * This allows simulations to have reproducible but configurable randomness
+ * across different runs, while ensuring that each simulation instance
+ * (distinguished by {@code simID}) can get unique seeds if desired.
+ *
+ * Typical usage:
+ * &lt;pre&gt;{@code
+ * SeedManager manager = new SeedManager(
+ *     new long[]{1234L, 5678L, 9012L},
+ *     new boolean[]{true, false, true},
+ *     42 // simulation ID
+ * );
+ * 
+ * Random rng = new Random();
+ * manager.updateSeed(rng); // seeds RNG with the next managed seed
+ * }&lt;/pre&gt;
+ */
+public class SeedManager {
+	
+	/** Array of base seeds, cycled through sequentially. */
+<span class="pc" id="L36">	private long[] seedArray = null;</span>
+	
+	/** Flags indicating whether to offset each seed by the simulation ID. 
+	 * Ensures different seeds for different simulations */
+<span class="pc" id="L40">	private boolean[] seedUpdateFlags = null;</span>
+
+	/** Current position in the seed array. */
+<span class="pc" id="L43">	private int currentIndex = 0;</span>
+	
+	/** Simulation identifier, used to offset seeds if flag in
+	 * {@linkplain SeedManager#seedUpdateFlags} is set. */
+<span class="pc" id="L47">	private int simID = 0;</span>
+
+
+	/*
+	 * 
+	 * C O N S T R U C T OR S
+	 * 
+	 */
+		
+    /** Default constructor (empty seed manager). */
+<span class="nc" id="L57">	public SeedManager () {</span>
+<span class="nc" id="L58">	}</span>
+
+    /**
+     * Constructs a SeedManager with the given seed array, flag array, and simulation ID.
+     *
+     * @param seedChain   the base seed array
+     * @param flagArray   the update flags corresponding to each seed
+     * @param sID         the simulation ID
+     */
+	public SeedManager (long[] seedChain, boolean[] flagArray, int sID) {
+<span class="fc" id="L68">		super();</span>
+<span class="fc" id="L69">		seedArray = seedChain;</span>
+<span class="fc" id="L70">		seedUpdateFlags = flagArray;</span>
+<span class="fc" id="L71">		simID = sID;</span>
+<span class="fc" id="L72">	}</span>
+
+
+	 /**
+     * Computes the next seed in the sequence.
+     * &lt;p&gt;
+     * The seed is computed as:
+     * &lt;pre&gt;
+     *   baseSeed + (flag ? simID : 0)
+     * &lt;/pre&gt;
+     * where {@code baseSeed} is the current element of {@code seedArray},
+     * and {@code flag} is the corresponding element in {@code seedUpdateFlags}.
+     * After use, the index advances circularly.
+     *
+     * @return the next seed value
+     */
+	protected long nextSeed() {
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">		long newSeed = seedArray[currentIndex] + (seedUpdateFlags[currentIndex] ? simID : 0);</span>
+<span class="fc" id="L90">		currentIndex = (currentIndex + 1) % seedArray.length;</span>
+<span class="fc" id="L91">		return newSeed;</span>
+	}
+
+    /**
+     * Updates the given {@link Random} instance with the next managed seed.
+     *
+     * @param random the random number generator to reseed
+     */
+	public void updateSeed(Random random) {
+<span class="fc" id="L100">		long randomSeed = nextSeed();</span>
+<span class="fc" id="L101">		random.setSeed(randomSeed);</span>
+<span class="fc" id="L102">	}</span>
+	
+
+	/*
+	 * 
+	 * G E T T E R S  A N D  S E T T E R S 
+	 * 
+	 */
+	
+	public int getSimD() {
+<span class="nc" id="L112">		return simID;</span>
+	}
+
+	public void setSimD(int simD) {
+<span class="nc" id="L116">		this.simID = simD;</span>
+<span class="nc" id="L117">	}</span>
+	
+	public String getSeedUpdateFlag() {
+<span class="nc" id="L120">		return Arrays.toString(seedUpdateFlags);</span>
+	}
+
+	public void setSeedUpdateFlag(boolean[] seedUpdateFlag) {
+<span class="nc" id="L124">		this.seedUpdateFlags = seedUpdateFlag;</span>
+<span class="nc" id="L125">	}</span>
+
+	protected void setSeedArray(long[] seedChain) {
+<span class="nc" id="L128">		seedArray = seedChain;		</span>
+<span class="nc" id="L129">	}</span>
+
+	public String getSeedArray() {
+<span class="nc" id="L132">		return(Arrays.toString(seedArray));</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

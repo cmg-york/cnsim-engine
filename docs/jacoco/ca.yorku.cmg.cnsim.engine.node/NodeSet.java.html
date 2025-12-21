@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NodeSet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.node</a> &gt; <span class="el_source">NodeSet.java</span></div><h1>NodeSet.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.node;
+
+import java.util.ArrayList;
+
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
+
+<span class="fc" id="L7">public abstract class NodeSet {</span>
+
+	/** The list of nodes participating in this network. */
+	protected ArrayList&lt;INode&gt; nodes;
+	/** The factory used to create new nodes. */
+	protected AbstractNodeFactory nodeFactory;
+	/** If there is a malicious node, this points to it. Otherwise, it is null. */
+<span class="fc" id="L14">	private INode maliciousNode = null;</span>
+
+	
+	
+	// ---------------------------------------------
+	// Node Addition Methods
+	// ---------------------------------------------
+
+	/**
+	 * Adds a single node to the {@code NodeSet} using the configured factory.
+	 *
+	 * @throws Exception if an error occurs while creating or initializing the node
+	 */
+	public abstract void addNode() throws Exception;
+
+	
+	/**
+	 * Adds multiple nodes to this {@code NodeSet}, by repeatedly calling {@linkplain #addNode()}.
+	 *
+	 * @param num the number of nodes to add
+	 * @throws ArithmeticException if {@code num &lt; 0}
+	 */
+	public void addNodes(int num) {
+<span class="nc bnc" id="L37" title="All 2 branches missed.">	    if(num &lt; 0)</span>
+<span class="nc" id="L38">	        throw new ArithmeticException(&quot;num &lt; 0&quot;);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">	    for (int i = 1; i&lt;=num; i++){</span>
+	        try {
+<span class="nc" id="L41">				addNode();</span>
+<span class="nc" id="L42">			} catch (Exception e) {e.printStackTrace();}</span>
+	    }
+<span class="nc" id="L44">	}</span>
+
+
+	
+	// ---------------------------------------------
+	// Node Closing Methods
+	// ---------------------------------------------
+	
+	
+	/**
+	 * Performs cleanup and final reporting for all nodes in this {@code NodeSet}.
+	 * &lt;p&gt;
+	 * This typically occurs at the end of a simulation run. Each node is closed
+	 * and its statistics are recorded using {@linkplain Reporter#addNode(int, int, float, float, float, double)}.
+	 * &lt;/p&gt;
+	 */
+	public abstract void closeNodes();
+	
+	// ---------------------------------------------
+	// Node Picking Methods
+	// ---------------------------------------------
+	
+	
+	/**
+	 * Selects and returns a random node from this {@code NodeSet}.
+	 * &lt;p&gt;
+	 * Randomness is determined by the {@linkplain ca.yorku.cmg.cnsim.engine.sampling.Sampler}
+	 * provided by the associated {@linkplain AbstractNodeFactory}.
+	 * &lt;/p&gt;
+	 *
+	 * @return a randomly selected node
+	 */
+	public INode pickRandomNode() {
+<span class="nc" id="L77">	    return (nodes.get(nodeFactory.getSampler().getNodeSampler().getNextRandomNode(nodes.size())));</span>
+	}
+
+	/**
+	 * Returns a specific node by its index (ID) within this {@code NodeSet}.
+	 *
+	 * @param nodeID the index or ID of the node from 1 to number of nodes.
+	 * @return the corresponding {@linkplain IMiner}
+	 * @throws IndexOutOfBoundsException if {@code nodeID} is invalid
+	 */
+	public INode pickSpecificNode(int nodeID) {
+<span class="nc" id="L88">	    return (nodes.get(nodeID-1));</span>
+	}
+
+	
+	// ---------------------------------------------
+	// Misc Getters and Setters
+	// ---------------------------------------------
+	
+	/**
+	 * Returns the underlying list of nodes.
+	 * @return the {@linkplain ArrayList} of {@linkplain INode} objects
+	 */
+	public ArrayList&lt;INode&gt; getNodes() {
+<span class="fc" id="L101">	    return nodes;</span>
+	}
+
+	/**
+	 * Returns the number of nodes in this {@code NodeSet}.
+	 *
+	 * @return the node count
+	 */
+	public int getNodeSetCount() {
+<span class="nc" id="L110">	    return (nodes.size());</span>
+	}
+
+	
+ 	/**
+	 * Returns the malicious node, if one exists.
+	 *
+	 * @return the malicious {@linkplain INode}, or {@code null} if none exists
+	 */	
+	public INode getMalicious() {
+<span class="nc" id="L120">		return (maliciousNode);</span>
+	}
+	
+	
+	/**
+	 * Sets the {@linkplain AbstractNodeFactory} used to create new nodes.
+	 *
+	 * @param nf the node factory
+	 */
+	public void setNodeFactory(AbstractNodeFactory nf) {
+<span class="nc" id="L130">		this.nodeFactory = nf;</span>
+<span class="nc" id="L131">	}</span>
+	
+	
+	// ---------------------------------------------
+	// Debug and Print Methods
+	// ---------------------------------------------
+	
+	/**
+	 * Returns a formatted string containing details for all nodes in this {@code NodeSet}.
+	 * @return a formatted string representation of all nodes
+	 */
+	public abstract String debugPrintNodeSet();
+	
+	
+	
+	/**
+	 * Generates a CSV-style representation of the node set, where each line
+	 * corresponds to a node and contains its properties separated by commas.
+	 * @return an array of strings, each describing one node
+	 */
+	public abstract String[] printNodeSet();
+
+
+
+	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

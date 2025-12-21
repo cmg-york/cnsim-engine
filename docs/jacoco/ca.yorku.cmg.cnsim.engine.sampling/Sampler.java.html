@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Sampler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CNSim Engine</a> &gt; <a href="index.source.html" class="el_package">ca.yorku.cmg.cnsim.engine.sampling</a> &gt; <span class="el_source">Sampler.java</span></div><h1>Sampler.java</h1><pre class="source lang-java linenums">package ca.yorku.cmg.cnsim.engine.sampling;
+
+import java.util.Random;
+
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNetworkSampler;
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
+import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
+
+/*
+ * TODO: Complete and reformat comments.
+ */
+
+/**
+ * Acts as a container of different kinds of Samplers and offers some basic 
+ * sampling methods. There are three different kinds of Samplers accessed through 
+ * this: a transaction sampler, a node sampler and a network sampler.
+ * 
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * 
+ */
+<span class="fc" id="L21">public class Sampler {</span>
+	AbstractTransactionSampler transactionSampler;
+	AbstractNodeSampler nodeSampler;
+	AbstractNetworkSampler networkSampler;
+	
+	
+	/*
+	 * B A S E L I N E   S A M P L I N G   R O U T I N E S  
+	 */
+	
+	/**
+     * Calculates a random interval following the Poisson distribution.
+     *
+     * @param lambda The parameter of the Poisson distribution (lambda greater or equal to 0). To be used for arrival rates.
+     * @return The random interval following the Poisson distribution.
+     * @throws ArithmeticException if the provided lambda value is less than 0.
+     */
+    public double getPoissonInterval(float lambda, Random random) {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    	if(lambda &lt; 0)</span>
+<span class="nc" id="L40">    		throw new ArithmeticException(&quot;lambda &lt; 0&quot;);</span>
+<span class="fc" id="L41">		double p = random.nextDouble();</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">		while (p == 0.0){</span>
+<span class="nc" id="L43">			p = random.nextDouble();</span>
+		}
+<span class="fc" id="L45">        return (double) (Math.log(1-p)/(-lambda));</span>
+    }
+    
+    
+    /**
+     * Generates a random value following the Gaussian distribution (normal distribution), 
+     * truncated to ensure it is positive
+     *
+     * @param mean  The mean value of the distribution.
+     * @param deviation The standard deviation of the distribution (deviation greater or equal to 0).
+     * @return The generated random value following the Gaussian distribution.
+     * @throws ArithmeticException if the provided deviation value is less than 0.
+     */
+    public float getGaussian(float mean, float deviation, Random random) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">    	if(deviation &lt; 0)</span>
+<span class="nc" id="L60">    		throw new ArithmeticException(&quot;Standard deviation &lt; 0&quot;);</span>
+<span class="nc" id="L61">    	float gaussianValue = mean + (float) random.nextGaussian() * deviation;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">    	while(gaussianValue &lt;= 0) {</span>
+<span class="nc" id="L63">    		gaussianValue = mean + (float) random.nextGaussian() * deviation;</span>
+    	}
+<span class="nc" id="L65">    	return gaussianValue;</span>
+    }
+		
+    
+    
+    /*
+     *
+     * S E T T E R S   A N D  G E T T E R S
+     * 
+     */
+    
+    /*
+     * Transaction Sampler
+     */
+  
+	public AbstractTransactionSampler getTransactionSampler() {
+<span class="nc" id="L81">		return transactionSampler;</span>
+	}
+	public void setTransactionSampler(AbstractTransactionSampler txSampler) {
+<span class="nc" id="L84">		this.transactionSampler = txSampler;</span>
+<span class="nc" id="L85">	}</span>
+
+	
+    /*
+     * Node Sampler
+     */
+	
+	public AbstractNodeSampler getNodeSampler() {
+<span class="nc" id="L93">		return nodeSampler;</span>
+	}
+	public void setNodeSampler(AbstractNodeSampler nodeSampler) {
+<span class="nc" id="L96">		this.nodeSampler = nodeSampler;</span>
+<span class="nc" id="L97">	}</span>
+
+    /*
+     * Network Sampler
+     */
+
+	public AbstractNetworkSampler getNetworkSampler() {
+<span class="nc" id="L104">		return networkSampler;</span>
+	}
+	public void setNetworkSampler(AbstractNetworkSampler netSampler) {
+<span class="nc" id="L107">		this.networkSampler = netSampler;</span>
+<span class="nc" id="L108">	}</span>
+    
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -44,15 +44,16 @@
         <menu name="API Reference">
             <item name="API Reference" href="apidocs/index.html"/>
         </menu>
-        <menu name="Contibutor's Guide">
-            <item name="Required Style" href="contributors/formatting.html"/>
-            <item name="Git Main Worklow" href="contributors/git-workflow.html"/>
+        <menu name="Contributor's Guide">
+            <item name="Programming Style" href="contributors/formatting.html"/>
+            <item name="Git Main Workflow" href="contributors/git-workflow.html"/>
             <item name="Commit Conventions" href="contributors/commits.html"/>
             <item name="Git and Commit Habits" href="contributors/git-habits.html"/>
             <item name="Documentation Workflow" href="contributors/documentation.html"/>
             <item name="Release Workflow" href="contributors/release.html"/>
             <item name="Deployment Workflow" href="contributors/deploy.html"/>
             <item name="Architectural Decisions" href="contributors/adr.html"/>
+			<item name="Testing Conventions" href="contributors/testing.html"/>
         </menu>
         <menu name="Maven Info">
             <item name="Overview" href="project-info.html"/>
