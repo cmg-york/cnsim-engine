@@ -129,7 +129,7 @@ cat ~/.ssh/id_ed25519.pub
 
 2. In GitHub, go to `Settings` > `SSH and GPG keys` > `New SSH key`
 
-![Add new SSH key in GitHub](./images/githubNewSSHKey.png)
+![Add new SSH key in GitHub](../images/githubNewSSHKey.png)
 
 3. Add a title
 4. Key type: `Authentication Key`
@@ -186,7 +186,7 @@ mvn -B release:prepare -DdryRun=true \
   -Dtag=v0.1.1
 ```
 
-![Files generated from dry-run](./images/dryRunResult.png)
+![Files generated from dry-run](../images/dryRunResult.png)
 
 ```bash
 # review generated files (release.properties, release POM, and next snapshot POM)

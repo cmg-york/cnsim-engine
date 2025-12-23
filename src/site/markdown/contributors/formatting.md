@@ -3,7 +3,7 @@ main_authors:
   - Sotirios Liaskos <liaskos@yorku.ca>
 ---
 ## Table of Contents
-- [[Program Sections]](#program-sections)
+- [Program Sections](#program-sections)
 - [Constructors](#Constructors)
 - [Methods](#Methods)
 - [Code Formatting and Commenting](#code-formatting-and-commenting)

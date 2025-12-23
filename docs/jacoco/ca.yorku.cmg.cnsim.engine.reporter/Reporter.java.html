@@ -116,7 +116,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	static {
 <span class="fc" id="L117">		root = Config.getPropertyString(&quot;sim.output.directory&quot;);</span>
 
-<span class="fc" id="L119">		String label = &quot;&quot;;</span>
+<span class="fc" id="L119">		String label = Config.getConfigLabel() + &quot; - &quot;;</span>
 <span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (Config.hasProperty(&quot;sim.experimentalLabel&quot;)) {</span>
 <span class="nc" id="L121">			label = Config.getPropertyString(&quot;sim.experimentalLabel&quot;) + &quot; - &quot;;</span>
 		}

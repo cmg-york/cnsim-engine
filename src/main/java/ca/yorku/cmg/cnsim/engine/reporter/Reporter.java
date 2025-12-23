@@ -116,7 +116,7 @@ public class Reporter {
 	static {
 		root = Config.getPropertyString("sim.output.directory");
 
-		String label = "";
+		String label = Config.getConfigLabel() + " - ";
 		if (Config.hasProperty("sim.experimentalLabel")) {
 			label = Config.getPropertyString("sim.experimentalLabel") + " - ";
 		}

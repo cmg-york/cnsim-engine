@@ -13,6 +13,7 @@ import ca.yorku.cmg.cnsim.engine.exceptions.ConfigurationException;
 public class Config {
     static Properties prop = new Properties();
     static boolean initialized = false;
+    static String configLabel = "";
     
     public static void init(String propFileName) throws FileNotFoundException {
     	
@@ -21,6 +22,12 @@ public class Config {
             throw new FileNotFoundException(propFileName + " not found");
         }
 
+        configLabel = file.getName();
+        int dotIndex = configLabel.lastIndexOf('.');
+        if (dotIndex > 0) {
+			configLabel = configLabel.substring(0, dotIndex);
+		}
+        
         try (InputStream in = new FileInputStream(file)) {
             prop.load(in);
             initialized = true;
@@ -227,5 +234,10 @@ public class Config {
 	public static boolean hasProperty(String s) {
 		return prop.containsKey(s);
 	}
+	
+	public static String getConfigLabel() {
+		return configLabel;
+	}
+	
 	
 }

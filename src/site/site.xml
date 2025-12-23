@@ -46,6 +46,7 @@
         </menu>
         <menu name="Contributor's Guide">
             <item name="Programming Style" href="contributors/formatting.html"/>
+			<item name="Contract Style" href="contributors/contracts.html"/>
             <item name="Git Main Workflow" href="contributors/git-workflow.html"/>
             <item name="Commit Conventions" href="contributors/commits.html"/>
             <item name="Git and Commit Habits" href="contributors/git-habits.html"/>
