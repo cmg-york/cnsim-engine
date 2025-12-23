@@ -54,6 +54,8 @@
             <item name="Deployment Workflow" href="contributors/deploy.html"/>
             <item name="Architectural Decisions" href="contributors/adr.html"/>
 			<item name="Testing Conventions" href="contributors/testing.html"/>
+            <item name="Design By Contract - JML" href="contributors/design-by-contract-jml.html"/>
+
         </menu>
         <menu name="Maven Info">
             <item name="Overview" href="project-info.html"/>
