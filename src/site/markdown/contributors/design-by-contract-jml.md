@@ -98,7 +98,7 @@ JML is written as annotations inside comments, which Java ignores but JML tools 
 /*@ JML goes here @*/
 ```
 
-If you want to display JML specifications in Javadoc output, you can include them as preformatted text using `<pre>...</pre>`:
+If you want to display JML specifications in Javadoc output, you can include them as preformatted text using `<pre>{@code...}</pre>`:
 ```text
 /**
  * <pre>{@code
