@@ -2,17 +2,29 @@ package ca.yorku.cmg.cnsim.engine.transaction;
 
 public class Transaction {
 
+	// ================================
+	// CONSTANTS
+	// ================================
+	
 	public static int currID = 1;
+	protected int nodeID = -1;
 
+
+	// ================================
+	// FIELDS
+	// ================================
+	
 	protected long ID;
 	protected float size;
 	protected float value;
 	protected long creationTime;
-	protected int nodeID = -1;
 	protected boolean seedChanging;
 	
 
-
+	// ================================
+	// CONSTRUCTORS
+	// ================================
+	
 	public void makeSeedChanging() {
 		this.seedChanging = true;
 	}
@@ -81,6 +93,11 @@ public class Transaction {
 		super();
 		this.setID(id);
 	}
+	
+	
+	// ================================
+	// SETTERS AND GETTERS
+	// ================================
 	
 	/**
 	 * Get the next available ID number to assign to the transaction.
