@@ -80,11 +80,11 @@ Split each class into the following sections (as appropriate). The organization 
      * Computes the square root of a given non-negative number.
      *
      * <p><b>JML Contract:</b></p>
-     * <pre>
+     * <pre>{@code
      *   //@ requires x >= 0;
      *   //@ ensures \result >= 0;
      *   //@ ensures \abs(\result * \result - x) < 1e-10;
-     * </pre>
+     * }</pre>
      *
      * @param x the number to compute the square root of
      * @return the non-negative square root of {@code x}
@@ -213,11 +213,11 @@ Example:
  * Computes the square root of a given non-negative number.
  *
  * <p><b>JML Contract:</b></p>
- * <pre>
+ * <pre>{@code
  *   //@ requires x >= 0;
  *   //@ ensures \result >= 0;
  *   //@ ensures \abs(\result * \result - x) < 1e-10;
- * </pre>
+ * }</pre>
  *
  * @param x the number to compute the square root of
  * @return the non-negative square root of {@code x}
