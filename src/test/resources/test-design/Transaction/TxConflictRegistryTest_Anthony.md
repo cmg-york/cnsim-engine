@@ -1,4 +1,4 @@
-# Test Design — TxConflictRegistry
+# Test Design — TxConflictRegistry_Anthony
 
 
 ## 1. TxConflictRegistry(long size) --> Constructor
