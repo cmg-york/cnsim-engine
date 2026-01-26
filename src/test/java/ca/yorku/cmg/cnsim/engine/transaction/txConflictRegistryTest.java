@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * Test design: src/test/resources/test-design/Transaction/TxConflictRegistryTest.md
  */
 
-class TxConflictRegistryTest_Anthony {
+class TxConflictRegistryTest {
 
 
 // --------------------------------
