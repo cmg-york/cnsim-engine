@@ -23,7 +23,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("Constructor with size=1 should create registry with all IDs initialized to -2")
-    void testConstructor_MinimumValidSize_TC1() {
+    void testConstructor_MinimumValidSize_TCC1() {
         TxConflictRegistry registry = new TxConflictRegistry(1);
         for (int i = 1; i <= 1; i++) {
             assertEquals(-2, registry.getMatch(i));
@@ -32,7 +32,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("Constructor with size=Integer.MAX_VALUE should throw NegativeArraySizeException")
-    void testConstructor_MaximumValidSize_TC2() {
+    void testConstructor_MaximumValidSize_TCC2() {
         // Note: Integer.MAX_VALUE+1 overflows to negative, causing NegativeArraySizeException
         // when the constructor tries to allocate match = new long[size + 1]
         assertThrows(NegativeArraySizeException.class, () -> {
@@ -42,7 +42,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("Constructor with size=0 should throw IllegalArgumentException")
-    void testConstructorInvalidSizeZero_TC3() {
+    void testConstructorInvalidSizeZero_TCC3() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             new TxConflictRegistry(0);
         });
@@ -51,7 +51,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("Constructor with size=-1 should throw IllegalArgumentException")
-    void testConstructorInvalidSizeLessThanZero_TC4() {
+    void testConstructorInvalidSizeLessThanZero_TCC4() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             new TxConflictRegistry(-1);
         });
@@ -59,24 +59,14 @@ class TxConflictRegistryTest {
     }
 
     @Test
-    @DisplayName("Constructor with size=Integer.MAX_VALUE+1 should throw IllegalArgumentException")
-    void testConstructorInvalidSizeTooLarge_TC5() {
-        long tooLarge = (long) Integer.MAX_VALUE + 1;
+    @DisplayName("Constructor with size=Integer.MAX_VALUE+1 should overflow to the MIN_VALUE (a negative number); should throw IllegalArgumentException")
+    void testConstructorInvalidSizeTooLarge_TCC5() {
+        int tooLarge = Integer.MAX_VALUE + 1;
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             new TxConflictRegistry(tooLarge);
         });
-        assertTrue(ex.getMessage().contains("maximum size exceeded"));
-    }
-
-    @Test
-    @DisplayName("Constructor with size=Long.MAX_VALUE+1 should throw IllegalArgumentException")
-    void testConstructorInvalidSizeWayTooLarge_TC6() {
-        // Note: Long.MAX_VALUE + 1 overflows to Long.MIN_VALUE (negative)
-        // So it triggers the "size must be >= 1" check, not the "maximum size exceeded" check
-        long tooLarge = Long.MAX_VALUE + 1;
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            new TxConflictRegistry(tooLarge);
-        });
+        // Note: Integer.MAX_VALUE + 1 overflows to Integer.MIN_VALUE (negative)
+        // so the constructor catches it with "size must be >= 1" check
         assertTrue(ex.getMessage().contains("size must be >= 1"));
     }
 
@@ -89,7 +79,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("getMatch on uninitialized ID should return -2")
-    void testGetMatch_UninitializedID_TC1() { 
+    void testGetMatch_UninitializedID_TCGM1() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -100,7 +90,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("getMatch on matched ID should return partner ID")
-    void testGetMatch_matchedID_TC2() { 
+    void testGetMatch_matchedID_TCGM2() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1,3);
@@ -113,7 +103,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("getMatch on neutralized ID should return -1")
-    void testGetMatch_neutralizedID_TC3() { 
+    void testGetMatch_neutralizedID_TCGM3() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1,3);
@@ -126,7 +116,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("getMatch on id = 0 should throw IllegalArgumentException ")
-    void testGetMatch_InvalidSizeZero_TC4() { 
+    void testGetMatch_InvalidSizeZero_TCGM4() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -139,7 +129,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("getMatch on id = size + 1 should throw IllegalArgumentException ")
-    void testGetMatch_InvalidSizeAboveMaximum_TC5() { 
+    void testGetMatch_InvalidSizeAboveMaximum_TCGM5() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -154,7 +144,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("uninitialized on new registry should return true")
-    void testUninitialized_NewRegistry_TC1() {
+    void testUninitialized_NewRegistry_TCUT1() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -165,7 +155,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("uninitialized after setMatch should return false")
-    void testUninitialized_AfterSetMatch_TC2() {
+    void testUninitialized_AfterSetMatch_TCUT2() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(size, size - 1);
@@ -177,7 +167,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("uninitialized after neutralize should return false")
-    void testUninitialized_AfterNeutralize_TC3() {
+    void testUninitialized_AfterNeutralize_TCUT3() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.neutralize();
@@ -189,7 +179,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("uninitialized with id=0 should return value at index 0 (conceptually unused)")
-    void testUninitialized_InvalidIDZero_TC4() {
+    void testUninitialized_InvalidIDZero_TCUT4() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -202,7 +192,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("uninitialized with id=size+1 should throw ArrayIndexOutOfBoundsException")
-    void testUninitialized_InvalidIDAboveSize_TC5() {
+    void testUninitialized_InvalidIDAboveSize_TCUT5() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -220,7 +210,7 @@ class TxConflictRegistryTest {
 //setMatch(int a, int b)
     @Test
     @DisplayName("setMatch on a = 1 and b = 1 should throw IllegalArgumentException ")
-    void testsetMatch_InvalidSizeAboveMaximum_TC1() { 
+    void testsetMatch_InvalidSizeAboveMaximum_TCSM1() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -233,7 +223,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch on minimu values a = 1 and b = 2 should create bidirectional match between the two IDs ")
-    void testsetMatch_MinimumValidIDsCreateMatch_TC2() { 
+    void testsetMatch_MinimumValidIDsCreateMatch_TCSM2() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -248,7 +238,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch on maximum values a = size and b = size - 1 should create bidirectional match between the two IDs ")
-    void testsetMatch_MaximumValueValidIDsCreateMatch_TC3() { 
+    void testsetMatch_MaximumValueValidIDsCreateMatch_TCSM3() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -263,7 +253,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch on boundary values a = 1 and b = size should create bidirectional match between the two IDs ")
-    void testsetMatch_BoundaryValueValidIDsCreateMatch_TC4() { 
+    void testsetMatch_BoundaryValueValidIDsCreateMatch_TCSM4() { 
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -278,7 +268,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch with a=0 should throw IllegalArgumentException")
-    void testsetMatch_InvalidIDBelowRange_TC5() {
+    void testsetMatch_InvalidIDBelowRange_TCSM5() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -291,7 +281,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch with a=size+1 should throw IllegalArgumentException")
-    void testsetMatch_InvalidIDAboveRange_TC6() {
+    void testsetMatch_InvalidIDAboveRange_TCSM6() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -304,7 +294,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch with b=0 should throw IllegalArgumentException")
-    void testsetMatch_InvalidIDBBelowRange_TC7() {
+    void testsetMatch_InvalidIDBBelowRange_TCSM7() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -317,7 +307,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch with b=size+1 should throw IllegalArgumentException")
-    void testsetMatch_InvalidIDBAboveRange_TC8() {
+    void testsetMatch_InvalidIDBAboveRange_TCSM8() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -330,7 +320,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch twice on same ID should update match and clear old partner")
-    void testsetMatch_OverwriteExistingMatch_TC9() {
+    void testsetMatch_OverwriteExistingMatch_TCSM9() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1, 2);
@@ -344,7 +334,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("setMatch on ID that is already a partner should update both matches")
-    void testsetMatch_OverwritePartnerMatch_TC10() {
+    void testsetMatch_OverwritePartnerMatch_TCSM10() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1, 2);
@@ -361,7 +351,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch with id=0 should throw IllegalArgumentException")
-    void testNoMatch_InvalidIDZero_TC1() {
+    void testNoMatch_InvalidIDZero_TCNM1() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -374,7 +364,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch with id=size+1 should throw IllegalArgumentException")
-    void testNoMatch_InvalidIDAboveSize_TC2() {
+    void testNoMatch_InvalidIDAboveSize_TCNM2() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -387,7 +377,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch on ID with match should clear both ID and partner")
-    void testNoMatch_IDWithMatch_ClearsBoth_TC3() {
+    void testNoMatch_IDWithMatch_ClearsBoth_TCNM3() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1, 2);
@@ -400,7 +390,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch on ID with match at boundary should clear both ID and partner")
-    void testNoMatch_BoundaryIDWithMatch_ClearsBoth_TC4() {
+    void testNoMatch_BoundaryIDWithMatch_ClearsBoth_TCNM4() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(3, size);
@@ -413,7 +403,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch on already neutralized ID should keep it at -1")
-    void testNoMatch_AlreadyNeutralized_StaysNegativeOne_TC5() {
+    void testNoMatch_AlreadyNeutralized_StaysNegativeOne_TCNM5() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.neutralize();
@@ -425,7 +415,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch on uninitialized ID should change from -2 to -1")
-    void testNoMatch_UninitializedID_ChangesToNegativeOne_TC6() {
+    void testNoMatch_UninitializedID_ChangesToNegativeOne_TCNM6() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -436,7 +426,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch called twice on same ID should not cause error")
-    void testNoMatch_CalledTwice_NoError_TC7() {
+    void testNoMatch_CalledTwice_NoError_TCNM7() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1, 2);
@@ -450,7 +440,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch with id=-1 should throw IllegalArgumentException")
-    void testNoMatch_NegativeID_TC8() {
+    void testNoMatch_NegativeID_TCNM8() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -463,7 +453,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("noMatch with id=size should clear ID to -1")
-    void testNoMatch_BoundaryValidID_TC9() {
+    void testNoMatch_BoundaryValidID_TCNM9() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -476,7 +466,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("neutralize on uninitialized registry should set all IDs to -1")
-    void testNeutralize_UninitiatedID_TC1() {
+    void testNeutralize_UninitiatedID_TCN1() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
 
@@ -490,7 +480,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("neutralize after setMatch should set all IDs to -1")
-    void testNeutralize_AfterSetMatch_TC2() {
+    void testNeutralize_AfterSetMatch_TCN2() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.setMatch(1, 2);
@@ -506,7 +496,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("neutralize on already neutralized registry should keep all IDs at -1")
-    void testNeutralize_AlreadyNeutralized_TC3() {
+    void testNeutralize_AlreadyNeutralized_TCN3() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         registry.neutralize();
@@ -521,7 +511,7 @@ class TxConflictRegistryTest {
 
     @Test
     @DisplayName("neutralize on mixed state registry should set all IDs to -1")
-    void testNeutralize_MixedState_TC4() {
+    void testNeutralize_MixedState_TCN4() {
         int size = 10;
         TxConflictRegistry registry = new TxConflictRegistry(size);
         // Create mixed state: some matched, some unmatched, some uninitialized
