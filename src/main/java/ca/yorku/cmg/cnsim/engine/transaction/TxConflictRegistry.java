@@ -8,7 +8,7 @@ public class TxConflictRegistry {
 // --------------------------------
 // FIELDS
 // --------------------------------
-    private final long[] match;   // 1-indexed
+    private final int[] match;   // 1-indexed
     private final int size;
 
 
@@ -20,7 +20,7 @@ public class TxConflictRegistry {
     /**
      * Creates a registry for conflicts between IDs 1..size.
      */
-    public TxConflictRegistry(long size) {
+    public TxConflictRegistry(int size) {
         if (size < 1) {
             throw new IllegalArgumentException(
                 "TxConflictRegistry: size must be >= 1, got " + size
@@ -35,8 +35,8 @@ public class TxConflictRegistry {
         this.size = (int) size;
 
         // Allocate 1..N (index 0 unused)
-        match = new long[this.size + 1];
-        Arrays.fill(match, -2L); // -2 means "uninitialized"
+        match = new int[this.size + 1];
+        Arrays.fill(match, -2); // -2 means "uninitialized"
     }
 
 
@@ -59,7 +59,7 @@ public class TxConflictRegistry {
      * </pre>
      */
     public void neutralize() {
-    	Arrays.fill(match, -1L); // -1 means no conflict
+    	Arrays.fill(match, -1); // -1 means no conflict
     }
     
 
@@ -79,7 +79,7 @@ public class TxConflictRegistry {
      * @return the matching transaction ID, -1 if unmatched, or -2 if uninitialized
      * @throws IllegalArgumentException if id is out of range [1..size]
      */
-    public long getMatch(int id) {
+    public int getMatch(int id) {
         validateId(id);
         return match[id];
     }
@@ -164,7 +164,7 @@ public class TxConflictRegistry {
      */
     public void noMatch(int id) {
         validateId(id);
-        long partner = match[id];
+        int partner = match[id];
         if (partner > 0) { // only remove if partner is a valid ID
             match[(int) partner] = -1;
         }

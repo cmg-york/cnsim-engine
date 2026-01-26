@@ -22,7 +22,6 @@
 | B4 | size = 0 (just below valid) |
 | B5 | size = -1 (negative value) |
 | B6 | size = Integer.MAX_VALUE + 1L (just above valid) |
-| B7 | size = Long.MAX_VALUE (extreme invalid) |
 
 #### Guesses
 | ID | Variable-Value |
@@ -56,9 +55,6 @@
 | TC-C3 | Constructor | size=0 | IllegalArgumentException | B4, P3, CD1 |
 | TC-C4 | Constructor | size=-1 | IllegalArgumentException | B5, P3, CD1 |
 | TC-C5 | Constructor | size=Integer.MAX_VALUE+1L | IllegalArgumentException | B6, P4, CD2 |
-| TC-C6 | Constructor | size=Long.MAX_VALUE | IllegalArgumentException | B7, P4, CD2 |
-
-**long is 64 bit compared to int (32) -- max value is completely different and way bigger (in the quintillions)
 
 
 
