@@ -50,18 +50,18 @@ public class TxConflictRegistry {
 
     /**
      * Replaces all elements in {@code match} with -1.
-     * 
+     *
      * <p><b>JML Contract:</b></p>
      * <pre>
      *      //@ ensures all elements in {@code match} equals to -1.
      * </pre>
-     * 
+     *
      */
     public void neutralize() {
     	Arrays.fill(match, -1L); // -1 means no conflict
         neutralize_post();
     }
-    
+
     /**
      * Removes any match for the given ID.
      *
@@ -69,7 +69,7 @@ public class TxConflictRegistry {
      * <pre>
      *      //@ requires {@code id} to be valid;
      * </pre>
-     * 
+     *
      * @param id the ID to remove the match from.
      * @throws IllegalArgumentException if {@code id} is not valid. (precondition violated)
      */
@@ -85,22 +85,22 @@ public class TxConflictRegistry {
     }
 
     /**
-     * Checks if an id is unitialized
-     * 
+     * Checks if an id is uninitialized
+     *
      * <p><b>JML Contract:</b></p>
      * <pre>
      *      //@ requires {@code id} to be valid;
      * </pre>
-     * 
-     * @param id the ID to check if unitialized or not
-     * @return true if {@code id} is unitialized ({@code match[id] == -2}) and false otherwise
+     *
+     * @param id the ID to check if uninitialized or not
+     * @return true if {@code id} is uninitialized ({@code match[id] == -2}) and false otherwise
      * @throws IllegalArgumentException if {@code id} is not valid. (precondition violated)
     */
     public boolean uninitialized(int id) {
         validateId(id);
     	return(match[id] == -2);
     }
-    
+
 
 
 
@@ -112,14 +112,14 @@ public class TxConflictRegistry {
 
     /**
      * Gets the partner of ID {@code id}
-     * 
+     *
      * <p><b>JML Contract:</b></p>
      * <pre>
      *      //@ requires {@code id} to be valid;
      * </pre>
-     * 
+     *
      * @param id the ID to get the partner of
-     * @return the partner ID, -1 if unmatched, -2 if unitialized
+     * @return the partner ID, -1 if unmatched, -2 if uninitialized
      * @throws IllegalArgumentException if {@code id} is not valid. (precondition violated)
      */
     public long getMatch(int id) {
@@ -130,7 +130,7 @@ public class TxConflictRegistry {
     /**
      * Creates a conflict pair {@code (a <-> b)}.
      * Overwrites previous matches if any.
-     * 
+     *
      * <p><b>JML Contract:</b></p>
      * <pre>
      *      //@ requires {@code a} to be valid;
@@ -139,13 +139,13 @@ public class TxConflictRegistry {
      *      //@ ensures {@code match[a] = b};
      *      //@ ensures {@code match[b] = a};
      * </pre>
-     * 
+     *
      * @param a the first ID of the conflict pair
      * @param b the second ID of the conflict pair
      * @throws IllegalArgumentException if {@code a} is not valid (precondition violated)
      * @throws IllegalArgumentException if {@code b} is not valid (precondition violated)
      * @throws IllegalArgumentException if {@code a == b} (precondition violated)
-     * 
+     *
      */
     public void setMatch(int a, int b) {
         setMatch_pre(a, b);
@@ -205,29 +205,27 @@ public class TxConflictRegistry {
         sb.append("]");
         return sb.toString();
     }
-}
-
 
     // =============================
-    // VALIDATOR METHODS 
+    // VALIDATOR METHODS
     // =============================
 
     // Private helper method to check postcondition for {@linkplain neutralize}.
-    private static void neutralize_post() {
+    private void neutralize_post() {
         for (long id : match) {
             assert id == -1L : "Postcondition violated: All elements in match must equal -1";
         }
     }
 
     // Private helper method to check postcondition for {@linkplain noMatch}.
-    private static void noMatch_post(int id) {
+    private void noMatch_post(int id) {
         long partner = match[id];
         assert match[id] == -1 : "Postcondition violated: match[id] must equal -1.";
-        assert match[(int) partner] == -1 : "Postcondition violated: match[partner] must equal -1."
+        assert match[(int) partner] == -1 : "Postcondition violated: match[partner] must equal -1.";
     }
 
     // Private helper method to check precondition for {@linkplain setMatch}.
-    private static void setMatch_pre(int a, int b) {
+    private void setMatch_pre(int a, int b) {
         validateId(a);
         validateId(b);
         if (a == b) {
@@ -236,9 +234,10 @@ public class TxConflictRegistry {
     }
 
     // Private helper method to check postcondition for {@linkplain setMatch}.
-    private static void setMatch_post(int a, int b) {
+    private void setMatch_post(int a, int b) {
         assert match[a] == b : "Postcondition violated: match[a] must equal b.";
         assert match[b] == a : "Postcondition violated: match[b] must equal a.";
     }
+}
 
     
