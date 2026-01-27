@@ -65,11 +65,11 @@ N/A no inputs
 N/A
 
 ##### Guesses
-| ID | Variable-Value     |
-|--- |--------------------|
-| G1 | match[i] = -2 for all 1 <= i <= 10 | 
-| G2 | match[i] = -1 for all 1 <= i <= 100 |
-| G3 | match[i] = 25 for all 1 <= i <= 10 |
+| ID | Variable-Value                                |
+|--- |-----------------------------------------------|
+| G1 | match[i] = -2 for all 1 <= i <= 10            | 
+| G2 | match[i] = -1 for all 1 <= i <= 100           |
+| G3 | match[i] = 5 for all 1 <= i <= 10, except i=5 |
 
 ### White Box Analysis
 
@@ -80,11 +80,11 @@ N/A no conditionals
 N/A no decisions or conditions
 
 ### Test cases
-| ID | Input | Expected | Satisfies |
-|----|------|----------|-----------|
-| TC-1 | match[i] = -2 for all 1 <= i <= 10 | succeeds | G1 |
-| TC-2 | match[i] = -1 for all 1 <= i <= 100 | succeeds | G2 |
-| TC-3 | match[i] = 25 for all 1 <= i <= 10 | succeeds | G3 |
+| ID | Input                                          | Expected | Satisfies |
+|----|------------------------------------------------|----------|-----------|
+| TC-1 | match[i] = -2 for all 1 <= i <= 10             | succeeds | G1 |
+| TC-2 | match[i] = -1 for all 1 <= i <= 100            | succeeds | G2 |
+| TC-3 | match[i] = 5 for all 1 <= i <= 10, except i =5 | succeeds | G3 |
 
 
 ## 3. TxConflictRegistry.noMatch(int id)
@@ -183,26 +183,25 @@ N/A no decisions or conditions
 
 #### Test obligations
 
-| Test Case | C1 | C2 | D1 | D2 |
-|-----------|----|----|----|----|
-| CD1 | T | F | - | T | - |
-| CD2 | F | T | - | T | - |
-| CD3 | F | F | - | F | - |
-| CD4 | - | - | T | - | T |
-| CD5 | - | - | F | - | F |
+| Test Case | C1 | C2 | C3 | D1 | D2 |
+|-----------|----|----|----|----|---|
+| CD1 | T | F | -  | T | - |
+| CD2 | F | T | -  | T | - |
+| CD3 | F | F | -  | F | - |
+| CD4 | - | - | T  | - | T |
+| CD5 | - | - | F  | - | F |
 
 
 ### Test cases
-| ID | Input | Expected | Satisfies |
-|----|------|----------|-----------|
-| TC-1 | id=1, size=2 | succeeds | P1, B1, CD3 |
-| TC-2 | id=0, size=2 | exception | P2, B3, CD1 |
-| TC-3 | id=10, size=9 | exception | P3, B4, CD2 |
-| TC-4 | id=10, size=10 | succeeds | B2 |
-| TC-5 | id=9, size=10 | succeeds | G1 |
-| TC-6 | id=5, size=10 | succeeds | G2 |
-| TC-7 | match[id]==-2 | returns true | CD4 |
-| TC-8 | natch[id]!=-2 | returns false | CD5 |
+| ID   | Input          | Expected | Satisfies        |
+|------|----------------|----------|------------------|
+| TC-1 | id=1, size=2   | succeeds | P1, B1, CD3, CD4 |
+| TC-2 | id=0, size=2   | exception | P2, B3, CD1      |
+| TC-3 | id=10, size=9  | exception | P3, B4, CD2      |
+| TC-4 | id=10, size=10 | succeeds | B2               |
+| TC-5 | id=9, size=10  | succeeds | G1               |
+| TC-6 | id=5, size=10  | succeeds | G2               |
+| TC-7 | match[id]!=-2  | returns false | CD5              |
 
 ## 5. TxConflictRegistry.getMatch(int id)
 
@@ -255,7 +254,7 @@ N/A no decisions or conditions
 | TC-5 | id=9, size=10 | succeeds; returns match[id] | G1 |
 | TC-6 | id=5, size=10 | succeeds; returns match[id] | G2 |
 
-## 6. TxConflictRegistry.setmatch(int a, int b)
+## 6. TxConflictRegistry.setMatch(int a, int b)
 
 ### Black Box Analysis
 
@@ -313,8 +312,8 @@ N/A no decisions or conditions
 
 
 ### Test cases
-| ID | Input | Expected | Satisfies |
-|----|------|----------|-----------|
+| ID   | Input | Expected | Satisfies |
+|------|------|----------|-----------|
 | TC-1 | a=1, b=2, size=2 | succeeds | P1, P4, B1, B6, CD1, CD5, CD8 |
 | TC-2 | a=0, b=1, size=2 | exception | P2, B3, B5, CD3 |
 | TC-3 | a=10, b=2, size=9 | exception | P3, B4, CD4 |
@@ -322,5 +321,5 @@ N/A no decisions or conditions
 | TC-5 | a=1, b=0, size=2 | exception | P5, B7, CD6 |
 | TC-6 | a=2, b=10, size=9 | exception | P6, B8, CD7 |
 | TC-7 | a=2, b=2, size=5 | exception | P7, CD2 |
-| TC-5 | a = 9, b = 10, size = 10 | succeeds | G1 |
-| TC-6 | a = 1, b = 5, size = 10 | succeeds | G2 |
+| TC-8 | a = 9, b = 10, size = 10 | succeeds | G1 |
+| TC-9 | a = 1, b = 5, size = 10 | succeeds | G2 |

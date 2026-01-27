@@ -81,7 +81,7 @@ public class TxConflictRegistry {
         }
         match[id] = -1;
 
-        noMatch_post(id);
+        noMatch_post(id, (int) partner);
     }
 
     /**
@@ -162,26 +162,6 @@ public class TxConflictRegistry {
 
 
 
-
-    // ================================
-    // HELPER METHODS
-    // ================================
-
-    // Private helper method to check if a given {@code id} is valid or not.
-    private void validateId(int id) {
-        if (id < 1 || id > size) {
-            throw new IllegalArgumentException(
-                "ID must be between 1 and " + size + ", got " + id
-            );
-        }
-    }
-
-
-
-
-
-
-
     // ================================
     // DEBUG/PRINT/TOSTRING METHODS
     // ================================
@@ -210,6 +190,15 @@ public class TxConflictRegistry {
     // VALIDATOR METHODS
     // =============================
 
+    // Private helper method to check if a given {@code id} is valid or not.
+    private void validateId(int id) {
+        if (id < 1 || id > size) {
+            throw new IllegalArgumentException(
+                    "ID must be between 1 and " + size + ", got " + id
+            );
+        }
+    }
+
     // Private helper method to check postcondition for {@linkplain neutralize}.
     private void neutralize_post() {
         for (long id : match) {
@@ -218,10 +207,12 @@ public class TxConflictRegistry {
     }
 
     // Private helper method to check postcondition for {@linkplain noMatch}.
-    private void noMatch_post(int id) {
-        long partner = match[id];
+    private void noMatch_post(int id, int old_partner) {
         assert match[id] == -1 : "Postcondition violated: match[id] must equal -1.";
-        assert match[(int) partner] == -1 : "Postcondition violated: match[partner] must equal -1.";
+
+        if (old_partner > 0) {
+            assert match[(int) old_partner] == -1 : "Postcondition violated: match[partner] must equal -1.";
+        }
     }
 
     // Private helper method to check precondition for {@linkplain setMatch}.
