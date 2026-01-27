@@ -28,7 +28,6 @@
 |----|----------------|
 | G1 | size = 100 (typical valid value) |
 | G2 | size = Integer.MAX_VALUE - 1 (near upper bound) |
-| G3 | All IDs initialized to -2 after construction |
 
 ### White Box Analysis
 
@@ -54,7 +53,7 @@
 | TC-C2 | Constructor | size=Integer.MAX_VALUE | Registry created | B3, P2, CD3 |
 | TC-C3 | Constructor | size=0 | IllegalArgumentException | B4, P3, CD1 |
 | TC-C4 | Constructor | size=-1 | IllegalArgumentException | B5, P3, CD1 |
-| TC-C5 | Constructor | size=Integer.MAX_VALUE+1L | IllegalArgumentException | B6, P4, CD2 |
+| TC-C5 | Constructor | size=Integer.MAX_VALUE+1 | IllegalArgumentException | B6, P4, CD2 |
 
 
 
@@ -74,7 +73,7 @@
 | P7 | b value | b > 1 | true |
 | P8 | b value | b <= 0 | false |
 | P9 | b value | b > Integer.MAX_VALUE | false |
-| P9 | b value | b = a | false |
+| P10 | b value | b = a | false |
 ...
 
 ##### Boundary values
@@ -105,21 +104,22 @@
 
 | Decision ID | Decision Expression | Atomic Conditions |
 |-------------|---------------------|-------------------|
-| D1 | id < 1 || id > size | C1: id < 1<br>C2: id > size |
-| D2 | a == b | C3: a == b |
+| D1 | a < 1 || a > size | C1: a < 1<br>C2: a > size |
+| D2 | b < 1 || b > size | C1: b < 1<br>C2: b > size |
+| D3 | a == b | C3: a == b |
 
 #### Test obligations 
 note: Dn = F: validation passed
       Dn = T: validation failed 
 
-| Test Case | C1 (for a) | C2 (for a) | C1 (for b) | C2 (for b) | C3 (a==b) | D1 | D2 |
+| Test Case | C1 (for a) | C2 (for a) | C1 (for b) | C2 (for b) | C3 (a==b) | D1 | D2 | D3 |
 |-----------|------------|------------|------------|------------|-----------|----|----|
-| CD1 | F | F | F | F | T | F | T |
-| CD2 | F | F | F | F | F | F | F |
-| CD3 | T | - | - | - | - | T | - |
-| CD4 | F | T | - | - | - | T | - |
-| CD5 | - | - | T | - | - | T | - |
-| CD6 | - | - | F | T | - | T | - |
+| CD1 | F | F | F | F | T | F | F | T |
+| CD2 | F | F | F | F | F | F | F | F |
+| CD3 | T | - | - | - | - | T | - | - |
+| CD4 | F | T | - | - | - | T | - | - |
+| CD5 | - | - | T | - | - | - | T | - |
+| CD6 | - | - | F | T | - | - | T | - | 
     
     C3 for CD3-6 is - since the (a==b) check isn't reached (validation fails before that)
 
@@ -248,7 +248,6 @@ No boundary values (no input parameters)
 | G1 | Call neutralize() on newly created registry |
 | G2 | Call neutralize() twice in a row |
 | G3 | Call after setMatch() operations |
-| G4 | Verify all IDs set to -1 after neutralize |
 
 ### White Box Analysis
 
