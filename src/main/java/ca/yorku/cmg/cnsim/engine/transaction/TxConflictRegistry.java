@@ -4,13 +4,23 @@ import java.util.Arrays;
 
 public class TxConflictRegistry {
 
-    private final long[] match;   // 1-indexed
+
+// --------------------------------
+// FIELDS
+// --------------------------------
+    private final int[] match;   // 1-indexed
     private final int size;
 
+
+
+
+// --------------------------------
+// CONSTRUCTOR
+// --------------------------------
     /**
      * Creates a registry for conflicts between IDs 1..size.
      */
-    public TxConflictRegistry(long size) {
+    public TxConflictRegistry(int size) {
         if (size < 1) {
             throw new IllegalArgumentException(
                 "TxConflictRegistry: size must be >= 1, got " + size
@@ -25,27 +35,99 @@ public class TxConflictRegistry {
         this.size = (int) size;
 
         // Allocate 1..N (index 0 unused)
-        match = new long[this.size + 1];
-        Arrays.fill(match, -2L); // -2 means "uninitialized"
+        match = new int[this.size + 1];
+        Arrays.fill(match, -2); // -2 means "uninitialized"
     }
 
+
+
+
+// --------------------------------
+// SIMPLE HELPER METHODS
+// --------------------------------
+
+
+
+
+    /**
+     * Neutralizes all conflicts by setting all matches to -1.
+     * After calling this method, all IDs will be unmatched.
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ ensures (\forall int i; 1 <= i <= size; getMatch(i) == -1);
+     * </pre>
+     */
     public void neutralize() {
-    	Arrays.fill(match, -1L); // -1 means no conflict
+    	Arrays.fill(match, -1); // -1 means no conflict
     }
     
+
+
+
     /**
      * Gets the partner of ID 'id'.
-     * Returns -1 if unmatched.
+     * Returns -1 if unmatched, -2 if uninitialized.
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ requires 1 <= id <= size;
+     *   //@ ensures \result == match[id];
+     * </pre>
+     *
+     * @param id the transaction ID to query
+     * @return the matching transaction ID, -1 if unmatched, or -2 if uninitialized
+     * @throws IllegalArgumentException if id is out of range [1..size]
      */
-    public long getMatch(int id) {
+    public int getMatch(int id) {
         validateId(id);
         return match[id];
     }
 
+
     /**
-     * Creates a conflict pair {@code (a <-> b)}.
-     * Overwrites previous matches if any.
+     * Checks if the given ID is uninitialized.
+     * An uninitialized ID has a match value of -2.
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ requires 1 <= id <= size;
+     *   //@ ensures \result == (match[id] == -2);
+     * </pre>
+     *
+     * @param id the transaction ID to check
+     * @return true if the ID is uninitialized, false otherwise
      */
+    public boolean uninitialized(int id) {
+    	return(match[id] == -2);
+    }
+
+
+// --------------------------------
+// MAIN METHODS
+// --------------------------------
+
+
+/**
+ * Creates a conflict pair between two transaction IDs.
+ * Both IDs will reference each other as conflicts.
+ * Overwrites previous matches if any.
+ *
+ * <p><b>JML Contract:</b></p>
+ * <pre>
+ *   //@ requires 1 <= a <= size;
+ *   //@ requires 1 <= b <= size;
+ *   //@ requires a != b;
+ *   //@ ensures getMatch(a) == b;
+ *   //@ ensures getMatch(b) == a;
+ * </pre>
+ *
+ * @param a first transaction ID
+ * @param b second transaction ID
+ * @throws IllegalArgumentException if a or b is out of range [1..size]
+ * @throws IllegalArgumentException if a equals b
+ */
+
     public void setMatch(int a, int b) {
         validateId(a);
         validateId(b);
@@ -61,12 +143,28 @@ public class TxConflictRegistry {
         match[b] = a;
     }
 
+
+
+
     /**
      * Removes any match for the given ID.
+     * If the ID has a partner, that partner's match is also cleared.
+     * After this operation, the ID will have a match value of -1.
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ requires 1 <= id <= size;
+     *   //@ ensures getMatch(id) == -1;
+     *   //@ ensures (\old(getMatch(id)) > 0) ==>
+     *   //@         getMatch((int)\old(getMatch(id))) == -1;
+     * </pre>
+     *
+     * @param id the transaction ID to clear
+     * @throws IllegalArgumentException if id is out of range [1..size]
      */
     public void noMatch(int id) {
         validateId(id);
-        long partner = match[id];
+        int partner = match[id];
         if (partner > 0) { // only remove if partner is a valid ID
             match[(int) partner] = -1;
         }
@@ -75,10 +173,26 @@ public class TxConflictRegistry {
     
     
 
-    public boolean uninitialized(int id) {
-    	return(match[id] == -2);
-    }
     
+// --------------------------------
+// VALIDATION METHOD
+// --------------------------------
+
+
+    /**
+     * Validates that the given ID is within the valid range [1..size].
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ requires true;
+     *   //@ ensures 1 <= id && id <= size;
+     *   //@ signals_only IllegalArgumentException;
+     *   //@ signals (IllegalArgumentException e) id < 1 || id > size;
+     * </pre>
+     *
+     * @param id the transaction ID to validate
+     * @throws IllegalArgumentException if id is out of range [1..size]
+     */
     private void validateId(int id) {
         if (id < 1 || id > size) {
             throw new IllegalArgumentException(
@@ -87,6 +201,24 @@ public class TxConflictRegistry {
         }
     }
 
+
+
+
+// --------------------------------
+// TOSTRING METHOD
+// --------------------------------
+
+    /**
+     * Returns a string representation of the conflict registry.
+     * The format is [(1 <-> match1), (2 <-> match2), ...].
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ ensures \result != null;
+     * </pre>
+     *
+     * @return a string showing all ID-match pairs
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
