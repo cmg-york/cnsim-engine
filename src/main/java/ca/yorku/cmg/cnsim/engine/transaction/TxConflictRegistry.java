@@ -43,29 +43,9 @@ public class TxConflictRegistry {
 
 
 // --------------------------------
-// SIMPLE HELPER METHODS
+// GETTERS
 // --------------------------------
-
-
-
-
-    /**
-     * Neutralizes all conflicts by setting all matches to -1.
-     * After calling this method, all IDs will be unmatched.
-     *
-     * <p><b>JML Contract:</b></p>
-     * <pre>
-     *   //@ ensures (\forall int i; 1 <= i <= size; getMatch(i) == -1);
-     * </pre>
-     */
-    public void neutralize() {
-    	Arrays.fill(match, -1); // -1 means no conflict
-    }
-    
-
-
-
-    /**
+   /**
      * Gets the partner of ID 'id'.
      * Returns -1 if unmatched, -2 if uninitialized.
      *
@@ -83,6 +63,27 @@ public class TxConflictRegistry {
         validateId(id);
         return match[id];
     }
+
+
+// --------------------------------
+// MAIN PUBLIC METHODS
+// --------------------------------
+
+
+    /**
+     * Neutralizes all conflicts by setting all matches to -1.
+     * After calling this method, all IDs will be unmatched.
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ ensures (\forall int i; 1 <= i <= size; getMatch(i) == -1);
+     * </pre>
+     */
+    public void neutralize() {
+    	Arrays.fill(match, -1); // -1 means no conflict
+        neutralize_post();
+    }
+    
 
 
     /**
@@ -103,9 +104,6 @@ public class TxConflictRegistry {
     }
 
 
-// --------------------------------
-// MAIN METHODS
-// --------------------------------
 
 
 /**
@@ -129,18 +127,15 @@ public class TxConflictRegistry {
  */
 
     public void setMatch(int a, int b) {
-        validateId(a);
-        validateId(b);
-        if (a == b) {
-            throw new IllegalArgumentException("Cannot match an ID with itself: " + a);
-        }
-
+        setMatch_pre(a, b);
         // Remove existing relationships
         noMatch(a);
         noMatch(b);
 
         match[a] = b;
         match[b] = a;
+
+        setMatch_post(a, b);
     }
 
 
@@ -169,41 +164,12 @@ public class TxConflictRegistry {
             match[(int) partner] = -1;
         }
         match[id] = -1;
+        noMatch_post(id, partner);
     }
     
     
 
     
-// --------------------------------
-// VALIDATION METHOD
-// --------------------------------
-
-
-    /**
-     * Validates that the given ID is within the valid range [1..size].
-     *
-     * <p><b>JML Contract:</b></p>
-     * <pre>
-     *   //@ requires true;
-     *   //@ ensures 1 <= id && id <= size;
-     *   //@ signals_only IllegalArgumentException;
-     *   //@ signals (IllegalArgumentException e) id < 1 || id > size;
-     * </pre>
-     *
-     * @param id the transaction ID to validate
-     * @throws IllegalArgumentException if id is out of range [1..size]
-     */
-    private void validateId(int id) {
-        if (id < 1 || id > size) {
-            throw new IllegalArgumentException(
-                "ID must be between 1 and " + size + ", got " + id
-            );
-        }
-    }
-
-
-
-
 // --------------------------------
 // TOSTRING METHOD
 // --------------------------------
@@ -238,4 +204,64 @@ public class TxConflictRegistry {
         sb.append("]");
         return sb.toString();
     }
+    
+// --------------------------------
+// VALIDATION/HELPER METHODS
+// --------------------------------
+
+
+    /**
+     * Validates that the given ID is within the valid range [1..size].
+     *
+     * <p><b>JML Contract:</b></p>
+     * <pre>
+     *   //@ requires true;
+     *   //@ ensures 1 <= id && id <= size;
+     *   //@ signals_only IllegalArgumentException;
+     *   //@ signals (IllegalArgumentException e) id < 1 || id > size;
+     * </pre>
+     *
+     * @param id the transaction ID to validate
+     * @throws IllegalArgumentException if id is out of range [1..size]
+     */
+    private void validateId(int id) {
+        if (id < 1 || id > size) {
+            throw new IllegalArgumentException(
+                "ID must be between 1 and " + size + ", got " + id
+            );
+        }
+    }
+
+      // Private helper method to check postcondition for {@linkplain neutralize}.
+    private void neutralize_post() {
+        for (long id : match) {
+            assert id == -1L : "Postcondition violated: All elements in match must equal -1";
+        }
+    }
+
+    // Private helper method to check postcondition for {@linkplain noMatch}.
+    private void noMatch_post(int id, int old_partner) {
+        assert match[id] == -1 : "Postcondition violated: match[id] must equal -1.";
+
+        if (old_partner > 0) {
+            assert match[(int) old_partner] == -1 : "Postcondition violated: match[partner] must equal -1.";
+        }
+    }
+
+    // Private helper method to check precondition for {@linkplain setMatch}.
+    private void setMatch_pre(int a, int b) {
+        validateId(a);
+        validateId(b);
+        if (a == b) {
+            throw new IllegalArgumentException("Cannot match an ID with itself: " + a);
+        }
+    }
+
+    // Private helper method to check postcondition for {@linkplain setMatch}.
+    private void setMatch_post(int a, int b) {
+        assert match[a] == b : "Postcondition violated: match[a] must equal b.";
+        assert match[b] == a : "Postcondition violated: match[b] must equal a.";
+    }
 }
+
+
