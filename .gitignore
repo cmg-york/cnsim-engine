@@ -7,3 +7,4 @@ target/
 *.log
 /bin/
 .Rproj.user
+log/
