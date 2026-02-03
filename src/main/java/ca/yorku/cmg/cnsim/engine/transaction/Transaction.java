@@ -293,6 +293,8 @@ public class Transaction {
      * @param value the value of the transaction in the native currency
      * @throws ArithmeticException if {@code value < 0} (precondition violated)
      */
+
+
     public void setValue(float value) {
         setValue_pre(value);
 
