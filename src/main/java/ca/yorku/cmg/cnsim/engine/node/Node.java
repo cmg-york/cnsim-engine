@@ -3,8 +3,8 @@ package ca.yorku.cmg.cnsim.engine.node;
 import java.util.ArrayList;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
-import ca.yorku.cmg.cnsim.engine.event.Event;
 import ca.yorku.cmg.cnsim.engine.event.Event_ContainerArrival;
+import ca.yorku.cmg.cnsim.engine.event.Event_ContainerValidation;
 import ca.yorku.cmg.cnsim.engine.event.Event_TransactionPropagation;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -24,7 +24,7 @@ public abstract class Node implements INode {
 	protected Simulation sim;
 
 	protected TransactionGroup pool;
-	protected Event nextValidationEvent;
+	protected Event_ContainerValidation nextValidationEvent;
 
 	protected long networkInterfaceBusyUntil = -1;
 

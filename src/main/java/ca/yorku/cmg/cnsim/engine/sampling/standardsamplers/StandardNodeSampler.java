@@ -117,6 +117,27 @@ public class StandardNodeSampler extends AbstractNodeSampler {
 	}
 
 	/**
+	 * Returns a sample of the mining interval in seconds for a node with
+	 * the specified hash power and difficulty.
+	 * 
+	 * This implementation is based on exponential distribution 
+	 *
+	 * @param hashPower the node's hash power in Giga-hashes/second
+	 * @param difficulty the PoW difficulty
+	 * @return a sampled mining interval in seconds
+	 * @throws ArithmeticException if {@code hashPower} is less than 0
+	 */
+	public double getNextMiningIntervalSeconds_alt(double hashrate,double difficulty) {
+	    if (difficulty <= 0 || hashrate <= 0)
+	        throw new ArithmeticException("invalid parameters");
+
+	    double truehashrate = hashrate * 1e9; 
+	    double lambda = truehashrate / difficulty;   // successes per second
+	    return -Math.log(1 - random.nextDouble()) / lambda;
+	}
+	
+	
+	/**
 	 * Returns a sample of the mining interval in milliseconds for a node with
 	 * the specified hash power and difficulty.
 	 *
@@ -126,7 +147,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
 	 * @see	StandardNodeSampler#getNextMiningIntervalSeconds(double, double)
 	 */
 	public double getNextMiningIntervalMiliSeconds(double hashPower, double difficulty) {
-		double secs = getNextMiningIntervalSeconds(hashPower,difficulty);
+		double secs = getNextMiningIntervalSeconds_alt(hashPower,difficulty);
 		return((double) secs*1000);
 	}
 

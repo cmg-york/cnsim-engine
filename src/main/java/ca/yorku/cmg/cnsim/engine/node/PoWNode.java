@@ -31,7 +31,11 @@ public abstract class PoWNode extends Node implements IMiner {
 		super(sim);
 	}
 
-	
+	/**
+	 * DO NOT USE.
+	 */
+	public PoWNode() {
+	}
 	
 
 	// -----------------------------------------------------------------
@@ -205,7 +209,7 @@ public abstract class PoWNode extends Node implements IMiner {
      * Returns the next validation event associated with this node. Useful for removing the event when necessary.
      * @return The next validation Event.
      */
-    public Event getNextValidationEvent() {
+    public Event_ContainerValidation getNextValidationEvent() {
     	return this.nextValidationEvent;
     }
     
@@ -218,7 +222,7 @@ public abstract class PoWNode extends Node implements IMiner {
     }
 	
 	/**
-	 * Schedules a validation event for the specified transaction container at the given time.
+	 * Schedules a validation event for the specified transaction container at the given time. The method adds to {@code time} a validation time sample and schedules the event at the resulting time.
 	 * @param txc The transaction container to be validated.
 	 * @param time The simulation time when the scheduling occurs. The even will be scheduled at `time + mining interval`. 
 	 * @return The scheduled mining interval in seconds.
@@ -231,6 +235,18 @@ public abstract class PoWNode extends Node implements IMiner {
 	    return (h);
 	}
     
+
+	/**
+	 * Schedules a validation event for the specified transaction container to the given time.
+	 * @param txc The transaction container to be validated.
+	 * @param time The simulation time when the event shall be scheduled. 
+	 */
+	public void scheduleValidationEvent_Deterministic(ITxContainer txc, long time) {
+	    Event_ContainerValidation e = new Event_ContainerValidation(txc, this, time);
+	    this.nextValidationEvent = e;
+	    sim.schedule(e);
+	}
+	
 	
 	
 	// -----------------------------------------------------------------

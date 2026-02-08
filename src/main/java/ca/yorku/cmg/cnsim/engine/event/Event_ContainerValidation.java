@@ -89,5 +89,10 @@ public class Event_ContainerValidation extends Event {
             		);
         }
     }
+    
+    
+    public ITxContainer getContainer() {
+    	return (container);
+    }
 
 }
