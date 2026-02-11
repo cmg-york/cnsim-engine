@@ -234,17 +234,18 @@ public class TxConflictRegistry {
 
       // Private helper method to check postcondition for {@linkplain neutralize}.
     private void neutralize_post() {
-        for (long id : match) {
-            assert id == -1L : "Postcondition violated: All elements in match must equal -1";
+        for (int id : match) {
+            if (id != -1) throw new IllegalArgumentException("Postcondition violated: All elements in match must equal -1");
         }
     }
 
     // Private helper method to check postcondition for {@linkplain noMatch}.
     private void noMatch_post(int id, int old_partner) {
-        assert match[id] == -1 : "Postcondition violated: match[id] must equal -1.";
 
-        if (old_partner > 0) {
-            assert match[(int) old_partner] == -1 : "Postcondition violated: match[partner] must equal -1.";
+        if (match[id] != -1) throw new IllegalArgumentException("Postcondition violated: match[id] must equal -1.");
+
+        if (old_partner > 0 && match[(int) old_partner] != -1) {
+            throw new IllegalArgumentException("Postcondition violated: match[partner] must equal -1.");
         }
     }
 
@@ -259,8 +260,8 @@ public class TxConflictRegistry {
 
     // Private helper method to check postcondition for {@linkplain setMatch}.
     private void setMatch_post(int a, int b) {
-        assert match[a] == b : "Postcondition violated: match[a] must equal b.";
-        assert match[b] == a : "Postcondition violated: match[b] must equal a.";
+        if (match[a] != b) throw new IllegalArgumentException("Postcondition violated: match[a] must equal b.");
+        if (match[b] != a) throw new IllegalArgumentException("Postcondition violated: match[b] must equal a.");
     }
 }
 

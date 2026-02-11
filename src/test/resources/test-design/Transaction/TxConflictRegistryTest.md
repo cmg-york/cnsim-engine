@@ -102,18 +102,18 @@
 
 #### Decisions and Conditions
 
-| Decision ID | Decision Expression | Atomic Conditions |
-|-------------|---------------------|-------------------|
-| D1 | a < 1 || a > size | C1: a < 1<br>C2: a > size |
-| D2 | b < 1 || b > size | C1: b < 1<br>C2: b > size |
-| D3 | a == b | C3: a == b |
+| Decision ID | Decision Expression | Atomic Conditions        |
+|-------------|--------------------|--------------------------|
+| D1 | a < 1 \|\| a > size | C1: a < 1<br>C2: a > size |
+| D2 | b < 1 \|\| b > size | C1: b < 1<br>C2: b > size |
+| D3 | a == b | C3: a == b               |
 
 #### Test obligations 
 note: Dn = F: validation passed
-      Dn = T: validation failed 
-
+      Dn = T: validation failed
+####
 | Test Case | C1 (for a) | C2 (for a) | C1 (for b) | C2 (for b) | C3 (a==b) | D1 | D2 | D3 |
-|-----------|------------|------------|------------|------------|-----------|----|----|
+|-----------|------------|------------|------------|------------|-----------|----|----|----|
 | CD1 | F | F | F | F | T | F | F | T |
 | CD2 | F | F | F | F | F | F | F | F |
 | CD3 | T | - | - | - | - | T | - | - |
@@ -184,10 +184,10 @@ note: Dn = F: validation passed
 
 #### Decisions and Conditions
 
-| Decision ID | Decision Expression | Atomic Conditions |
-|-------------|---------------------|-------------------|
-| D1 | id < 1 || id > size | C1: id < 1<br>C2: id > size |
-| D2 | partner > 0 | C3: partner > 0
+| Decision ID | Decision Expression   | Atomic Conditions |
+|-------------|-----------------------|------------------|
+| D1 | id < 1 \|\| id > size | C1: id < 1<br>C2: id > size |
+| D2 | partner > 0           | C3: partner > 0  
 
 #### Test obligations
 | Test Case | C1 | C2 | C3 | D1 | D2
@@ -198,30 +198,41 @@ note: Dn = F: validation passed
 | CD4 | F | F | F | F | F |
 
 ### Test cases
+#### Invalid ID ranges:
 | ID | Method | Input | Expected | Satisfies |
 |----|--------|-------|----------|-----------|
-
-invalid id ranges:
 | TC-NM1 | noMatch | id=0 | IllegalArgumentException | B4, P2, CD1 |
 | TC-NM2 | noMatch | id=size+1 | IllegalArgumentException | B6, P3, CD2 |
 
-id with a match - verifies both ids and partner gets cleared: 
+#### ID with a match - verifies both ids and partner gets cleared: 
+| ID | Method | Input | Expected | Satisfies |
+|----|--------|-------|----------|-----------|
 | TC-NM3 | noMatch | setMatch(1,2), then noMatch(1) | getMatch(1)=-1, getMatch(2)=-1 (partner cleared) | B1, P1, P4, CD3 |
 | TC-NM4 | noMatch | setMatch(3,size), then noMatch(size) | getMatch(3)=-1, getMatch(size)=-1 | B3, P1, P4, CD3 |
 
-already neutralized id (stays -1):
+#### already neutralized id (stays -1):
+| ID | Method | Input | Expected | Satisfies |
+|----|--------|-------|----------|-----------|
 | TC-NM5 | noMatch | neutralize(), then noMatch(1) | getMatch(1)=-1 (stays -1) | B1, P1, P5, CD4, G1 |
 
-uninitialized id (change from -2 to -1):
+#### Uninitialized ID (change from -2 to -1):
+| ID | Method | Input | Expected | Satisfies |
+|----|--------|-------|----------|-----------|
 | TC-NM6 | noMatch | New registry, noMatch(2) | getMatch(2)=-1 (was -2, now -1) | B2, P1, P6, CD4 |
 
-calling twice in a row:
+#### Calling twice in a row:
+| ID | Method | Input | Expected | Satisfies |
+|----|--------|-------|----------|-----------|
 | TC-NM7 | noMatch | setMatch(1,2), noMatch(1), noMatch(1) | Second call: getMatch(1)=-1, no error | P1, P5, CD4, G2 |
 
-negative ID test:
+#### Negative ID test:
+| ID | Method | Input | Expected | Satisfies |
+|----|--------|-------|----------|-----------|
 | TC-NM8 | noMatch | id=-1 | IllegalArgumentException | B5, P2, CD1 |
 
-upper boundary valid case:
+#### Upper boundary valid case:
+| ID | Method | Input | Expected | Satisfies |
+|----|--------|-------|----------|-----------|
 | TC-NM9 | noMatch | id=size | getMatch(size)=-1 | B3, P1, CD4 |
 
 
@@ -301,9 +312,9 @@ No complex decisions to test
 #### White Box Analysis
 
 ##### Decisions and Conditions
-| Decision ID | Decision Expression | Atomic Conditions |
-|-------------|---------------------|-------------------|
-| D1 | id < 1 || id > size (in validateId) | C1: id < 1<br>C2: id > size |
+| Decision ID | Decision Expression                   | Atomic Conditions |
+|-------------|---------------------------------------|-------------------|
+| D1 | id < 1 \|\| id > size (in validateId) | C1: id < 1<br>C2: id > size |
 
 ##### Test obligations
 | Test Case | C1 | C2 | D1 |
