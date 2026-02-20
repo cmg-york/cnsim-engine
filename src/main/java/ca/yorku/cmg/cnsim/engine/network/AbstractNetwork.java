@@ -40,16 +40,13 @@ public abstract class AbstractNetwork {
 	
     /**
      * Constructs a network using the specified {@link NodeSet}.
-     * Initializes the throughput matrix with dimensions based on {@code sim.maxNodes}.
+     * Initializes the throughput matrix with dimensions based on {@code net.numOfNodes}.
      * 
      * @param ns the NodeSet representing the nodes of the network
      * @throws Exception if the number of nodes exceeds the maximum allowed in configuration
      */
 	public AbstractNetwork(NodeSet ns) throws Exception {
-        int maxNodes = Config.getPropertyInt("sim.maxNodes");
-		if (maxNodes < ns.getNodeSetCount()) {
-			throw new Exception("Node count exceed maximum allowed number of nodes.");
-		}
+        int maxNodes = Config.getPropertyInt("net.numOfNodes");
 		Net = new float [maxNodes + 1][maxNodes + 1];
         this.ns = ns;
 	}

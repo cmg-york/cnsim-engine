@@ -24,7 +24,7 @@ import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 public class PoWNodeSet extends NodeSet {
 
 	/** The total hash power of all honest nodes in the NodeSet. */
-	float totalHonestHP;
+	float totalHashPower;
 
 
 
@@ -39,11 +39,20 @@ public class PoWNodeSet extends NodeSet {
 	 * @param nf the node factory used to create new nodes
 	 */
 	public PoWNodeSet(AbstractNodeFactory nf) {
-		super();
-		nodes = new ArrayList<>();
+		this();
 		nodeFactory = nf;
+		
 	}
 
+	/**
+	 * Constructs a new {@code NodeSet}.
+	 *
+	 */
+	public PoWNodeSet() {
+		nodes = new ArrayList<>();
+	}
+	
+	
 
 	// ---------------------------------------------
 	// Node Addition Methods
@@ -60,7 +69,7 @@ public class PoWNodeSet extends NodeSet {
 		if (n instanceof IMiner) {
 			IMiner o = (IMiner) n;
 			nodes.add(o);
-			totalHonestHP += o.getHashPower();
+			totalHashPower += o.getHashPower();
 		} else {
 			throw new IllegalStateException("PoWNodeSet: Node created is not an IMiner instance.");
 		}
@@ -106,8 +115,8 @@ public class PoWNodeSet extends NodeSet {
 	 *
 	 * @return total honest hash power
 	 */
-	public float getTotalHonestHP() {
-		return totalHonestHP;
+	public float getTotalHashPower() {
+		return totalHashPower;
 	}
 
 

@@ -263,8 +263,6 @@ public class TransactionGroup implements ITxContainer {
     	return(registry.dependenciesMetFast((int) txID,allTogether,SCRATCH.get()));
     }  
     
-    
-    
     public boolean satisfiesDependenciesOf(TransactionGroup set, TxDependencyRegistry registry) {
     	boolean satisfied = true;
     	for (Transaction tx: set.getTransactions()) {
@@ -359,7 +357,7 @@ public class TransactionGroup implements ITxContainer {
     	//		traverse until full O(n)
     	// OR YOU CAN LEAVE IT ALONE
     	
-        if (sizeLimit < 0) {
+    	if (sizeLimit < 0) {
             throw new IllegalArgumentException(String.format("Size limit (%f) must be a positive integer", sizeLimit));
         }
 

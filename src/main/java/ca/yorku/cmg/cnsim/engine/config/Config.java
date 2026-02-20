@@ -37,15 +37,6 @@ public class Config {
         }
     }
     
-    /**
-    public static void chk(String propertyKey) throws Exception {
-    	if (!initialized) {
-    		throw new Exception("Error: configuration file uninitialized.");
-    	} else if (prop.getProperty(propertyKey) == null) {
-    		throw new Exception("Error reading configuration file: property '" + propertyKey + "' does not exist.");
-    	}
-    } */
-
     public static void check(String propertyKey) {
     	if (!initialized) {
     		throw new ConfigurationException("Error: configuration file uninitialized.");
