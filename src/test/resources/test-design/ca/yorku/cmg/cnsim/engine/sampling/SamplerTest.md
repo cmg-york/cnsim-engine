@@ -120,6 +120,7 @@ No decisions in default constructor.
 | G3  | mean=100, deviation=10 (typical)      |
 | G4  | mean=50, deviation=5 (small variance) |
 | G5  | mean=1000, deviation=100 (large)      |
+| G6  | mean=-1, deviation=10 (negative mean) | 
 
 ### White Box Analysis
 
@@ -151,7 +152,7 @@ No decisions in default constructor.
 | TC-15 | mean=100, deviation=10, valid random   | Result > 0               | P9, P14, G3, CD8 |
 | TC-16 | mean=50, deviation=5, valid random     | Result > 0               | P9, P14, G4, CD8 |
 | TC-17 | mean=1000, deviation=100, valid random | Result > 0               | P9, P14, G5, CD8 |
-
+| TC-18 | mean=-1, deviation=10, valid random    | Result > 0               | G4               |
 ---
 
 ## 5. Method: `getTransactionSampler()`
