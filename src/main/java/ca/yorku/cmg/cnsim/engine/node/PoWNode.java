@@ -222,6 +222,16 @@ public abstract class PoWNode extends Node implements IMiner {
     	this.nextValidationEvent = null;
     }
 	
+    /**
+     * Replaces the next validation event associated with this node.
+     * TODO: how does this affect cycle counting statistics?
+     */
+    public void setNextValidationEvent(Event_ContainerValidation e) {
+    	this.nextValidationEvent = e;
+    }
+    
+    
+    
 	/**
 	 * Schedules a validation event for the specified transaction container at the given time. The method adds to {@code time} a validation time sample and schedules the event at the resulting time.
 	 * @param txc The transaction container to be validated.

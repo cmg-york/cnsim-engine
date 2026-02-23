@@ -54,7 +54,7 @@ public class Event_Report_BeliefReport extends Event {
 		for (INode n : sim.getNodeSet().getNodes()) {
 			n.event_PrintBeliefReport(sampleTx,this.getTime());
 		}
-        if (Reporter.reportsEvents()) {
+        if (Reporter.reportsEvents() && Reporter.reportsBeliefEvents()) {
 	        Reporter.addEvent(
 	        		sim.getSimID(),
 	        		getEvtID(), 

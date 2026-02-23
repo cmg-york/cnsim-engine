@@ -96,6 +96,7 @@ public class Reporter {
 	
  	/** Reporting control flags */
 	protected static boolean reportEvents;
+	protected static boolean reportBeliefEvents;
 	protected static boolean reportTransactions;
 	protected static boolean reportNodes;
 	protected static boolean reportNetEvents;
@@ -162,6 +163,10 @@ public class Reporter {
 		Reporter.reportEvents = reportEvents;
 	}
 
+	public static void reportBeliefEvents(boolean reportBeliefEvents) {
+		Reporter.reportBeliefEvents = reportBeliefEvents;
+	}
+	
 	public static void reportTransactions(boolean reportTransactions) {
 		Reporter.reportTransactions = reportTransactions;
 	}
@@ -191,6 +196,16 @@ public class Reporter {
         return Reporter.reportEvents;
     }
 
+	  /**
+     * Returns whether belief events specifically are being logged in the events log.
+     *
+     * @return {@code true} if event reporting is enabled, {@code false} otherwise
+     */
+    public static boolean reportsBeliefEvents() {
+        return Reporter.reportBeliefEvents;
+    }
+    
+    
     /**
      * Returns whether transaction events are being logged.
      *
