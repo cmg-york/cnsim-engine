@@ -6,7 +6,8 @@ import java.util.List;
  * Defines the main methods that a transaction containing type must include. Examples of ITxContainers include transaction pools and blocks.
  *
  * @author Sotirios Liaskos for the Conceptual Modelling Group, York University
- * 
+ *
+ * Test
  */
 
 public interface ITxContainer {
