@@ -48,7 +48,7 @@ public abstract class AbstractNetworkSampler implements ISowable {
      * </p>
      */
     public AbstractNetworkSampler() {
-    	LoadConfig();
+//    	LoadConfig();
     }
     
      

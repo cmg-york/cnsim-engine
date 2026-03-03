@@ -87,7 +87,7 @@ No decisions in default constructor.
 
 ---
 
-## 4. Method: `getGaussian(float mean, float deviation, Random random)`
+## 4. Method: `getPositiveGaussian(float mean, float deviation, Random random)`
 
 ### Black Box Analysis
 
@@ -99,7 +99,7 @@ No decisions in default constructor.
 | P9   | Value of deviation | deviation > 0     | true   |
 | P10  | Value of random    | random == null    | false  |
 | P11  | Value of random    | random != null    | true   |
-| P12  | Value of mean      | mean < 0          | true   |
+| P12  | Value of mean      | mean < 0          | false  |
 | P13  | Value of mean      | mean == 0         | true   |
 | P14  | Value of mean      | mean > 0          | true   |
 
@@ -132,12 +132,12 @@ No decisions in default constructor.
 | D6          | gaussianValue <= 0   | C6: gaussianValue <= 0   |
 
 #### Test Obligations
-| ID   | C4    | C5    | C6    | Covers                                   |
-|------|-------|-------|-------|------------------------------------------|
-| CD5  | true  | -     | -     | deviation < 0: ArithmeticException       |
-| CD6  | false | true  | -     | random == null: NullPointerException     |
-| CD7  | false | false | true  | negative value: retry sampling           |
-| CD8  | false | false | false | valid inputs: return positive value      |
+| ID   | C4    | C5    | C6    | Covers                               |
+|------|-------|-------|-------|--------------------------------------|
+| CD5  | true  | -     | -     | deviation < 0: ArithmeticException   |
+| CD6  | false | true  | -     | random == null: NullPointerException |
+| CD7  | false | false | true  | negative value: exception thrown     |
+| CD8  | false | false | false | valid inputs: return positive value  |
 
 ### Test Cases
 | ID    | Input                                  | Expected                 | Satisfies        |
@@ -146,13 +146,13 @@ No decisions in default constructor.
 | TC-9  | mean=10, deviation=1, random=null      | NullPointerException     | P10, B11, CD6    |
 | TC-10 | mean=10, deviation=0, valid random     | Result > 0, Result == 10 | P8, B6, CD8      |
 | TC-11 | mean=10, deviation=0.1, valid random   | Result > 0               | P9, B7, CD8      |
-| TC-12 | mean=-10, deviation=1, valid random    | Result > 0               | P12, B8, CD8     |
+| TC-12 | mean=-10, deviation=1, valid random    | ArithmeticException      | P12, B8, CD8     |
 | TC-13 | mean=0, deviation=1, valid random      | Result > 0               | P13, B9, CD8     |
 | TC-14 | mean=10, deviation=1, valid random     | Result > 0               | P14, B10, CD8    |
 | TC-15 | mean=100, deviation=10, valid random   | Result > 0               | P9, P14, G3, CD8 |
 | TC-16 | mean=50, deviation=5, valid random     | Result > 0               | P9, P14, G4, CD8 |
 | TC-17 | mean=1000, deviation=100, valid random | Result > 0               | P9, P14, G5, CD8 |
-| TC-18 | mean=-1, deviation=10, valid random    | Result > 0               | G4               |
+| TC-18 | mean=-1, deviation=10, valid random    | ArithmeticException      | G4               |
 ---
 
 ## 5. Method: `getTransactionSampler()`

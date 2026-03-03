@@ -44,7 +44,7 @@ public abstract class AbstractNodeSampler implements IMultiSowable {
 
 	public AbstractNodeSampler() {
 		super();
-		LoadConfig();
+//		LoadConfig();
 	}
 
 

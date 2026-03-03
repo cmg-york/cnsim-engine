@@ -1,5 +1,8 @@
 package ca.yorku.cmg.cnsim.engine.sampling;
 
+import ca.yorku.cmg.cnsim.engine.sampling.factories.NetworkSamplerFactory;
+import ca.yorku.cmg.cnsim.engine.sampling.factories.NodeSamplerFactory;
+import ca.yorku.cmg.cnsim.engine.sampling.factories.TransactionSamplerFactory;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNetworkSampler;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNodeSampler;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
@@ -105,141 +108,132 @@ public class SamplerTest {
     }
 
     // ---------------------
-    // GETGAUSSIAN TESTS
+    // getPositiveGaussian TESTS
     // ---------------------
 
     @Test
-    @DisplayName("getGaussian with negative deviation should throw ArithmeticException")
-    void testGetGaussian_TC8() {
+    @DisplayName("getPositiveGaussian with negative deviation should throw ArithmeticException")
+    void testgetPositiveGaussian_TC8() {
         float mean = 10.0f;
         float deviation = -1f;
         Random r = new Random();
 
         ArithmeticException ex = assertThrows(ArithmeticException.class, () -> {
-            sampler.getGaussian(mean, deviation, r);
+            sampler.getPositiveGaussian(mean, deviation, r);
         });
 
         assertTrue(ex.getMessage().contains("Standard deviation < 0"));
     }
 
     @Test
-    @DisplayName("getGaussian with random=null should throw NullPointerException")
-    void testGetGaussian_TC9() {
+    @DisplayName("getPositiveGaussian with random=null should throw NullPointerException")
+    void testgetPositiveGaussian_TC9() {
         float mean = 10.0f;
         float deviation = 1.0f;
         Random r = null;
 
         NullPointerException ex = assertThrows(NullPointerException.class, () -> {
-            sampler.getGaussian(mean, deviation, r);
+            sampler.getPositiveGaussian(mean, deviation, r);
         });
 
         assertTrue(ex.getMessage().contains("random cannot be null"));
     }
 
     @Test
-    @DisplayName("getGaussian with deviation=0 should return mean")
-    void testGetGaussian_TC10() {
+    @DisplayName("getPositiveGaussian with deviation=0 should return mean")
+    void testgetPositiveGaussian_TC10() {
         float mean = 10.0f;
         float deviation = 0f;
         Random r = new Random();
 
-        assertEquals(mean, sampler.getGaussian(mean, deviation, r));
+        assertEquals(mean, sampler.getPositiveGaussian(mean, deviation, r));
     }
 
     @Test
-    @DisplayName("getGaussian with deviation=0.1 should return a positive result")
-    void testGetGaussian_TC11() {
+    @DisplayName("getPositiveGaussian with deviation=0.1 should return a positive result")
+    void testgetPositiveGaussian_TC11() {
         float mean = 10.0f;
         float deviation = 0.1f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        assertTrue(sampler.getPositiveGaussian(mean, deviation, r) > 0);
     }
 
     @Test
-    @DisplayName("getGaussian with negative mean should return a positive result")
-    @Disabled("getGaussian is stuck in infinite loop")
-    void testGetGaussian_TC12() {
+    @DisplayName("getPositiveGaussian with negative mean should throw ArithmeticException")
+    void testGetPositiveGaussian_TC12() {
         float mean = -10.0f;
         float deviation = 1f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        ArithmeticException ex = assertThrows(ArithmeticException.class, () -> {sampler.getPositiveGaussian(mean, deviation, r);});
+        assertTrue(ex.getMessage().contains("mean must be positive"));
     }
 
     @Test
-    @DisplayName("getGaussian with mean=0 should return a positive result")
-    void testGetGaussian_TC13() {
+    @DisplayName("getPositiveGaussian with mean=0 should return a positive result")
+    void testgetPositiveGaussian_TC13() {
         float mean = 0f;
         float deviation = 1f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        assertTrue(sampler.getPositiveGaussian(mean, deviation, r) > 0);
     }
 
     @Test
-    @DisplayName("getGaussian with positive mean and deviation should return a positive result")
-    void testGetGaussian_TC14() {
+    @DisplayName("getPositiveGaussian with positive mean and deviation should return a positive result")
+    void testgetPositiveGaussian_TC14() {
         float mean = 10.0f;
         float deviation = 1f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        assertTrue(sampler.getPositiveGaussian(mean, deviation, r) > 0);
     }
 
     @Test
-    @DisplayName("getGaussian with mean=100, deviation=10 should return a positive result")
-    void testGetGaussian_TC15() {
+    @DisplayName("getPositiveGaussian with mean=100, deviation=10 should return a positive result")
+    void testgetPositiveGaussian_TC15() {
         float mean = 100.0f;
         float deviation = 10f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        assertTrue(sampler.getPositiveGaussian(mean, deviation, r) > 0);
     }
 
     @Test
-    @DisplayName("getGaussian with mean=50, deviation=5 should return a positive result")
-    void testGetGaussian_TC16() {
+    @DisplayName("getPositiveGaussian with mean=50, deviation=5 should return a positive result")
+    void testgetPositiveGaussian_TC16() {
         float mean = 50.0f;
         float deviation = 5f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        assertTrue(sampler.getPositiveGaussian(mean, deviation, r) > 0);
     }
 
     @Test
-    @DisplayName("getGaussian with mean=1000, deviation=100 should return a positive result")
-    void testGetGaussian_TC17() {
+    @DisplayName("getPositiveGaussian with mean=1000, deviation=100 should return a positive result")
+    void testgetPositiveGaussian_TC17() {
         float mean = 1000.0f;
         float deviation = 100f;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        assertTrue(sampler.getPositiveGaussian(mean, deviation, r) > 0);
     }
 
     @Test
-    @DisplayName("getGaussian with mean=-1, deviation=10 should return a positive result")
-    void testGetGaussian_TC18() {
-        float mean = 10.0f;
-        float deviation = 0.1f;
+    @DisplayName("getPositiveGaussian with mean=-1, deviation=10 should throw ArithmeticException")
+    void testgetPositiveGaussian_TC18() {
+        float mean = -1.0f;
+        float deviation = 10;
         Random r = new Random();
 
-        assertTrue(sampler.getGaussian(mean, deviation, r) > 0);
+        ArithmeticException ex = assertThrows(ArithmeticException.class, () -> {sampler.getPositiveGaussian(mean, deviation, r);});
+        assertTrue(ex.getMessage().contains("mean must be positive"));
     }
 
     // ---------------------
     // SIMPLE SETTERS/GETTERS TESTS
     // ---------------------
-
-    @Test
-    @DisplayName("Testing getTransactionSampler()")
-    @Disabled("Config file not available")
-    void testGetTransactionSampler_TC18() {
-        AbstractTransactionSampler s = new StandardTransactionSampler(sampler);
-        sampler.setTransactionSampler(s);
-
-        assertEquals(s, sampler.getTransactionSampler());
-    }
 
     @Test
     @DisplayName("TransactionSampler field should be set to null")
@@ -252,19 +246,20 @@ public class SamplerTest {
 
     @Test
     @DisplayName("TransactionSampler field should be set to the valid TransactionSampler input")
-    @Disabled("Config file not available")
-    void testSetTransactionSampler_TC20() {
-        AbstractTransactionSampler txSampler = new StandardTransactionSampler(sampler);
+    @Disabled("TransactionSamplerFactory requires an existing sim")
+    void testSetTransactionSampler_TC20() throws Exception {
+        TransactionSamplerFactory factory = new TransactionSamplerFactory();
+        AbstractTransactionSampler txSampler = factory.getSampler(null, sampler, null);
         sampler.setTransactionSampler(txSampler);
 
         assertEquals(txSampler, sampler.getTransactionSampler());
     }
 
     @Test
-    @DisplayName("getNodeSampler should return the assigned nodeSampler")
-    @Disabled("Config file not available")
-    void testGetNodeSampler_TC21() {
-        AbstractNodeSampler nodeSampler = new StandardNodeSampler(sampler);
+    @DisplayName("getNodeSampler should return the assigned nodeSampler and setNodeSampler should set the provided nodeSampler object")
+    void testGetNodeSampler_TC21_TC23() throws Exception {
+        NodeSamplerFactory factory = new NodeSamplerFactory();
+        AbstractNodeSampler nodeSampler = factory.getSampler(null, null, null, null,sampler,null);
         sampler.setNodeSampler(nodeSampler);
 
         assertEquals(nodeSampler, sampler.getNodeSampler());
@@ -280,23 +275,13 @@ public class SamplerTest {
     }
 
     @Test
-    @DisplayName("setNodeSampler should set the provided nodeSampler object")
-    @Disabled("Config file not available")
-    void testGetNodeSampler_TC23() {
-        AbstractNodeSampler nodeSampler = new StandardNodeSampler(sampler);
-        sampler.setNodeSampler(nodeSampler);
-
-        assertEquals(nodeSampler, sampler.getNodeSampler());
-    }
-
-    @Test
-    @DisplayName("getNetworkSampler should return the assigned NetworkSampler")
-    @Disabled("Config file not available")
-    void testGetNetworkSampler_TC24() {
-        AbstractNetworkSampler networkSampler = new StandardNetworkSampler(sampler);
+    @DisplayName("getNetworkSampler should return the assigned NetworkSampler and setNetworkSampler should set the provided networkSampler object")
+    void testGetNetworkSampler_TC24_TC26() {
+        NetworkSamplerFactory factory = new NetworkSamplerFactory();
+        AbstractNetworkSampler networkSampler = factory.getNetworkSampler(null, false, sampler, null);
         sampler.setNetworkSampler(networkSampler);
 
-        assertEquals(networkSampler, sampler.getNodeSampler());
+        assertEquals(networkSampler, sampler.getNetworkSampler());
     }
 
     @Test
@@ -306,16 +291,6 @@ public class SamplerTest {
         sampler.setNetworkSampler(networkSampler);
 
         assertNull(sampler.getNetworkSampler());
-    }
-
-    @Test
-    @DisplayName("setNetworkSampler should set the provided networkSampler object")
-    @Disabled("Config file not available")
-    void testGetNetworkSampler_TC26() {
-        AbstractNetworkSampler networkSampler = new StandardNetworkSampler(sampler);
-        sampler.setNetworkSampler(networkSampler);
-
-        assertEquals(networkSampler, sampler.getNetworkSampler());
     }
 
 }

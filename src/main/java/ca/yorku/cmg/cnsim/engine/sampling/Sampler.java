@@ -74,14 +74,12 @@ public class Sampler {
     
     
     /**
-     * Generates a random value following the Gaussian distribution (normal distribution), 
-     * truncated to ensure it is positive.
+     * Generates a random value following the Gaussian distribution (normal distribution).
      *
 	 * <p><b>JML Contract:</b></p>
 	 * <pre>{@code
 	 *   //@ requires deviation >= 0;
 	 *   //@ requires random != null;
-	 *   //@ ensures \result > 0;
 	 * }</pre>
 	 *
      * @param mean  The mean value of the distribution.
@@ -95,14 +93,37 @@ public class Sampler {
 		getGaussian_pre(mean, deviation, random);
 
     	float gaussianValue = mean + (float) random.nextGaussian() * deviation;
-    	while(gaussianValue <= 0) {
-    		gaussianValue = mean + (float) random.nextGaussian() * deviation;
-    	}
+//    	while(gaussianValue <= 0) {
+//    		gaussianValue = mean + (float) random.nextGaussian() * deviation;
+//    	}
 
 		getGaussian_post(gaussianValue);
     	return gaussianValue;
     }
 
+	/**
+	 * Generates a random value following the Gaussian distribution (normal distribution),
+	 * truncated to ensure it is positive, using {@linkplain this.getGaussian()}
+	 *
+	 * <p><b>JML Contract:</b></p>
+	 * <pre>{@code
+	 *   //@ requires deviation >= 0;
+	 *   //@ requires mean >= 0
+	 *   //@ requires random != null;
+	 *   //@ ensures \result > 0;
+	 * }</pre>
+	 *
+	 * @param mean  The mean value of the distribution.
+	 * @param deviation The standard deviation of the distribution (deviation greater or equal to 0).
+	 * @param random The {@linkplain Random} number generator to use
+	 * @return The generated random value following the Gaussian distribution.
+	 * @throws ArithmeticException if {@code deviation < 0 || mean < 0 }
+	 * @throws NullPointerException if {@code random} is null
+	 */
+	public float getPositiveGaussian(float mean, float deviation, Random random) {
+		getPositiveGaussian_pre(mean, deviation, random);
+		return getGaussian(mean, deviation, random);
+	}
     
 	// ================================
 	// SETTERS AND GETTERS
@@ -234,5 +255,11 @@ public class Sampler {
 			result > 0,
 			"Postcondition violated: result must be positive"
 		);
+	}
+
+	private void getPositiveGaussian_pre(float mean, float deviation, Random random) {
+		if (mean < 0) {
+			throw new ArithmeticException("mean must be positive");
+		}
 	}
 }
