@@ -68,6 +68,7 @@ public abstract class AbstractNetworkSampler implements ISowable {
     		throw new ArithmeticException("Network Throughput Standard Deviation < 0");
         this.netThroughputSD = netThroughputSD;
 
+        this.sampler = sampler;
     }
     
     
