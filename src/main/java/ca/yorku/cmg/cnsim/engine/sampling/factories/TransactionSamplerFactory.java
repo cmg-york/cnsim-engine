@@ -2,6 +2,7 @@ package ca.yorku.cmg.cnsim.engine.sampling.factories;
 
 import ca.yorku.cmg.cnsim.engine.Debug;
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.sampling.filesamplers.FileBasedTransactionSampler;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
@@ -30,6 +31,7 @@ import ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardTransactionSa
  * @see AbstractTransactionSampler
  * @see FileBasedTransactionSampler
  * @see StandardTransactionSampler
+ * @see Config
  */
 public class TransactionSamplerFactory {
 	
@@ -41,6 +43,12 @@ public class TransactionSamplerFactory {
      *   <li>Otherwise, a {@linkplain StandardTransactionSampler} is created to perform random sampling.</li>
      * </ul>
      *
+	 * <p><b>JML Contract:</b></p>
+     * <pre>{@code
+     *   //@ requires sim != null;
+     *   //@ ensures \result != null;
+     * }</pre>
+	 *
      * @param path the path to the transaction file; if {@code null}, random sampling will be used
      * @param outerSampler the outer {@linkplain Sampler sampler} that contains the sampler being created. In a typical set-up, the outer sampler is a {@linkplain FileBasedTransactionSampler} which delegates to an inner (the one being created here) generative sampler. 
      * @param sim the current {@linkplain Simulation simulation} context, used to obtain the simulation ID
@@ -50,12 +58,28 @@ public class TransactionSamplerFactory {
 	public AbstractTransactionSampler getSampler(String path, 
 			Sampler outerSampler, Simulation sim) throws Exception {
 
+		StandardTransactionSampler stdSampler = new StandardTransactionSampler(outerSampler, sim.getSimID());
+		stdSampler.setTxArrivalIntervalRate(Config.getPropertyFloat("workload.lambda"));
+        stdSampler.setTxSizeMean(Config.getPropertyFloat("workload.txSizeMean"));
+        stdSampler.setTxSizeSD(Config.getPropertyFloat("workload.txSizeSD"));
+        stdSampler.setTxFeeValueMean(Config.getPropertyFloat("workload.txFeeValueMean"));
+        stdSampler.setTxFeeValueSD(Config.getPropertyFloat("workload.txFeeValueSD"));
+
+		stdSampler.configureSeed(
+        Config.hasProperty("workload.sampler.seed")
+            ? Config.getPropertyLong("workload.sampler.seed") : 0,
+        Config.hasProperty("workload.sampler.seed.updateSeed")
+            ? Config.getPropertyBoolean("workload.sampler.seed.updateSeed") : false,
+        Config.hasProperty("workload.sampler.seed.updateTransaction")
+            ? Config.getPropertyLong("workload.sampler.seed.updateTransaction") : 0
+    	);
+
 		if (path != null) {
 			Debug.p("    Creating file-based workload sampler");
-			return(new FileBasedTransactionSampler(path, new StandardTransactionSampler(outerSampler, sim.getSimID())));
+			return new FileBasedTransactionSampler(path, stdSampler);
 		} else {
 			Debug.p("    Creating random workload sampler");
-				return(new StandardTransactionSampler(outerSampler, sim.getSimID()));
+				return stdSampler;
 		}
 	}
 }
