@@ -26,7 +26,7 @@ public class TxValuePerSizeComparator implements Comparator<Transaction> {
 
 		if (t1ValuePerSize < t2ValuePerSize)
 			return 1;
-		else if (t1ValuePerSize == t2ValuePerSize)
+		else if (t1ValuePerSize == t2ValuePerSize || (Float.isNaN(t1ValuePerSize) && Float.isNaN(t2ValuePerSize)))
 			return 0;
 		else
 			return -1;
