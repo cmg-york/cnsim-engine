@@ -43,10 +43,10 @@ public class Config {
     	} else if (!prop.containsKey(propertyKey)) {
     		throw new ConfigurationException("Error reading configuration file: property '" + propertyKey + "' does not exist.");
     	}
-
     }
     
-
+   
+    
     /*
      * 
      * PROPERTY READING
@@ -58,6 +58,7 @@ public class Config {
     	check(propertyKey);
     	return prop.getProperty(propertyKey);
     }
+
     
     
     public static int getPropertyInt(String propertyKey) {
@@ -129,6 +130,14 @@ public class Config {
                 );
         }
 	}
+
+	//Absence of boolean property = property is false.
+	public static boolean getOptionalPropertyBoolean(String propertyKey) {
+		return(Config.hasProperty(propertyKey) ?
+        		Config.getPropertyBoolean(propertyKey):
+        			false);
+	}
+	
 	
 	public static String getPropertyString(String propertyKey) {
 		return(prop.getProperty(propertyKey,null));
