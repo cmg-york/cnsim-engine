@@ -1,6 +1,5 @@
 package ca.yorku.cmg.cnsim.engine.sampling.interfaces;
 
-import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
 /**
@@ -12,9 +11,8 @@ import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
  * mining intervals, power consumption, hash power, and electricity cost
  * according to chosen distributions.</p>
  *
- * <p>The class supports configuration via the {@link Config} object and
- * validates parameters such as means and standard deviations to ensure
- * physically meaningful values (non-negative).</p>
+ * <p>Configuration values are supplied externally by the creating factory
+ * through constructors and setter methods.</p>
  *
  * <p>Fields store statistical parameters (means and standard deviations) 
  * for different node properties, as well as the current PoW difficulty 
@@ -44,7 +42,6 @@ public abstract class AbstractNodeSampler implements IMultiSowable {
 
 	public AbstractNodeSampler() {
 		super();
-		LoadConfig();
 	}
 
 
@@ -132,32 +129,7 @@ public abstract class AbstractNodeSampler implements IMultiSowable {
 
 
 	public abstract void updateSeed();
-
-
-
-
-
-	/*
-	 * 
-	 * C O N F I G   O B J E C T   B A S E D   C O N F I G U R A T I O N
-	 * 
-	 */
-
-
-	/**
-	 * Load configuration using Config object.
-	 */
-	public void LoadConfig() {
-		this.setNodeHashPowerMean(Config.getPropertyFloat("pow.hashPowerMean"));
-		this.setNodeHashPowerSD(Config.getPropertyFloat("pow.hashPowerSD"));
-		this.setNodeElectricPowerMean(Config.getPropertyFloat("node.electricPowerMean"));
-		this.setNodeElectricPowerSD(Config.getPropertyFloat("node.electricPowerSD"));
-		this.setNodeElectricCostMean(Config.getPropertyFloat("node.electricCostMean"));
-		this.setNodeElectricCostSD(Config.getPropertyFloat("node.electricCostSD"));
-		this.setCurrentDifficulty(Config.getPropertyDouble("pow.difficulty"));
-	}
-
-
+	
 
 	/*
 	 * 
