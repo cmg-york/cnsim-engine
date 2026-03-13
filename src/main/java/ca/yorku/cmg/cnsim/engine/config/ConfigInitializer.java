@@ -62,12 +62,9 @@ public class ConfigInitializer {
         Config.prop.putAll(properties);
      
         Reporter.reportEvents(Config.getPropertyBoolean("reporter.reportEvents"));
-        Reporter.reportBeliefEvents(
-        		Config.hasProperty("reporter.reportBeliefEvents") ?
-        		Config.getPropertyBoolean("reporter.reportBeliefEvents"):
-        			false
-        		);
         Reporter.reportTransactions(Config.getPropertyBoolean("reporter.reportTransactions"));
+        Reporter.reportSampleTransactionsOnly(
+        		Config.getOptionalPropertyBoolean("reporter.reportSampleTransactionsOnly"));
         Reporter.reportNodes(Config.getPropertyBoolean("reporter.reportNodes"));
         Reporter.reportNetEvents(Config.getPropertyBoolean("reporter.reportNetEvents"));
         Reporter.reportBeliefs(Config.getPropertyBoolean("reporter.reportBeliefs"));
@@ -75,6 +72,23 @@ public class ConfigInitializer {
         	Reporter.reportBeliefsShort(Config.getPropertyBoolean("reporter.reportBeliefsShort"));
         }
         
+        Reporter.reportBeliefEvents(Config.getOptionalPropertyBoolean("reporter.events.belief"));
+        Reporter.reportContainerArrivalEvents(
+        		Config.getOptionalPropertyBoolean("reporter.events.containerArrival"));
+		Reporter.reportContainerValidationEvents(
+				Config.getOptionalPropertyBoolean("reporter.events.containerValidation"));
+		Reporter.reportNewTransactionArrivalEvents(
+				Config.getOptionalPropertyBoolean("reporter.events.newTransactionArrival"));
+		Reporter.reportTransactionPropagationEvents(
+				Config.getOptionalPropertyBoolean("reporter.events.transactionPropagation"));
+		Reporter.reportSeedUpdateEvents(
+				Config.getOptionalPropertyBoolean("reporter.events.seedUpdate"));
+		
+		Reporter.enablePeriodicReport(
+				Config.getOptionalPropertyBoolean("reporter.enablePeriodicReports"));
+		Reporter.enableTimeAdvancementReports(
+				Config.getOptionalPropertyBoolean("reporter.enableTimeAdvancementReports"));
+		
     }
 
     /**

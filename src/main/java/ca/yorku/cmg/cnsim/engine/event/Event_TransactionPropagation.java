@@ -67,7 +67,7 @@ public class Event_TransactionPropagation extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         node.event_NodeReceivesPropagatedTransaction(trans, getTime());
-        if (Reporter.reportsEvents()) {
+        if (Reporter.reportsEvents() && Reporter.reportsTransactionPropagationEvents()) {
 	        Reporter.addEvent(
 	        		sim.getSimID(),
 	        		getEvtID(), 

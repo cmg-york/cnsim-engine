@@ -4,6 +4,7 @@ import ca.yorku.cmg.cnsim.engine.Simulation;
 import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.node.IMiner;
 import ca.yorku.cmg.cnsim.engine.node.INode;
+import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 import ca.yorku.cmg.cnsim.engine.transaction.ITxContainer;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 
@@ -131,17 +132,22 @@ public class Event {
     public void happen(Simulation sim){
     	evtID = getNextEventID();
  
-    	// Every little while ask node if it wants to print any period reports.
-    	if ((currID % Config.getPropertyLong("reporter.reportingWindow")) == 0) {
-    		for (INode n : sim.getNodeSet().getNodes()) {
-    			n.periodicReport();
-    		}
+    	
+    	if (Reporter.allowsPeriodicReports()) {
+	    	// Every little while ask node if it wants to print any period reports.
+	    	if ((currID % Config.getPropertyLong("reporter.reportingWindow")) == 0) {
+	    		for (INode n : sim.getNodeSet().getNodes()) {
+	    			n.periodicReport();
+	    		}
+	    	}
     	}
 
-    	// Ask node if it wants to print Node report.
-		for (INode n : sim.getNodeSet().getNodes()) {
-			n.timeAdvancementReport();
-		}
+    	if (Reporter.allowsTimeAdvancementReports()) {
+	    	// Ask node if it wants to print Node report.
+			for (INode n : sim.getNodeSet().getNodes()) {
+				n.timeAdvancementReport();
+			}
+    	}
     	
     }
    

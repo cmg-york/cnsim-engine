@@ -75,7 +75,7 @@ public class Event_ContainerValidation extends Event {
         	status = "_Abandonded";
         }
 
-        if (Reporter.reportsEvents()) {
+        if (Reporter.reportsEvents() && Reporter.reportsContainerValidationEvents()) {
             Reporter.addEvent(
             		sim.getSimID(),
             		getEvtID(), 

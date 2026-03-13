@@ -76,7 +76,7 @@ public class Event_ContainerArrival extends Event {
         node.event_NodeReceivesPropagatedContainer(container);
         //TODO: this should be conditional on some configuration parameter
         //TODO: how this reports to the parent reporting
-		if (Reporter.reportsEvents()) {
+		if (Reporter.reportsEvents() && Reporter.reportsContainerArrivalEvents()) {
 	        Reporter.addEvent(
 	        		sim.getSimID(),
 	        		this.getEvtID(), 
