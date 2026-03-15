@@ -44,7 +44,6 @@ public abstract class AbstractNodeSampler implements IMultiSowable {
 
 	public AbstractNodeSampler() {
 		super();
-//		LoadConfig();
 	}
 
 
@@ -132,31 +131,6 @@ public abstract class AbstractNodeSampler implements IMultiSowable {
 
 
 	public abstract void updateSeed();
-
-
-
-
-
-	/*
-	 * 
-	 * C O N F I G   O B J E C T   B A S E D   C O N F I G U R A T I O N
-	 * 
-	 */
-
-
-	/**
-	 * Load configuration using Config object.
-	 */
-	public void LoadConfig() {
-		this.setNodeHashPowerMean(Config.getPropertyFloat("pow.hashPowerMean"));
-		this.setNodeHashPowerSD(Config.getPropertyFloat("pow.hashPowerSD"));
-		this.setNodeElectricPowerMean(Config.getPropertyFloat("node.electricPowerMean"));
-		this.setNodeElectricPowerSD(Config.getPropertyFloat("node.electricPowerSD"));
-		this.setNodeElectricCostMean(Config.getPropertyFloat("node.electricCostMean"));
-		this.setNodeElectricCostSD(Config.getPropertyFloat("node.electricCostSD"));
-		this.setCurrentDifficulty(Config.getPropertyDouble("pow.difficulty"));
-	}
-
 
 
 	/*

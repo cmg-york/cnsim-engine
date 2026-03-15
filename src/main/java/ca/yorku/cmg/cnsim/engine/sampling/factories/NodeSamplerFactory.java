@@ -133,6 +133,15 @@ public class NodeSamplerFactory {
         		nodeSampler = new StandardNodeSampler(sampler);
         	}
         }
+
+		// Loading configs into nodeSampler
+        nodeSampler.setNodeHashPowerMean(Config.getPropertyFloat("pow.hashPowerMean"));
+        nodeSampler.setNodeHashPowerSD(Config.getPropertyFloat("pow.hashPowerSD"));
+        nodeSampler.setNodeElectricPowerMean(Config.getPropertyFloat("node.electricPowerMean"));
+        nodeSampler.setNodeElectricPowerSD(Config.getPropertyFloat("node.electricPowerSD"));
+        nodeSampler.setNodeElectricCostMean(Config.getPropertyFloat("node.electricCostMean"));
+        nodeSampler.setNodeElectricCostSD(Config.getPropertyFloat("node.electricCostSD"));
+        nodeSampler.setCurrentDifficulty(Config.getPropertyDouble("pow.difficulty"));
         
         //Schedule the switchover events
         //TODO-JIRA: Organize error handling and reporting

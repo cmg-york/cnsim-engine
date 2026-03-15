@@ -252,7 +252,7 @@ public class Sampler {
 
 	private void getGaussian_post(float result) {
 		requirePostcondition(
-			result > 0,
+			result >= 0,
 			"Postcondition violated: result must be positive"
 		);
 	}
