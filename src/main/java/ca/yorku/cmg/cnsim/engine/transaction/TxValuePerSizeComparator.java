@@ -21,12 +21,12 @@ public class TxValuePerSizeComparator implements Comparator<Transaction> {
 	public int compare(Transaction t1, Transaction t2) {
 		compare_pre(t1, t2);
 
-	    float t1ValuePerSize = t1.getValue()/t1.getSize();
-		float t2ValuePerSize = t2.getValue()/t2.getSize();
+	    float t1ValuePerSize = t1.getValue() == 0 ? 0 : t1.getValue()/t1.getSize();
+		float t2ValuePerSize = t2.getValue() == 0 ? 0 : t2.getValue()/t2.getSize();
 
 		if (t1ValuePerSize < t2ValuePerSize)
 			return 1;
-		else if (t1ValuePerSize == t2ValuePerSize || (Float.isNaN(t1ValuePerSize) && Float.isNaN(t2ValuePerSize)))
+		else if (t1ValuePerSize == t2ValuePerSize)
 			return 0;
 		else
 			return -1;

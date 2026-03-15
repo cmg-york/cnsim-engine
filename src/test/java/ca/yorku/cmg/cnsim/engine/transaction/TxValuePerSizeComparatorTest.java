@@ -137,7 +137,7 @@ public class TxValuePerSizeComparatorTest {
     void testCompare_TC11() {
         t1.setValue(0); t1.setSize(0);
 
-        assertEquals(-1, comparator.compare(t1, t2));
+        assertEquals(1, comparator.compare(t1, t2));
     }
 
     @Test
