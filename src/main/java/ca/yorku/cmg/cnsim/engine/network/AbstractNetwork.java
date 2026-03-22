@@ -14,8 +14,8 @@ import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
  * See {@code documentation/units} for the units of measurement of throughput and transmission times.
  * </p>
  *
- * @author CMT
- * @version 1.0
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @since 0.1
  */
 public abstract class AbstractNetwork {
 
