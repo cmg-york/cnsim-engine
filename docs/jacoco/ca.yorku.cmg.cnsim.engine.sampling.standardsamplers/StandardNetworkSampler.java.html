@@ -5,9 +5,9 @@ import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNetworkSampler;
 
 public class StandardNetworkSampler extends AbstractNetworkSampler {
 
-<span class="nc" id="L8">    public StandardNetworkSampler(Sampler s) {</span>
-<span class="nc" id="L9">    	this.sampler = s;</span>
-<span class="nc" id="L10">    }</span>
+<span class="fc" id="L8">    public StandardNetworkSampler(Sampler s) {</span>
+<span class="fc" id="L9">    	this.sampler = s;</span>
+<span class="fc" id="L10">    }</span>
 	
 	
     /**
@@ -15,7 +15,11 @@ public class StandardNetworkSampler extends AbstractNetworkSampler {
      */
     @Override
     public float getNextConnectionThroughput() {
-<span class="nc" id="L18">        return (sampler.getGaussian(netThroughputMean, netThroughputSD, random));</span>
+<span class="nc" id="L18">    	float result = sampler.getGaussianPos(netThroughputMean, netThroughputSD, random);</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">    	if (result &lt;= 0) {</span>
+<span class="nc" id="L20">    		throw new ArithmeticException(&quot;getGaussianPos gives &quot; + result + &quot; with mean &quot; + netThroughputMean + &quot; and sd &quot; + netThroughputSD);</span>
+    	}
+<span class="nc" id="L22">        return (result);</span>
     }
 
 

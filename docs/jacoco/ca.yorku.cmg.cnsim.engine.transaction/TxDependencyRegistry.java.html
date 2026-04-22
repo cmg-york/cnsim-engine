@@ -6,95 +6,393 @@ import java.util.List;
 
 import ca.yorku.cmg.cnsim.engine.Debug;
 
-	public final class TxDependencyRegistry {
+/**
+ * Tracks transaction dependencies for simulation purposes.
+ *
+ * &lt;p&gt;
+ * The {@code TxDependencyRegistry} maintains dependencies between transactions, where transaction
+ * {@code j} can depend on one or more earlier transactions {@code i} (where {@code i &lt; j}).
+ * Dependencies are stored using {@linkplain BitSet} arrays for compact representation and efficient
+ * dependency checking operations. Transaction IDs are expected to be in the range {@code [1, size]},
+ * where {@code size} is specified at construction time.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The registry provides methods for adding individual dependencies, setting all dependencies for a
+ * transaction at once, checking whether all dependencies of a transaction are satisfied, and
+ * converting collections of satisfied transactions to BitSets for efficient set operations.
+ * &lt;/p&gt;
+ *
+ * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
+ * @see BitSet
+ * @see Transaction
+ * @since 0.1
+ */
+public final class TxDependencyRegistry {
+	// ================================
+    // FIELDS
+    // ================================
 
-	    private final int size;
-	    private final BitSet[] deps;  // deps[j] contains dependencies for j
+	/** Max number of transactions this registry can track. */
+	private final int size;
 
-<span class="nc" id="L14">	    public TxDependencyRegistry(long size) {</span>
-<span class="nc bnc" id="L15" title="All 2 branches missed.">	    	if (size &gt; Integer.MAX_VALUE) {</span>
-<span class="nc" id="L16">	            throw new IllegalArgumentException(&quot;TxDependencyRegistry: maximum size (&quot; + size +  &quot; ) cannot exceed maximum integer.&quot;);</span>
-	        }
-<span class="nc" id="L18">	        this.size = (int) size;</span>
-<span class="nc" id="L19">	        this.deps = new BitSet[this.size + 1];</span>
-<span class="nc bnc" id="L20" title="All 2 branches missed.">	        for (int j = 0; j &lt;= this.size; j++) {</span>
-<span class="nc" id="L21">	            deps[j] = new BitSet();</span>
-	        }
-<span class="nc" id="L23">	    }</span>
+	/** Array of BitSets where {@code deps[j]} contains transaction IDs that {@code j} depends on. */
+	private final BitSet[] deps;  // deps[j] contains dependencies for j
 
-	    // Add a dependency: j depends on i
-	    public void addDependency(int j, int i) {
-<span class="nc bnc" id="L27" title="All 2 branches missed.">	        if (i &gt;= j) {</span>
-<span class="nc" id="L28">	            throw new IllegalArgumentException(&quot;Dependency must be &lt; j&quot;);</span>
-	        }
-<span class="nc" id="L30">	        deps[j].set(i);</span>
-<span class="nc" id="L31">	    }</span>
+	// ================================
+	// CONSTRUCTORS
+	// ================================
 
-		public void addDependencies(int id, BitSet dependencies) {
-<span class="nc bnc" id="L34" title="All 4 branches missed.">			if (id &lt; 0 || id &gt;= deps.length) throw new IndexOutOfBoundsException(&quot;id=&quot; + id);</span>
-<span class="nc" id="L35">			deps[id] = dependencies;</span>
-<span class="nc" id="L36">		}</span>
-	    
-	    // Convert any given set of satisfied numbers into a BitSet once
-	    public BitSet toBitSet(Collection&lt;Integer&gt; satisfied) {
-<span class="nc" id="L40">	        BitSet bs = new BitSet();</span>
-<span class="nc bnc" id="L41" title="All 2 branches missed.">	        for (int x : satisfied) {</span>
-<span class="nc" id="L42">	            bs.set(x);</span>
-<span class="nc" id="L43">	        }</span>
-<span class="nc" id="L44">	        return bs;</span>
-	    }
-	    
-	    // Convert any given set of satisfied numbers into a BitSet once
-	    public BitSet toBitSet(List&lt;Transaction&gt; satisfied) {
-<span class="nc" id="L49">	        BitSet bs = new BitSet();</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">	        for (Transaction x : satisfied) {</span>
-<span class="nc" id="L51">	            bs.set((int) x.getID());</span>
-<span class="nc" id="L52">	        }</span>
-<span class="nc" id="L53">	        return bs;</span>
-	    }
-	    
-	    // Check whether ALL dependencies of j are contained in 'satisfiedBits'
-	    public boolean dependenciesMet(int j, BitSet satisfiedBits) {
-<span class="nc" id="L58">	        BitSet req = deps[j];</span>
-	        // (req AND NOT satisfiedBits) must be empty
-<span class="nc" id="L60">	        BitSet tmp = (BitSet) req.clone();</span>
-<span class="nc" id="L61">	        tmp.andNot(satisfiedBits);</span>
-<span class="nc" id="L62">	        return tmp.isEmpty();</span>
-	    }
+	/**
+     * Creates a transaction dependency registry with the specified size.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+	 *   //@ requires 0 &lt; size &amp;&amp; size &lt; Integer.MAX_VALUE;
+     *   //@ ensures this.size == (int) size;
+     *   //@ ensures this.deps.length == this.size + 1;
+     * }&lt;/pre&gt;
+     *
+     * @param size the max number of transactions this registry will track
+     * @throws IllegalArgumentException if {@code size &gt;= Integer.MAX_VALUE || size &lt;= 0}
+     */
+<span class="fc" id="L59">	public TxDependencyRegistry(long size) {</span>
+<span class="fc" id="L60">		TxDependencyRegistry_pre(size);</span>
 
-	    // Even faster if you can afford a reusable temp BitSet per thread:
-	    public boolean dependenciesMetFast(int j, BitSet satisfiedBits, BitSet scratch) {
-<span class="nc bnc" id="L67" title="All 2 branches missed.">	    	if (deps[j] != null) {</span>
-<span class="nc" id="L68">	    		scratch.clear();</span>
-<span class="nc" id="L69">	    		scratch.or(deps[j]);</span>
-<span class="nc" id="L70">	    		scratch.andNot(satisfiedBits);</span>
-<span class="nc" id="L71">	    		return scratch.isEmpty();</span>
-	    	} else {
-<span class="nc" id="L73">	    		return (true);</span>
-	    	}
-	    }
-	    
-	    public String toString(int txID) {
-<span class="nc bnc" id="L78" title="All 4 branches missed.">	        if (txID &lt; 1 || txID &gt;= deps.length) {</span>
-<span class="nc" id="L79">	            throw new IllegalArgumentException(&quot;txID must be between &quot; + 1 + &quot; and &quot; + (deps.length - 1) + &quot;. Was:&quot; + txID);</span>
-	        }
-	        
-<span class="nc bnc" id="L82" title="All 4 branches missed.">	        if ((deps[txID] == null) || deps[txID].isEmpty()) {</span>
-<span class="nc" id="L83">	            return &quot;-1&quot;; </span>
-	        }
+<span class="fc" id="L62">		this.size = (int) size;</span>
+<span class="fc" id="L63">		this.deps = new BitSet[this.size + 1];</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		for (int j = 0; j &lt;= this.size; j++) {</span>
+<span class="fc" id="L65">			deps[j] = new BitSet();</span>
+		}
+
+<span class="fc" id="L68">		TxDependencyRegistry_post(this, size);</span>
+<span class="fc" id="L69">	}</span>
+
+	// ================================
+	// MAIN PUBLIC METHODS
+	// ================================
+
+	 /**
+     * Adds a dependency indicating that transaction {@code j} depends on transaction {@code i}.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+     *   //@ requires i &lt; j;
+     *   //@ requires j &gt;= 1 &amp;&amp; j &lt; deps.length;
+     *   //@ requires i &gt;= 1;
+     *   //@ ensures deps[j].get(i) == true;
+     * }&lt;/pre&gt;
+     *
+     * @param j the transaction ID that has the dependency
+     * @param i the transaction ID that {@code j} depends on
+	 * @throws IndexOutOfBoundsException if {@code j &lt; 1 || j &gt; size}
+     * @throws IllegalArgumentException if {@code i &lt; 1 || i &gt;= j}
+     */
+	public void addDependency(int j, int i) {
+<span class="fc" id="L92">		addDependency_pre(j, i);</span>
+
+<span class="fc" id="L94">		deps[j].set(i);</span>
+
+<span class="fc" id="L96">		addDependency_post(this, j, i);</span>
+<span class="fc" id="L97">	}</span>
+
+	/**
+     * Sets all dependencies for a transaction by replacing its dependency {@linkplain BitSet}.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+     *   //@ requires id &gt;= 1 &amp;&amp; id &lt; deps.length;
+     *   //@ ensures deps[id] == dependencies;
+     * }&lt;/pre&gt;
+     *
+     * @param id the transaction ID
+     * @param dependencies the {@linkplain BitSet} representing all dependencies for this transaction
+     * @throws IndexOutOfBoundsException if {@code id &lt; 1} or {@code id &gt;= deps.length}
+     */
+	public void addDependencies(int id, BitSet dependencies) {
+<span class="fc" id="L113">        addDependencies_pre(id);</span>
+
+<span class="fc" id="L115">		deps[id] = dependencies;</span>
+
+<span class="fc" id="L117">		addDependencies_post(this, id, dependencies);</span>
+<span class="fc" id="L118">	}</span>
+
+	/**
+     * Converts a collection of satisfied transaction IDs into a {@linkplain BitSet}.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+     *   //@ requires satisfied != null;
+     *   //@ ensures \result != null;
+     *   //@ ensures (\forall int x; satisfied.contains(x); \result.get(x));
+     * }&lt;/pre&gt;
+     *
+     * @param satisfied a collection of satisfied transaction IDs
+     * @return a {@linkplain BitSet} with bits set for each ID in {@code satisfied}
+     * @throws NullPointerException if {@code satisfied} is null
+     */
+	public BitSet toBitSet(Collection&lt;Integer&gt; satisfied) {
+<span class="fc" id="L135">		toBitSet_Collection_pre(satisfied);</span>
+
+<span class="fc" id="L137">		BitSet bs = new BitSet();</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">		for (int x : satisfied) {</span>
+<span class="fc" id="L139">			bs.set(x);</span>
+<span class="fc" id="L140">		}</span>
+
+<span class="fc" id="L142">		toBitSet_Collection_post(satisfied, bs);</span>
+<span class="fc" id="L143">		return bs;</span>
+	}
+
+	 /**
+     * Converts a list of satisfied {@linkplain Transaction} objects into a {@linkplain BitSet}.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+     *   //@ requires satisfied != null;
+     *   //@ ensures \result != null;
+     *   //@ ensures (\forall Transaction tx; satisfied.contains(tx); \result.get((int) tx.getID()));
+     * }&lt;/pre&gt;
+     *
+     * @param satisfied a list of satisfied {@linkplain Transaction} objects
+     * @return a {@linkplain BitSet} with bits set for each transaction ID in {@code satisfied}
+     * @throws NullPointerException if {@code satisfied} is null or contains null elements
+     */
+	public BitSet toBitSet(List&lt;Transaction&gt; satisfied) {
+<span class="fc" id="L161">		toBitSet_Transaction_pre(satisfied);</span>
+
+<span class="fc" id="L163">		BitSet bs = new BitSet();</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">		for (Transaction x : satisfied) {</span>
+<span class="fc" id="L165">			bs.set((int) x.getID());</span>
+<span class="fc" id="L166">		}</span>
+
+<span class="fc" id="L168">		toBitSet_Transaction_post(satisfied, bs);</span>
+<span class="fc" id="L169">		return bs;</span>
+	}
+
+	/**
+     * Checks whether all dependencies of transaction {@code j} are satisfied (contained in {@code satisfiedBits}).
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+     *   //@ requires j &gt;= 1 &amp;&amp; j &lt; deps.length;
+     *   //@ requires satisfiedBits != null;
+     *   //@ ensures \result == (\forall int i; deps[j].get(i); satisfiedBits.get(i));
+     * }&lt;/pre&gt;
+     *
+     * @param j the transaction ID to check
+     * @param satisfiedBits a {@linkplain BitSet} representing all satisfied transaction IDs
+     * @return {@code true} if all dependencies of {@code j} are satisfied; {@code false} otherwise
+     * @throws NullPointerException if {@code satisfiedBits} is null
+     * @throws IndexOutOfBoundsException if {@code j &lt; 1} or {@code j &gt;= deps.length}
+     */
+	public boolean dependenciesMet(int j, BitSet satisfiedBits) {
+<span class="fc" id="L189">		dependenciesMet_pre(j, satisfiedBits);</span>
+
+<span class="fc" id="L191">		BitSet req = deps[j];</span>
+		// (req AND NOT satisfiedBits) must be empty
+<span class="fc" id="L193">		BitSet tmp = (BitSet) req.clone();</span>
+<span class="fc" id="L194">		tmp.andNot(satisfiedBits);</span>
+<span class="fc" id="L195">		boolean result = tmp.isEmpty();</span>
+<span class="fc" id="L196">		return result;</span>
+	}
+
+	/**
+     * Checks whether all dependencies of transaction {@code j} are satisfied, using a reusable scratch BitSet.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;{@code
+     *   //@ requires j &gt;= 1 &amp;&amp; j &lt; deps.length;
+     *   //@ requires satisfiedBits != null;
+     *   //@ requires scratch != null;
+     *   //@ ensures \result == (deps[j] == null || (\forall int i; deps[j].get(i); satisfiedBits.get(i)));
+     * }&lt;/pre&gt;
+     *
+     * @param j the transaction ID to check
+     * @param satisfiedBits a {@linkplain BitSet} representing all satisfied transaction IDs
+     * @param scratch a reusable {@linkplain BitSet} for temporary calculations (will be modified)
+     * @return {@code true} if all dependencies of {@code j} are satisfied or if {@code deps[j]} is {@code null};
+     *         {@code false} otherwise
+     * @throws NullPointerException if {@code satisfiedBits} is null
+     * @throws NullPointerException if {@code scratch} is null
+     * @throws IndexOutOfBoundsException if {@code j &lt; 1} or {@code j &gt;= deps.length}
+     */
+	public boolean dependenciesMetFast(int j, BitSet satisfiedBits, BitSet scratch) {
+<span class="fc" id="L220">		dependenciesMetFast_pre(j, satisfiedBits, scratch);</span>
+
+		boolean result;
+<span class="fc bfc" id="L223" title="All 2 branches covered.">		if (deps[j] != null) {</span>
+<span class="fc" id="L224">			scratch.clear();</span>
+<span class="fc" id="L225">			scratch.or(deps[j]);</span>
+<span class="fc" id="L226">			scratch.andNot(satisfiedBits);</span>
+<span class="fc" id="L227">			result = scratch.isEmpty();</span>
+		} else {
+<span class="fc" id="L229">			result = true;</span>
+		}
+<span class="fc" id="L231">		return result;</span>
+	}
 
 
-<span class="nc" id="L87">	        BitSet bs = deps[txID];</span>
+	// ================================
+    // DEBUG/PRINT/TOSTRING METHODS
+    // ================================
 
-	        // Convert stream of set bits to comma-separated string
-<span class="nc" id="L90">	        String content = bs.stream()</span>
-<span class="nc" id="L91">	                           .boxed()</span>
-<span class="nc" id="L92">	                           .map(String::valueOf)</span>
-<span class="nc" id="L93">	                           .reduce((a, b) -&gt; a + &quot;;&quot; + b)</span>
-<span class="nc" id="L94">	                           .orElse(&quot;&quot;);</span>
+	/**
+     * Returns a string representation of the dependencies of the given transaction.
+     *
+     * @param txID the transaction ID whose dependencies should be printed
+     * @return {@code &quot;-1&quot;} if there are no dependencies; otherwise a semicolon-separated set like {@code &quot;{1;2}&quot;}
+     * @throws IndexOutOfBoundsException if {@code txID &lt; 1} or {@code txID &gt;= deps.length}
+     */
+	public String toString(int txID) {
+<span class="fc bfc" id="L247" title="All 4 branches covered.">		if (txID &lt; 1 || txID &gt;= deps.length) {</span>
+<span class="fc" id="L248">			throw new IndexOutOfBoundsException(&quot;txID must be between &quot; + 1 + &quot; and &quot; + (deps.length - 1) + &quot;. Was:&quot; + txID);</span>
+		}
 
-<span class="nc" id="L96">	        return &quot;{&quot; + content + &quot;}&quot;;</span>
-	    }
-	    
+<span class="pc bpc" id="L251" title="1 of 4 branches missed.">		if ((deps[txID] == null) || deps[txID].isEmpty()) {</span>
+<span class="fc" id="L252">			return &quot;-1&quot;;</span>
+		}
+
+
+<span class="fc" id="L256">		BitSet bs = deps[txID];</span>
+
+		// Convert stream of set bits to comma-separated string
+<span class="fc" id="L259">		String content = bs.stream()</span>
+<span class="fc" id="L260">						   .boxed()</span>
+<span class="fc" id="L261">						   .map(String::valueOf)</span>
+<span class="fc" id="L262">						   .reduce((a, b) -&gt; a + &quot;;&quot; + b)</span>
+<span class="fc" id="L263">						   .orElse(&quot;&quot;);</span>
+
+<span class="fc" id="L265">		return &quot;{&quot; + content + &quot;}&quot;;</span>
+	}
+
+	// =============================
+	// VALIDATOR METHODS
+	// =============================
+
+	private static void requirePostcondition(boolean condition, String message) {
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">		if (!condition) {</span>
+<span class="nc" id="L274">			throw new IllegalStateException(message);</span>
+		}
+<span class="fc" id="L276">	}</span>
+
+	private void TxDependencyRegistry_pre(long size) {
+<span class="fc bfc" id="L279" title="All 2 branches covered.">		if (size &lt;= 0) {</span>
+<span class="fc" id="L280">			throw new IllegalArgumentException(</span>
+				&quot;TxDependencyRegistry: size must be positive, was: &quot; + size
+			);
+		}
+<span class="fc bfc" id="L284" title="All 2 branches covered.">		if (size &gt;= Integer.MAX_VALUE) {</span>
+<span class="fc" id="L285">			throw new IllegalArgumentException(</span>
+				&quot;TxDependencyRegistry: maximum size (&quot; + size +
+				&quot;) cannot be at least maximum integer.&quot;
+			);
+		}
+<span class="fc" id="L290">	}</span>
+
+    private void TxDependencyRegistry_post(TxDependencyRegistry registry, long size) {
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">		requirePostcondition(</span>
+			registry.size == (int) size,
+			&quot;Postcondition violated: size must equal constructor parameter size&quot;
+		);
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">		requirePostcondition(</span>
+			registry.deps.length == registry.size + 1,
+			&quot;Postcondition violated: deps array length must be size + 1&quot;
+		);
+<span class="fc" id="L301">    }</span>
+
+	private void addDependency_pre(int j, int i) {
+<span class="fc bfc" id="L304" title="All 4 branches covered.">		if (j &lt; 1 || j &gt; size) {</span>
+<span class="fc" id="L305">			throw new IndexOutOfBoundsException(</span>
+				&quot;j must be in range [1, &quot; + size + &quot;], but was: &quot; + j
+			);
+		}
+<span class="fc bfc" id="L309" title="All 2 branches covered.">		if (i &lt; 1) {</span>
+<span class="fc" id="L310">			throw new IllegalArgumentException(&quot;Dependency i must be &gt;= 1, was: &quot; + i);</span>
+		}
+<span class="fc bfc" id="L312" title="All 2 branches covered.">		if (i &gt;= j) {</span>
+<span class="fc" id="L313">			throw new IllegalArgumentException(&quot;Dependency i must be &lt; j, but i=&quot; + i + &quot; and j=&quot; + j);</span>
+		}
+<span class="fc" id="L315">	}</span>
+
+	private void addDependency_post(TxDependencyRegistry registry, int j, int i) {
+<span class="fc" id="L318">		requirePostcondition(</span>
+<span class="fc" id="L319">			registry.deps[j].get(i),</span>
+			&quot;Postcondition violated: deps[&quot; + j + &quot;].get(&quot; + i + &quot;) must be true&quot;
+		);
+<span class="fc" id="L322">	}</span>
+
+	private void addDependencies_pre(int id) {
+<span class="fc bfc" id="L325" title="All 4 branches covered.">		if (id &lt; 1 || id &gt;= deps.length) {</span>
+<span class="fc" id="L326">			throw new IndexOutOfBoundsException(</span>
+				&quot;id must be in range [1, &quot; + (deps.length - 1) + &quot;], but was: &quot; + id
+			);
+		}
+<span class="fc" id="L330">	}</span>
+
+	private void addDependencies_post(TxDependencyRegistry registry, int id, BitSet dependencies) {
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">		requirePostcondition(</span>
+			registry.deps[id] == dependencies,
+			&quot;Postcondition violated: deps[&quot; + id + &quot;] must equal provided dependencies&quot;
+		);
+<span class="fc" id="L337">    }</span>
+
+	private void toBitSet_Collection_pre(Collection&lt;Integer&gt; satisfied) {
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        if (satisfied == null) {</span>
+<span class="fc" id="L341">            throw new NullPointerException(&quot;satisfied collection cannot be null&quot;);</span>
+        }
+<span class="fc" id="L343">    }</span>
+
+    private void toBitSet_Collection_post(Collection&lt;Integer&gt; satisfied, BitSet result) {
+<span class="pc bpc" id="L346" title="1 of 2 branches missed.">		requirePostcondition(result != null, &quot;Postcondition violated: result must not be null&quot;);</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        for (int x : satisfied) {</span>
+<span class="fc" id="L348">			requirePostcondition(</span>
+<span class="fc" id="L349">				result.get(x),</span>
+				&quot;Postcondition violated: result must contain &quot; + x
+			);
+<span class="fc" id="L352">        }</span>
+<span class="fc" id="L353">    }</span>
+
+    private void toBitSet_Transaction_pre(List&lt;Transaction&gt; satisfied) {
+<span class="fc bfc" id="L356" title="All 2 branches covered.">        if (satisfied == null) {</span>
+<span class="fc" id="L357">            throw new NullPointerException(&quot;satisfied list cannot be null&quot;);</span>
+        }
+<span class="fc" id="L359">    }</span>
+
+    private void toBitSet_Transaction_post(List&lt;Transaction&gt; satisfied, BitSet result) {
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">		requirePostcondition(result != null, &quot;Postcondition violated: result must not be null&quot;);</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">        for (Transaction tx : satisfied) {</span>
+<span class="fc" id="L364">            int id = (int) tx.getID();</span>
+<span class="fc" id="L365">			requirePostcondition(</span>
+<span class="fc" id="L366">				result.get(id),</span>
+				&quot;Postcondition violated: result must contain transaction ID &quot; + id
+			);
+<span class="fc" id="L369">        }</span>
+<span class="fc" id="L370">    }</span>
+
+	 private void dependenciesMet_pre(int j, BitSet satisfiedBits) {
+<span class="fc bfc" id="L373" title="All 2 branches covered.">        if (satisfiedBits == null) {</span>
+<span class="fc" id="L374">            throw new NullPointerException(&quot;satisfiedBits cannot be null&quot;);</span>
+        }
+<span class="fc bfc" id="L376" title="All 4 branches covered.">		if (j &lt; 1 || j &gt;= deps.length) {</span>
+<span class="fc" id="L377">			throw new IndexOutOfBoundsException(</span>
+				&quot;id must be in range [1, &quot; + (deps.length - 1) + &quot;], but was: &quot; + j
+			);
+		}
+<span class="fc" id="L381">    }</span>
+
+    private void dependenciesMetFast_pre(int j, BitSet satisfiedBits, BitSet scratch) {
+<span class="fc bfc" id="L384" title="All 2 branches covered.">        if (satisfiedBits == null) {</span>
+<span class="fc" id="L385">            throw new NullPointerException(&quot;satisfiedBits cannot be null&quot;);</span>
+        }
+<span class="fc bfc" id="L387" title="All 2 branches covered.">        if (scratch == null) {</span>
+<span class="fc" id="L388">            throw new NullPointerException(&quot;scratch BitSet cannot be null&quot;);</span>
+        }
+
+<span class="fc bfc" id="L391" title="All 4 branches covered.">		if (j &lt; 1 || j &gt;= deps.length) {</span>
+<span class="fc" id="L392">			throw new IndexOutOfBoundsException(</span>
+				&quot;id must be in range [1, &quot; + (deps.length - 1) + &quot;], but was: &quot; + j
+			);
+		}
+<span class="fc" id="L396">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

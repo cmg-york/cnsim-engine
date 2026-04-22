@@ -4,107 +4,266 @@ import java.util.Arrays;
 
 public class TxConflictRegistry {
 
-    private final long[] match;   // 1-indexed
+
+// --------------------------------
+// FIELDS
+// --------------------------------
+    private final int[] match;   // 1-indexed
     private final int size;
 
+
+
+
+// --------------------------------
+// CONSTRUCTOR
+// --------------------------------
     /**
      * Creates a registry for conflicts between IDs 1..size.
      */
-<span class="fc" id="L13">    public TxConflictRegistry(long size) {</span>
-<span class="fc bfc" id="L14" title="All 2 branches covered.">        if (size &lt; 1) {</span>
-<span class="fc" id="L15">            throw new IllegalArgumentException(</span>
+<span class="fc" id="L23">    public TxConflictRegistry(int size) {</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (size &lt; 1) {</span>
+<span class="fc" id="L25">            throw new IllegalArgumentException(</span>
                 &quot;TxConflictRegistry: size must be &gt;= 1, got &quot; + size
             );
         }
-<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (size &gt; Integer.MAX_VALUE) {</span>
-<span class="fc" id="L20">            throw new IllegalArgumentException(</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (size &gt; Integer.MAX_VALUE) {</span>
+<span class="nc" id="L30">            throw new IllegalArgumentException(</span>
                 &quot;TxConflictRegistry: maximum size exceeded: &quot; + size
             );
         }
 
-<span class="fc" id="L25">        this.size = (int) size;</span>
+<span class="fc" id="L35">        this.size = (int) size;</span>
 
         // Allocate 1..N (index 0 unused)
-<span class="fc" id="L28">        match = new long[this.size + 1];</span>
-<span class="fc" id="L29">        Arrays.fill(match, -2L); // -2 means &quot;uninitialized&quot;</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L38">        match = new int[this.size + 1];</span>
+<span class="fc" id="L39">        Arrays.fill(match, -2); // -2 means &quot;uninitialized&quot;</span>
+<span class="fc" id="L40">    }</span>
 
-    public void neutralize() {
-<span class="nc" id="L33">    	Arrays.fill(match, -1L); // -1 means no conflict</span>
-<span class="nc" id="L34">    }</span>
-    
-    /**
+
+
+
+// --------------------------------
+// GETTERS
+// --------------------------------
+   /**
      * Gets the partner of ID 'id'.
-     * Returns -1 if unmatched.
+     * Returns -1 if unmatched, -2 if uninitialized.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;
+     *   //@ requires 1 &lt;= id &lt;= size;
+     *   //@ ensures \result == match[id];
+     * &lt;/pre&gt;
+     *
+     * @param id the transaction ID to query
+     * @return the matching transaction ID, -1 if unmatched, or -2 if uninitialized
+     * @throws IllegalArgumentException if id is out of range [1..size]
      */
-    public long getMatch(int id) {
-<span class="fc" id="L41">        validateId(id);</span>
-<span class="fc" id="L42">        return match[id];</span>
+    public int getMatch(int id) {
+<span class="fc" id="L63">        validateId(id);</span>
+<span class="fc" id="L64">        return match[id];</span>
     }
 
+
+// --------------------------------
+// MAIN PUBLIC METHODS
+// --------------------------------
+
+
     /**
-     * Creates a conflict pair {@code (a &lt;-&gt; b)}.
-     * Overwrites previous matches if any.
+     * Neutralizes all conflicts by setting all matches to -1.
+     * After calling this method, all IDs will be unmatched.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;
+     *   //@ ensures (\forall int i; 1 &lt;= i &lt;= size; getMatch(i) == -1);
+     * &lt;/pre&gt;
      */
+    public void neutralize() {
+<span class="fc" id="L83">    	Arrays.fill(match, -1); // -1 means no conflict</span>
+<span class="fc" id="L84">        neutralize_post();</span>
+<span class="fc" id="L85">    }</span>
+    
+
+
+    /**
+     * Checks if the given ID is uninitialized.
+     * An uninitialized ID has a match value of -2.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;
+     *   //@ requires 1 &lt;= id &lt;= size;
+     *   //@ ensures \result == (match[id] == -2);
+     * &lt;/pre&gt;
+     *
+     * @param id the transaction ID to check
+     * @return true if the ID is uninitialized, false otherwise
+     */
+    public boolean uninitialized(int id) {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">    	return(match[id] == -2);</span>
+    }
+
+
+
+
+/**
+ * Creates a conflict pair between two transaction IDs.
+ * Both IDs will reference each other as conflicts.
+ * Overwrites previous matches if any.
+ *
+ * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+ * &lt;pre&gt;
+ *   //@ requires 1 &lt;= a &lt;= size;
+ *   //@ requires 1 &lt;= b &lt;= size;
+ *   //@ requires a != b;
+ *   //@ ensures getMatch(a) == b;
+ *   //@ ensures getMatch(b) == a;
+ * &lt;/pre&gt;
+ *
+ * @param a first transaction ID
+ * @param b second transaction ID
+ * @throws IllegalArgumentException if a or b is out of range [1..size]
+ * @throws IllegalArgumentException if a equals b
+ */
+
     public void setMatch(int a, int b) {
-<span class="fc" id="L50">        validateId(a);</span>
-<span class="fc" id="L51">        validateId(b);</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (a == b) {</span>
-<span class="nc" id="L53">            throw new IllegalArgumentException(&quot;Cannot match an ID with itself: &quot; + a);</span>
-        }
-
+<span class="fc" id="L130">        setMatch_pre(a, b);</span>
         // Remove existing relationships
-<span class="fc" id="L57">        noMatch(a);</span>
-<span class="fc" id="L58">        noMatch(b);</span>
+<span class="fc" id="L132">        noMatch(a);</span>
+<span class="fc" id="L133">        noMatch(b);</span>
 
-<span class="fc" id="L60">        match[a] = b;</span>
-<span class="fc" id="L61">        match[b] = a;</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L135">        match[a] = b;</span>
+<span class="fc" id="L136">        match[b] = a;</span>
+
+<span class="fc" id="L138">        setMatch_post(a, b);</span>
+<span class="fc" id="L139">    }</span>
+
+
+
 
     /**
      * Removes any match for the given ID.
+     * If the ID has a partner, that partner's match is also cleared.
+     * After this operation, the ID will have a match value of -1.
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;
+     *   //@ requires 1 &lt;= id &lt;= size;
+     *   //@ ensures getMatch(id) == -1;
+     *   //@ ensures (\old(getMatch(id)) &gt; 0) ==&gt;
+     *   //@         getMatch((int)\old(getMatch(id))) == -1;
+     * &lt;/pre&gt;
+     *
+     * @param id the transaction ID to clear
+     * @throws IllegalArgumentException if id is out of range [1..size]
      */
     public void noMatch(int id) {
-<span class="fc" id="L68">        validateId(id);</span>
-<span class="fc" id="L69">        long partner = match[id];</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (partner &gt; 0) { // only remove if partner is a valid ID</span>
-<span class="nc" id="L71">            match[(int) partner] = -1;</span>
+<span class="fc" id="L161">        validateId(id);</span>
+<span class="fc" id="L162">        int partner = match[id];</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (partner &gt; 0) { // only remove if partner is a valid ID</span>
+<span class="fc" id="L164">            match[(int) partner] = -1;</span>
         }
-<span class="fc" id="L73">        match[id] = -1;</span>
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L166">        match[id] = -1;</span>
+<span class="fc" id="L167">        noMatch_post(id, partner);</span>
+<span class="fc" id="L168">    }</span>
     
     
 
-    public boolean uninitialized(int id) {
-<span class="nc bnc" id="L79" title="All 2 branches missed.">    	return(match[id] == -2);</span>
+    
+// --------------------------------
+// TOSTRING METHOD
+// --------------------------------
+
+    /**
+     * Returns a string representation of the conflict registry.
+     * The format is [(1 &lt;-&gt; match1), (2 &lt;-&gt; match2), ...].
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;
+     *   //@ ensures \result != null;
+     * &lt;/pre&gt;
+     *
+     * @return a string showing all ID-match pairs
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L190">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L191">        sb.append(&quot;[&quot;);</span>
+
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (int i = 1; i &lt; match.length; i++) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (i &gt; 1) {</span>
+<span class="nc" id="L195">                sb.append(&quot;, &quot;);</span>
+            }
+<span class="nc" id="L197">            sb.append(&quot;(&quot;)</span>
+<span class="nc" id="L198">              .append(i)</span>
+<span class="nc" id="L199">              .append(&quot; &lt;-&gt; &quot;)</span>
+<span class="nc" id="L200">              .append(match[i])</span>
+<span class="nc" id="L201">              .append(&quot;)&quot;);</span>
+        }
+
+<span class="nc" id="L204">        sb.append(&quot;]&quot;);</span>
+<span class="nc" id="L205">        return sb.toString();</span>
     }
     
+// --------------------------------
+// VALIDATION/HELPER METHODS
+// --------------------------------
+
+
+    /**
+     * Validates that the given ID is within the valid range [1..size].
+     *
+     * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+     * &lt;pre&gt;
+     *   //@ requires true;
+     *   //@ ensures 1 &lt;= id &amp;&amp; id &lt;= size;
+     *   //@ signals_only IllegalArgumentException;
+     *   //@ signals (IllegalArgumentException e) id &lt; 1 || id &gt; size;
+     * &lt;/pre&gt;
+     *
+     * @param id the transaction ID to validate
+     * @throws IllegalArgumentException if id is out of range [1..size]
+     */
     private void validateId(int id) {
-<span class="pc bpc" id="L83" title="2 of 4 branches missed.">        if (id &lt; 1 || id &gt; size) {</span>
-<span class="nc" id="L84">            throw new IllegalArgumentException(</span>
+<span class="fc bfc" id="L228" title="All 4 branches covered.">        if (id &lt; 1 || id &gt; size) {</span>
+<span class="fc" id="L229">            throw new IllegalArgumentException(</span>
                 &quot;ID must be between 1 and &quot; + size + &quot;, got &quot; + id
             );
         }
-<span class="fc" id="L88">    }</span>
+<span class="fc" id="L233">    }</span>
 
-    @Override
-    public String toString() {
-<span class="nc" id="L92">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc" id="L93">        sb.append(&quot;[&quot;);</span>
-
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (int i = 1; i &lt; match.length; i++) {</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (i &gt; 1) {</span>
-<span class="nc" id="L97">                sb.append(&quot;, &quot;);</span>
-            }
-<span class="nc" id="L99">            sb.append(&quot;(&quot;)</span>
-<span class="nc" id="L100">              .append(i)</span>
-<span class="nc" id="L101">              .append(&quot; &lt;-&gt; &quot;)</span>
-<span class="nc" id="L102">              .append(match[i])</span>
-<span class="nc" id="L103">              .append(&quot;)&quot;);</span>
+      // Private helper method to check postcondition for {@linkplain neutralize}.
+    private void neutralize_post() {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        for (int id : match) {</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">            if (id != -1) throw new IllegalArgumentException(&quot;Postcondition violated: All elements in match must equal -1&quot;);</span>
         }
+<span class="fc" id="L240">    }</span>
 
-<span class="nc" id="L106">        sb.append(&quot;]&quot;);</span>
-<span class="nc" id="L107">        return sb.toString();</span>
-    }
+    // Private helper method to check postcondition for {@linkplain noMatch}.
+    private void noMatch_post(int id, int old_partner) {
+
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">        if (match[id] != -1) throw new IllegalArgumentException(&quot;Postcondition violated: match[id] must equal -1.&quot;);</span>
+
+<span class="pc bpc" id="L247" title="1 of 4 branches missed.">        if (old_partner &gt; 0 &amp;&amp; match[(int) old_partner] != -1) {</span>
+<span class="nc" id="L248">            throw new IllegalArgumentException(&quot;Postcondition violated: match[partner] must equal -1.&quot;);</span>
+        }
+<span class="fc" id="L250">    }</span>
+
+    // Private helper method to check precondition for {@linkplain setMatch}.
+    private void setMatch_pre(int a, int b) {
+<span class="fc" id="L254">        validateId(a);</span>
+<span class="fc" id="L255">        validateId(b);</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        if (a == b) {</span>
+<span class="fc" id="L257">            throw new IllegalArgumentException(&quot;Cannot match an ID with itself: &quot; + a);</span>
+        }
+<span class="fc" id="L259">    }</span>
+
+    // Private helper method to check postcondition for {@linkplain setMatch}.
+    private void setMatch_post(int a, int b) {
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">        if (match[a] != b) throw new IllegalArgumentException(&quot;Postcondition violated: match[a] must equal b.&quot;);</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">        if (match[b] != a) throw new IllegalArgumentException(&quot;Postcondition violated: match[b] must equal a.&quot;);</span>
+<span class="fc" id="L265">    }</span>
 }
+
+
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

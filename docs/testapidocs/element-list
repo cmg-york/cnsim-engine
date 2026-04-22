@@ -4,4 +4,7 @@ ca.yorku.cmg.cnsim.engine.event
 ca.yorku.cmg.cnsim.engine.network
 ca.yorku.cmg.cnsim.engine.node
 ca.yorku.cmg.cnsim.engine.reporter
+ca.yorku.cmg.cnsim.engine.sampling
+ca.yorku.cmg.cnsim.engine.sampling.standardsamplers
+ca.yorku.cmg.cnsim.engine.testutils
 ca.yorku.cmg.cnsim.engine.transaction

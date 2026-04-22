@@ -263,38 +263,36 @@ public class TransactionGroup implements ITxContainer {
 <span class="nc" id="L263">    	return(registry.dependenciesMetFast((int) txID,allTogether,SCRATCH.get()));</span>
     }  
     
-    
-    
     public boolean satisfiesDependenciesOf(TransactionGroup set, TxDependencyRegistry registry) {
-<span class="nc" id="L269">    	boolean satisfied = true;</span>
-<span class="nc bnc" id="L270" title="All 2 branches missed.">    	for (Transaction tx: set.getTransactions()) {</span>
-<span class="nc bnc" id="L271" title="All 4 branches missed.">    		satisfied = satisfied &amp;&amp; registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get());</span>
-<span class="nc" id="L272">    	}</span>
-<span class="nc" id="L273">    	return satisfied;</span>
+<span class="nc" id="L267">    	boolean satisfied = true;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">    	for (Transaction tx: set.getTransactions()) {</span>
+<span class="nc bnc" id="L269" title="All 4 branches missed.">    		satisfied = satisfied &amp;&amp; registry.dependenciesMetFast((int) tx.getID(),contents,SCRATCH.get());</span>
+<span class="nc" id="L270">    	}</span>
+<span class="nc" id="L271">    	return satisfied;</span>
     }
     
     public boolean satisfiesDependenciesOf_InclSelf(TransactionGroup set, TxDependencyRegistry registry) {
-<span class="nc" id="L277">    	boolean satisfied = true;</span>
-<span class="nc bnc" id="L278" title="All 2 branches missed.">    	for (Transaction tx: set.getTransactions()) {</span>
-<span class="nc" id="L279">    		BitSet allTogether = (BitSet) contents.clone();</span>
-<span class="nc" id="L280">    		allTogether.or(set.getBitSet());</span>
-<span class="nc bnc" id="L281" title="All 2 branches missed.">    		satisfied = </span>
+<span class="nc" id="L275">    	boolean satisfied = true;</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">    	for (Transaction tx: set.getTransactions()) {</span>
+<span class="nc" id="L277">    		BitSet allTogether = (BitSet) contents.clone();</span>
+<span class="nc" id="L278">    		allTogether.or(set.getBitSet());</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">    		satisfied = </span>
     				satisfied 
     				&amp;&amp; 
     				(
-<span class="nc bnc" id="L285" title="All 2 branches missed.">    						registry.dependenciesMetFast((int) tx.getID(),allTogether,SCRATCH.get())</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">    						registry.dependenciesMetFast((int) tx.getID(),allTogether,SCRATCH.get())</span>
     				);
-<span class="nc" id="L287">    	}</span>
-<span class="nc" id="L288">    	return satisfied;</span>
+<span class="nc" id="L285">    	}</span>
+<span class="nc" id="L286">    	return satisfied;</span>
     }
     
     
     public boolean fullyContainsSet(BitSet set) {
-<span class="nc" id="L293">        BitSet scratch = SCRATCH.get();   // thread-private scratch</span>
-<span class="nc" id="L294">        scratch.clear();</span>
-<span class="nc" id="L295">        scratch.or(set);</span>
-<span class="nc" id="L296">        scratch.andNot(contents);</span>
-<span class="nc" id="L297">        return scratch.isEmpty();</span>
+<span class="nc" id="L291">        BitSet scratch = SCRATCH.get();   // thread-private scratch</span>
+<span class="nc" id="L292">        scratch.clear();</span>
+<span class="nc" id="L293">        scratch.or(set);</span>
+<span class="nc" id="L294">        scratch.andNot(contents);</span>
+<span class="nc" id="L295">        return scratch.isEmpty();</span>
     }
     
     
@@ -306,14 +304,14 @@ public class TransactionGroup implements ITxContainer {
      * @return {@code true} of there is at least one transaction in {@code p} that is contained in the group, {@code false}, otherwise.
      */
     public boolean overlapsWithByObj(TransactionGroup p) {
-<span class="fc" id="L309">        boolean result = false;</span>
-<span class="fc bfc" id="L310" title="All 2 branches covered.">        for (Transaction t : p.getTransactions()) {</span>
-<span class="fc bfc" id="L311" title="All 2 branches covered.">            if (group.contains(t)) {</span>
-<span class="fc" id="L312">                result = true;</span>
-<span class="fc" id="L313">                break;</span>
+<span class="fc" id="L307">        boolean result = false;</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        for (Transaction t : p.getTransactions()) {</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">            if (group.contains(t)) {</span>
+<span class="fc" id="L310">                result = true;</span>
+<span class="fc" id="L311">                break;</span>
             }
-<span class="fc" id="L315">        }</span>
-<span class="fc" id="L316">        return (result);</span>
+<span class="fc" id="L313">        }</span>
+<span class="fc" id="L314">        return (result);</span>
     }
 
     /**
@@ -325,7 +323,7 @@ public class TransactionGroup implements ITxContainer {
      */
     public boolean overlapsWith(TransactionGroup g) {
     	
-<span class="fc" id="L328">    	if (true) return(overlapsWith_BitSet(g));</span>
+<span class="fc" id="L326">    	if (true) return(overlapsWith_BitSet(g));</span>
     		
         for (Transaction r : group) {
             for (Transaction t : g.getTransactions()) {
@@ -339,7 +337,7 @@ public class TransactionGroup implements ITxContainer {
 
     
     public boolean overlapsWith_BitSet(TransactionGroup g) {
-<span class="fc" id="L342">    	return(contents.intersects(g.getBitSet()));</span>
+<span class="fc" id="L340">    	return(contents.intersects(g.getBitSet()));</span>
     }
     
     
@@ -359,24 +357,24 @@ public class TransactionGroup implements ITxContainer {
     	//		traverse until full O(n)
     	// OR YOU CAN LEAVE IT ALONE
     	
-<span class="fc bfc" id="L362" title="All 2 branches covered.">        if (sizeLimit &lt; 0) {</span>
-<span class="fc" id="L363">            throw new IllegalArgumentException(String.format(&quot;Size limit (%f) must be a positive integer&quot;, sizeLimit));</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">    	if (sizeLimit &lt; 0) {</span>
+<span class="fc" id="L361">            throw new IllegalArgumentException(String.format(&quot;Size limit (%f) must be a positive integer&quot;, sizeLimit));</span>
         }
 
-<span class="fc" id="L366">        ArrayList&lt;Transaction&gt; result = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L367">        List&lt;Transaction&gt; sortedGroup = group.stream().sorted(comp).toList();</span>
+<span class="fc" id="L364">        ArrayList&lt;Transaction&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L365">        List&lt;Transaction&gt; sortedGroup = group.stream().sorted(comp).toList();</span>
 
-<span class="fc" id="L369">        int i = 0;</span>
-<span class="fc" id="L370">        float sum = 0;</span>
-<span class="pc bpc" id="L371" title="1 of 4 branches missed.">        while ((sum &lt;= sizeLimit) &amp;&amp; (i &lt; sortedGroup.size())) {</span>
-<span class="fc" id="L372">            sum += sortedGroup.get(i).getSize();</span>
-<span class="fc" id="L373">            result.add(sortedGroup.get(i));</span>
-<span class="fc" id="L374">            i++;</span>
+<span class="fc" id="L367">        int i = 0;</span>
+<span class="fc" id="L368">        float sum = 0;</span>
+<span class="pc bpc" id="L369" title="1 of 4 branches missed.">        while ((sum &lt;= sizeLimit) &amp;&amp; (i &lt; sortedGroup.size())) {</span>
+<span class="fc" id="L370">            sum += sortedGroup.get(i).getSize();</span>
+<span class="fc" id="L371">            result.add(sortedGroup.get(i));</span>
+<span class="fc" id="L372">            i++;</span>
         }
-<span class="pc bpc" id="L376" title="1 of 2 branches missed.">        if (sum &gt; sizeLimit) { //Last one was exceeding the limit.</span>
-<span class="fc" id="L377">            result.remove(i - 1);</span>
+<span class="pc bpc" id="L374" title="1 of 2 branches missed.">        if (sum &gt; sizeLimit) { //Last one was exceeding the limit.</span>
+<span class="fc" id="L375">            result.remove(i - 1);</span>
         }
-<span class="fc" id="L379">        return (new TransactionGroup(result));</span>
+<span class="fc" id="L377">        return (new TransactionGroup(result));</span>
     }
 
     ////////// Accessors //////////
@@ -386,7 +384,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public int getID() {
-<span class="nc" id="L389">        return groupID;</span>
+<span class="nc" id="L387">        return groupID;</span>
     }
 
     /**
@@ -394,7 +392,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public int getCount() {
-<span class="fc" id="L397">        return (group.size());</span>
+<span class="fc" id="L395">        return (group.size());</span>
     }
 
     /**
@@ -402,7 +400,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public float getSize() {
-<span class="fc" id="L405">        return totalSize;</span>
+<span class="fc" id="L403">        return totalSize;</span>
     }
 
     /**
@@ -410,7 +408,7 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public float getValue() {
-<span class="fc" id="L413">        return totalValue;</span>
+<span class="fc" id="L411">        return totalValue;</span>
     }
 
     /**
@@ -420,12 +418,12 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public List&lt;Transaction&gt; getTransactions() {
-<span class="fc" id="L423">        return group;</span>
+<span class="fc" id="L421">        return group;</span>
     }
     
     
     public BitSet getBitSet() {
-<span class="fc" id="L428">    	return (contents);</span>
+<span class="fc" id="L426">    	return (contents);</span>
     }
     
 
@@ -436,16 +434,16 @@ public class TransactionGroup implements ITxContainer {
      * @return A reference to the {@linkplain Transaction} at index {@code index}
      */
     public Transaction getTransaction(int index) {
-<span class="nc" id="L439">        return group.get(index);</span>
+<span class="nc" id="L437">        return group.get(index);</span>
     }
 
     public Transaction getTransactionById(int txID) {
-<span class="fc bfc" id="L443" title="All 2 branches covered.">        for (Transaction r : group) {</span>
-<span class="fc bfc" id="L444" title="All 2 branches covered.">            if (r.getID() == txID) {</span>
-<span class="fc" id="L445">            	return (r);</span>
+<span class="fc bfc" id="L441" title="All 2 branches covered.">        for (Transaction r : group) {</span>
+<span class="fc bfc" id="L442" title="All 2 branches covered.">            if (r.getID() == txID) {</span>
+<span class="fc" id="L443">            	return (r);</span>
             }
-<span class="fc" id="L447">        }</span>
-<span class="fc" id="L448">    	return null;</span>
+<span class="fc" id="L445">        }</span>
+<span class="fc" id="L446">    	return null;</span>
     }
     
     
@@ -456,15 +454,15 @@ public class TransactionGroup implements ITxContainer {
      */
     @Override
     public String printIDs(String sep) {
-<span class="fc" id="L459">        StringBuilder s = new StringBuilder(&quot;{&quot;);</span>
-<span class="fc bfc" id="L460" title="All 2 branches covered.">        for (Transaction t : group) {</span>
-<span class="fc" id="L461">            s.append(t.getID()).append(sep);</span>
-<span class="fc" id="L462">        }</span>
-<span class="fc bfc" id="L463" title="All 2 branches covered.">        if (s.length() &gt; 1)</span>
-<span class="fc" id="L464">            s = new StringBuilder(s.substring(0, s.length() - 1) + &quot;}&quot;);</span>
+<span class="fc" id="L457">        StringBuilder s = new StringBuilder(&quot;{&quot;);</span>
+<span class="fc bfc" id="L458" title="All 2 branches covered.">        for (Transaction t : group) {</span>
+<span class="fc" id="L459">            s.append(t.getID()).append(sep);</span>
+<span class="fc" id="L460">        }</span>
+<span class="fc bfc" id="L461" title="All 2 branches covered.">        if (s.length() &gt; 1)</span>
+<span class="fc" id="L462">            s = new StringBuilder(s.substring(0, s.length() - 1) + &quot;}&quot;);</span>
         else
-<span class="fc" id="L466">            s.append(&quot;}&quot;);</span>
-<span class="fc" id="L467">        return (s.toString());</span>
+<span class="fc" id="L464">            s.append(&quot;}&quot;);</span>
+<span class="fc" id="L465">        return (s.toString());</span>
     }
 
     /**
@@ -474,11 +472,11 @@ public class TransactionGroup implements ITxContainer {
      */
     @SuppressWarnings(&quot;unused&quot;)
     public String debugPrintPoolTx() {
-<span class="nc" id="L477">        StringBuilder s = new StringBuilder();</span>
-<span class="nc bnc" id="L478" title="All 2 branches missed.">        for (Transaction t : group) {</span>
-<span class="nc" id="L479">            s.append(t.getID()).append(&quot;, &quot;);</span>
-<span class="nc" id="L480">        }</span>
-<span class="nc" id="L481">        return (s.toString());</span>
+<span class="nc" id="L475">        StringBuilder s = new StringBuilder();</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        for (Transaction t : group) {</span>
+<span class="nc" id="L477">            s.append(t.getID()).append(&quot;, &quot;);</span>
+<span class="nc" id="L478">        }</span>
+<span class="nc" id="L479">        return (s.toString());</span>
     }
 
 }

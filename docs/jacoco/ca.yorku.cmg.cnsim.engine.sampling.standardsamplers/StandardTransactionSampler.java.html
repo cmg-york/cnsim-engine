@@ -149,7 +149,7 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      */
     @Override
     public float getNextTransactionFeeValue() {
-<span class="nc" id="L152">        return(sampler.getGaussian(txValueMean, txValueSD, random));</span>
+<span class="nc" id="L152">        return(sampler.getGaussianPos(txValueMean, txValueSD, random));</span>
     }
 
     /**
@@ -172,7 +172,7 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
 <span class="nc" id="L172">    	int tries = 0;</span>
     	
     	do {
-<span class="nc" id="L175">    		result = (long) sampler.getGaussian(txSizeMean, txSizeSD, random);</span>
+<span class="nc" id="L175">    		result = (long) sampler.getGaussianPos(txSizeMean, txSizeSD, random);</span>
 <span class="nc" id="L176">    		tries++;</span>
 <span class="nc bnc" id="L177" title="All 4 branches missed.">    	} while ((result &lt; minSize) &amp;&amp; (tries &lt; maxTries));</span>
     	

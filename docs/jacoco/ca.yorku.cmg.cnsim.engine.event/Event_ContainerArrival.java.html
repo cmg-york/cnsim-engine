@@ -76,7 +76,7 @@ public class Event_ContainerArrival extends Event {
 <span class="nc" id="L76">        node.event_NodeReceivesPropagatedContainer(container);</span>
         //TODO: this should be conditional on some configuration parameter
         //TODO: how this reports to the parent reporting
-<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (Reporter.reportsEvents()) {</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">		if (Reporter.reportsEvents() &amp;&amp; Reporter.reportsContainerArrivalEvents()) {</span>
 <span class="nc" id="L80">	        Reporter.addEvent(</span>
 <span class="nc" id="L81">	        		sim.getSimID(),</span>
 <span class="nc" id="L82">	        		this.getEvtID(), </span>

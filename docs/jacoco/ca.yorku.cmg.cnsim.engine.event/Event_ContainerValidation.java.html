@@ -75,7 +75,7 @@ public class Event_ContainerValidation extends Event {
 <span class="nc" id="L75">        	status = &quot;_Abandonded&quot;;</span>
         }
 
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (Reporter.reportsEvents()) {</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        if (Reporter.reportsEvents() &amp;&amp; Reporter.reportsContainerValidationEvents()) {</span>
 <span class="nc" id="L79">            Reporter.addEvent(</span>
 <span class="nc" id="L80">            		sim.getSimID(),</span>
 <span class="nc" id="L81">            		getEvtID(), </span>
@@ -84,11 +84,15 @@ public class Event_ContainerValidation extends Event {
 <span class="nc" id="L84">            		this.getClass().getSimpleName() + status, </span>
 <span class="nc" id="L85">            		node.getID(), </span>
 <span class="nc" id="L86">            		container.getID(),</span>
-            		//TODO: add the pool content here
-	        		&quot;&quot;
+<span class="nc" id="L87">	        		container.printIDs(&quot;;&quot;)</span>
             		);
         }
-<span class="nc" id="L91">    }</span>
+<span class="nc" id="L90">    }</span>
+    
+    
+    public ITxContainer getContainer() {
+<span class="nc" id="L94">    	return (container);</span>
+    }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -96,14 +96,28 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	
  	/** Reporting control flags */
 	protected static boolean reportEvents;
+	protected static boolean reportBeliefEvents;
 	protected static boolean reportTransactions;
+	protected static boolean reportSampleTransactionsOnly;
 	protected static boolean reportNodes;
 	protected static boolean reportNetEvents;
 	protected static boolean reportBeliefs;
 	protected static boolean reportBeliefsShort;
+	protected static boolean reportFinalBeliefShort;
 
+	protected static boolean enablePeriodicReports;
+	protected static boolean enableTimeAdvancementReports;
 
-
+<span class="fc" id="L111">	protected static boolean[] eventReports = new boolean[EventReports.values().length];</span>
+	
+<span class="fc" id="L113">	static enum EventReports {</span>
+<span class="fc" id="L114">		ContainerArrival,</span>
+<span class="fc" id="L115">		ContainerValidation,</span>
+<span class="fc" id="L116">		NewTransactionArrival,</span>
+<span class="fc" id="L117">		TransactionPropagation,</span>
+<span class="fc" id="L118">		Report_BeliefReport,</span>
+<span class="fc" id="L119">		SeedUpdate</span>
+	}
 
 	
 	
@@ -114,73 +128,129 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	
 	// Static initialization block sets up paths, runId, and prepares log headers
 	static {
-<span class="fc" id="L117">		root = Config.getPropertyString(&quot;sim.output.directory&quot;);</span>
+<span class="fc" id="L131">		root = Config.getPropertyString(&quot;sim.output.directory&quot;);</span>
 
-<span class="fc" id="L119">		String label = Config.getConfigLabel() + &quot; - &quot;;</span>
-<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (Config.hasProperty(&quot;sim.experimentalLabel&quot;)) {</span>
-<span class="nc" id="L121">			label = Config.getPropertyString(&quot;sim.experimentalLabel&quot;) + &quot; - &quot;;</span>
+<span class="fc" id="L133">		String label = Config.getConfigLabel() + &quot; - &quot;;</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">		if (Config.hasProperty(&quot;sim.experimentalLabel&quot;)) {</span>
+<span class="nc" id="L135">			label = Config.getPropertyString(&quot;sim.experimentalLabel&quot;) + &quot; - &quot;;</span>
 		}
 		
 		//ID the run
-<span class="fc" id="L125">		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(&quot;yyyy.MM.dd HH.mm.ss&quot;);  </span>
-<span class="fc" id="L126">		LocalDateTime now = LocalDateTime.now();</span>
-<span class="fc" id="L127">		runId = label + dtf.format(now);</span>
-<span class="fc" id="L128">		path = root + runId + &quot;/&quot;;</span>
-<span class="fc" id="L129">		new File(path).mkdirs();</span>
+<span class="fc" id="L139">		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(&quot;yyyy.MM.dd HH.mm.ss&quot;);  </span>
+<span class="fc" id="L140">		LocalDateTime now = LocalDateTime.now();</span>
+<span class="fc" id="L141">		runId = label + dtf.format(now);</span>
+<span class="fc" id="L142">		path = root + runId + &quot;/&quot;;</span>
+<span class="fc" id="L143">		new File(path).mkdirs();</span>
 		FileWriter writer;
 		try {
-<span class="fc" id="L132">			writer = new FileWriter(root + &quot;LatestFileName.txt&quot;);</span>
-<span class="fc" id="L133">			writer.write(runId + &quot;\n&quot;);</span>
-<span class="fc" id="L134">			writer.close();</span>
-<span class="pc" id="L135">		} catch (IOException e) {e.printStackTrace();}</span>
+<span class="fc" id="L146">			writer = new FileWriter(root + &quot;LatestFileName.txt&quot;);</span>
+<span class="fc" id="L147">			writer.write(runId + &quot;\n&quot;);</span>
+<span class="fc" id="L148">			writer.close();</span>
+<span class="pc" id="L149">		} catch (IOException e) {e.printStackTrace();}</span>
 		
 		//Prepare the reporting structures
-<span class="fc" id="L138">		eventLog.add(&quot;SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID, Info&quot;);</span>
+<span class="fc" id="L152">		eventLog.add(&quot;SimID, EventID, SimTime, SysTime, EventType, NodeID, ObjectID, Info&quot;);</span>
 		//inputTxLog.add(&quot;SimID, TxID, Size (bytes), Value (coins), ArrivalTime (ms)&quot;);
-<span class="fc" id="L140">		inputTxLog.add(&quot;SimID, TxID, Size, Value, NodeID, ArrivalTime, ConflictID, DependencyIDs&quot;);</span>
+<span class="fc" id="L154">		inputTxLog.add(&quot;SimID, TxID, Size, Value, NodeID, ArrivalTime, ConflictID, DependencyIDs&quot;);</span>
 		//nodeLog.add(&quot;SimID, NodeID, HashPower (GH/s), ElectricPower (W), ElectricityCost (USD/kWh), TotalCycles&quot;);
-<span class="fc" id="L142">		nodeLog.add(&quot;SimID, NodeID, HashPower, ElectricPower, ElectricityCost, TotalCycles&quot;);</span>
+<span class="fc" id="L156">		nodeLog.add(&quot;SimID, NodeID, HashPower, ElectricPower, ElectricityCost, TotalCycles&quot;);</span>
 		//netLog.add(&quot;SimID, From (NodeID), To (NodeID), Bandwidth (bps), Time (ms from start)&quot;);
-<span class="fc" id="L144">		netLog.add(&quot;SimID, FromNodeID, ToNodeID, Bandwidth, Time&quot;);</span>
+<span class="fc" id="L158">		netLog.add(&quot;SimID, FromNodeID, ToNodeID, Bandwidth, Time&quot;);</span>
 		//beliefLog.add(&quot;SimID, Node ID, Transaction ID, Believes, Time (ms from start)&quot;);
-<span class="fc" id="L146">		beliefLog.add(&quot;SimID, NodeID, TxID, Believes, Time&quot;);</span>
+<span class="fc" id="L160">		beliefLog.add(&quot;SimID, NodeID, TxID, Believes, Time&quot;);</span>
 		//beliefLogShort.add(&quot;SimID, Transaction ID, Time (ms from start), Belief&quot;);
-<span class="fc" id="L148">		beliefLogShort.add(&quot;SimID, TxID, Time, Belief&quot;);</span>
+<span class="fc" id="L162">		beliefLogShort.add(&quot;SimID, TxID, Time, Belief&quot;);</span>
 		
-<span class="fc" id="L150">		execTimeLog.add(&quot;SimID, SimTime, SysStartTime, SysEndTime, NumEventsScheduled, NumEventsProcessed&quot;);</span>
-<span class="fc" id="L151">	}</span>
-	
+<span class="fc" id="L164">		execTimeLog.add(&quot;SimID, SimTime, SysStartTime, SysEndTime, NumEventsScheduled, NumEventsProcessed&quot;);</span>
+<span class="fc" id="L165">	}</span>
 	
 	
 	
 	// -----------------------------------------------------------------
+	// S E T T E R S 
 	// Methods to enable/disable or query report categories
 	// -----------------------------------------------------------------
 	
+
+	// REPORTS IN THE EventLog FILE
 	
 	public static void reportEvents(boolean reportEvents) {
-<span class="fc" id="L162">		Reporter.reportEvents = reportEvents;</span>
-<span class="fc" id="L163">	}</span>
-
-	public static void reportTransactions(boolean reportTransactions) {
-<span class="fc" id="L166">		Reporter.reportTransactions = reportTransactions;</span>
-<span class="fc" id="L167">	}</span>
-
-	public static void reportNodes(boolean reportNodes) {
-<span class="fc" id="L170">		Reporter.reportNodes = reportNodes;</span>
-<span class="fc" id="L171">	}</span>
-
-	public static void reportNetEvents(boolean reportNetEvents) {
-<span class="fc" id="L174">		Reporter.reportNetEvents = reportNetEvents;</span>
-<span class="fc" id="L175">	}</span>
-
-	public static void reportBeliefs(boolean reportBeliefs) {
-<span class="fc" id="L178">		Reporter.reportBeliefs = reportBeliefs;</span>
+<span class="fc" id="L178">		Reporter.reportEvents = reportEvents;</span>
 <span class="fc" id="L179">	}</span>
+	
+	public static void reportContainerArrivalEvents(boolean setting) {
+<span class="fc" id="L182">		eventReports[EventReports.ContainerArrival.ordinal()] = setting;</span>
+<span class="fc" id="L183">	}</span>
 
+	public static void reportContainerValidationEvents(boolean setting) {
+<span class="fc" id="L186">		eventReports[EventReports.ContainerValidation.ordinal()] = setting;</span>
+<span class="fc" id="L187">	}</span>
+	
+	public static void reportNewTransactionArrivalEvents(boolean setting) {
+<span class="fc" id="L190">		eventReports[EventReports.NewTransactionArrival.ordinal()] = setting;</span>
+<span class="fc" id="L191">	}</span>
+	
+	public static void reportTransactionPropagationEvents(boolean setting) {
+<span class="fc" id="L194">		eventReports[EventReports.TransactionPropagation.ordinal()] = setting;</span>
+<span class="fc" id="L195">	}</span>
+
+	public static void reportBeliefEvents(boolean setting) {
+<span class="fc" id="L198">		eventReports[EventReports.Report_BeliefReport.ordinal()] = setting;</span>
+<span class="fc" id="L199">	}</span>
+
+	public static void reportSeedUpdateEvents(boolean setting) {
+<span class="fc" id="L202">		eventReports[EventReports.SeedUpdate.ordinal()] = setting;</span>
+<span class="fc" id="L203">	}</span>
+	
+	
+	// OTHER FILES
+	
+	
+	//Input File
+	public static void reportTransactions(boolean reportTransactions) {
+<span class="fc" id="L211">		Reporter.reportTransactions = reportTransactions;</span>
+<span class="fc" id="L212">	}</span>
+
+	public static void reportSampleTransactionsOnly(boolean reportSampleTransactionsOnly) {
+<span class="fc" id="L215">		Reporter.reportSampleTransactionsOnly = reportSampleTransactionsOnly;</span>
+<span class="fc" id="L216">	}</span>
+	
+	//Nodes File
+	public static void reportNodes(boolean reportNodes) {
+<span class="fc" id="L220">		Reporter.reportNodes = reportNodes;</span>
+<span class="fc" id="L221">	}</span>
+
+	//NetLog File
+	public static void reportNetEvents(boolean reportNetEvents) {
+<span class="fc" id="L225">		Reporter.reportNetEvents = reportNetEvents;</span>
+<span class="fc" id="L226">	}</span>
+
+	//BeliefLog
+	public static void reportBeliefs(boolean reportBeliefs) {
+<span class="fc" id="L230">		Reporter.reportBeliefs = reportBeliefs;</span>
+<span class="fc" id="L231">	}</span>
+
+	//BeliefLogShort
 	public static void reportBeliefsShort(boolean reportBeliefsShort) {
-<span class="nc" id="L182">		Reporter.reportBeliefsShort = reportBeliefsShort;</span>
-<span class="nc" id="L183">	}</span>
+<span class="fc" id="L235">		Reporter.reportBeliefsShort = reportBeliefsShort;</span>
+<span class="fc" id="L236">	}</span>
+
+	
+	// Misc Reports
+	public static void enablePeriodicReport(boolean setting) {
+<span class="fc" id="L241">		Reporter.enablePeriodicReports = setting;</span>
+<span class="fc" id="L242">	}</span>
+
+	public static void enableTimeAdvancementReports(boolean setting) {
+<span class="fc" id="L245">		Reporter.enableTimeAdvancementReports = setting;</span>
+<span class="fc" id="L246">	}</span>
+	
+	
+	
+	// ----------------------
+	// G E T T E R S 
+	// ----------------------
+	
 	
 	  /**
      * Returns whether general events are being logged.
@@ -188,49 +258,74 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      * @return {@code true} if event reporting is enabled, {@code false} otherwise
      */
     public static boolean reportsEvents() {
-<span class="fc" id="L191">        return Reporter.reportEvents;</span>
+<span class="fc" id="L261">        return Reporter.reportEvents;</span>
     }
 
-    /**
-     * Returns whether transaction events are being logged.
-     *
-     * @return {@code true} if transaction reporting is enabled, {@code false} otherwise
-     */
+	public static boolean reportsContainerArrivalEvents() {
+<span class="nc" id="L265">		return eventReports[EventReports.ContainerArrival.ordinal()];</span>
+	}
+
+	public static boolean reportsContainerValidationEvents() {
+<span class="nc" id="L269">		return eventReports[EventReports.ContainerValidation.ordinal()];</span>
+	}
+	
+	public static boolean reportsNewTransactionArrivalEvents() {
+<span class="nc" id="L273">		return eventReports[EventReports.NewTransactionArrival.ordinal()];</span>
+	}
+	
+	public static boolean reportsTransactionPropagationEvents() {
+<span class="nc" id="L277">		return eventReports[EventReports.TransactionPropagation.ordinal()];</span>
+	}
+
+	public static boolean reportsBeliefEvents() {
+<span class="nc" id="L281">		return eventReports[EventReports.Report_BeliefReport.ordinal()];</span>
+	}
+
+	public static boolean reportsSeedUpdateEvents() {
+<span class="nc" id="L285">		return eventReports[EventReports.SeedUpdate.ordinal()];</span>
+	}
+	
+    
+    
     public static boolean reportsTransactions() {
-<span class="nc" id="L200">        return Reporter.reportTransactions;</span>
+<span class="nc" id="L291">        return Reporter.reportTransactions;</span>
     }
 
-    /**
-     * Returns whether node events are being logged.
-     *
-     * @return {@code true} if node reporting is enabled, {@code false} otherwise
-     */
+    public static boolean reportsSampleTransactionsOnly() {
+<span class="nc" id="L295">        return Reporter.reportSampleTransactionsOnly;</span>
+    }
+
+    
+
+    
     public static boolean reportsNodeEvents() {
-<span class="nc" id="L209">        return Reporter.reportNodes;</span>
+<span class="nc" id="L302">        return Reporter.reportNodes;</span>
     }
 
-    /**
-     * Returns whether network events are being logged.
-     *
-     * @return {@code true} if network event reporting is enabled, {@code false} otherwise
-     */
     public static boolean reportsNetEvents() {
-<span class="nc" id="L218">        return Reporter.reportNetEvents;</span>
+<span class="fc" id="L306">        return Reporter.reportNetEvents;</span>
     }
-	
-	
+		
 	public static boolean reportsBeliefs() {
-<span class="nc" id="L223">		return Reporter.reportBeliefs;</span>
+<span class="nc" id="L310">		return Reporter.reportBeliefs;</span>
 	}
 
 	public static boolean reportsBeliefsShort() {
-<span class="nc" id="L227">		return Reporter.reportBeliefsShort;</span>
+<span class="nc" id="L314">		return Reporter.reportBeliefsShort;</span>
 	}
+
+	public static boolean allowsPeriodicReports() {
+<span class="fc" id="L318">		return enablePeriodicReports;</span>
+	}
+
+	public static boolean allowsTimeAdvancementReports() {
+<span class="fc" id="L322">		return enableTimeAdvancementReports;</span>
+	}	
 	
 	
 	
 	public static String getRunId() {
-<span class="nc" id="L233">		return(runId);</span>
+<span class="nc" id="L328">		return(runId);</span>
 	}
 	
 	
@@ -253,8 +348,8 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	 */    
 	public static void addEvent(int simID, long evtID, long simTime, long sysTime, 
 			String evtType, int nodeInvolved, long objInvolved, String misc) {
-<span class="nc bnc" id="L256" title="All 2 branches missed.">		if (Reporter.reportEvents)</span>
-<span class="nc" id="L257">			eventLog.add(simID + &quot;,&quot; + </span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">		if (Reporter.reportEvents)</span>
+<span class="nc" id="L352">			eventLog.add(simID + &quot;,&quot; + </span>
 					evtID + &quot;,&quot; + 
 					simTime + &quot;,&quot; + 
 					sysTime + &quot;,&quot; +
@@ -262,7 +357,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 					nodeInvolved + &quot;,&quot; +
 					objInvolved + &quot;,&quot; +
 					misc);
-<span class="nc" id="L265">	}</span>
+<span class="nc" id="L360">	}</span>
 
     /**
      * Adds a transaction entry to the transaction log.
@@ -275,15 +370,15 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      * @param nodeID The ID of the node at which the transaction first arrives.
      */
 	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime) {
-<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
-<span class="nc" id="L279">			inputTxLog.add(simID + &quot;,&quot; +</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
+<span class="nc" id="L374">			inputTxLog.add(simID + &quot;,&quot; +</span>
 					txID + &quot;,&quot; + 
 					size + &quot;,&quot; +
 					value + &quot;,&quot; +
 					nodeID  + &quot;,&quot; +
 					simTime  + &quot;,&quot; +
 					&quot;-1&quot;);
-<span class="nc" id="L286">	}</span>
+<span class="nc" id="L381">	}</span>
 
 	
     /**
@@ -299,15 +394,15 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      * @param conflictID The transaction ID with which the current transaction conflicts.
      */
 	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID) {
-<span class="nc bnc" id="L302" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
-<span class="nc" id="L303">			inputTxLog.add(simID + &quot;,&quot; +</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
+<span class="nc" id="L398">			inputTxLog.add(simID + &quot;,&quot; +</span>
 					txID + &quot;,&quot; + 
 					size + &quot;,&quot; +
 					value + &quot;,&quot; +
 					nodeID  + &quot;,&quot; +
 					simTime  + &quot;,&quot; +
 					conflictID);
-<span class="nc" id="L310">	}</span>
+<span class="nc" id="L405">	}</span>
 	
 	
     /**
@@ -324,16 +419,41 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      * @param dependencies a string of the form {txID1,txID2,...} specifying the transactions on which the current transaction depends. -1 if the transaction has no dependencies.
      */
 	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID, String dependencies) {
-<span class="nc bnc" id="L327" title="All 2 branches missed.">		if (Reporter.reportTransactions)</span>
-<span class="nc" id="L328">			inputTxLog.add(simID + &quot;,&quot; +</span>
-					txID + &quot;,&quot; + 
-					size + &quot;,&quot; +
-					value + &quot;,&quot; +
-					nodeID  + &quot;,&quot; +
-					simTime  + &quot;,&quot; +
-					conflictID + &quot;,&quot; +
-					dependencies);
-<span class="nc" id="L336">	}</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">		if (Reporter.reportTransactions) {</span>
+			
+<span class="nc bnc" id="L424" title="All 2 branches missed.">			if (Reporter.reportSampleTransactionsOnly) {</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">				if (contains(</span>
+<span class="nc" id="L426">						Config.parseStringToArray(</span>
+<span class="nc" id="L427">								Config.getPropertyString(&quot;workload.sampleTransaction&quot;)),txID)) {</span>
+<span class="nc" id="L428">					inputTxLog.add(simID + &quot;,&quot; +</span>
+							txID + &quot;,&quot; + 
+							size + &quot;,&quot; +
+							value + &quot;,&quot; +
+							nodeID  + &quot;,&quot; +
+							simTime  + &quot;,&quot; +
+							conflictID + &quot;,&quot; +
+							dependencies);
+				}
+			} else { 
+<span class="nc" id="L438">				inputTxLog.add(simID + &quot;,&quot; +</span>
+						txID + &quot;,&quot; + 
+						size + &quot;,&quot; +
+						value + &quot;,&quot; +
+						nodeID  + &quot;,&quot; +
+						simTime  + &quot;,&quot; +
+						conflictID + &quot;,&quot; +
+						dependencies);
+			}
+		} 
+<span class="nc" id="L448">	}</span>
+	
+	
+	private static boolean contains(long[] arr, long value) {
+<span class="nc bnc" id="L452" title="All 2 branches missed.">	    for (long v : arr) {</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">	        if (v == value) return true;</span>
+	    }
+<span class="nc" id="L455">	    return false;</span>
+	}
 	
 	 /**
      * Adds a node entry to the node log.
@@ -347,15 +467,15 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      */
 	public static void addNode(int simID, int nodeID, float hashPower, float electricPower, 
 		float electricityCost, double totalCycles) {
-<span class="nc bnc" id="L350" title="All 2 branches missed.">			if (Reporter.reportsNodeEvents()) {</span>
-<span class="nc" id="L351">				nodeLog.add(simID + &quot;,&quot; +</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">			if (Reporter.reportsNodeEvents()) {</span>
+<span class="nc" id="L471">				nodeLog.add(simID + &quot;,&quot; +</span>
 					nodeID + &quot;,&quot; + 
 					hashPower + &quot;,&quot; +
 					electricPower + &quot;,&quot; +
 					electricityCost + &quot;,&quot; +
 					totalCycles);
 			}
-<span class="nc" id="L358">	}</span>
+<span class="nc" id="L478">	}</span>
 	
 	
 	
@@ -372,13 +492,13 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	 * @param simTime The time at which the event happened
 	 */
 	public static void addNetEvent(int simID, int from, int to, float bandwidth, long simTime) {
-<span class="nc bnc" id="L375" title="All 2 branches missed.">		if (Reporter.reportsNetEvents())</span>
-<span class="nc" id="L376">			netLog.add(simID + &quot;,&quot; +</span>
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">		if (Reporter.reportsNetEvents())</span>
+<span class="fc" id="L496">			netLog.add(simID + &quot;,&quot; +</span>
 					from + &quot;,&quot; + 
 					to + &quot;,&quot; +
 					bandwidth + &quot;,&quot; +
 					simTime);
-<span class="nc" id="L381">	}</span>
+<span class="fc" id="L501">	}</span>
 	
 	
 	/**
@@ -395,18 +515,18 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 			long tx, 
 			float degBelief, 
 			long simTime) {
-<span class="nc bnc" id="L398" title="All 2 branches missed.">		if (Reporter.reportsBeliefs()) {</span>
-<span class="nc" id="L399">			beliefLog.add(simID + &quot;,&quot; +</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">		if (Reporter.reportsBeliefs()) {</span>
+<span class="nc" id="L519">			beliefLog.add(simID + &quot;,&quot; +</span>
 					node + &quot;,&quot; +
 					tx + &quot;,&quot; +
 					degBelief + &quot;,&quot; +
 					simTime);
 		}
 
-<span class="nc bnc" id="L406" title="All 2 branches missed.">		if (Reporter.reportsBeliefsShort()) {</span>
-<span class="nc" id="L407">			beliefCounter.add(simID, tx, simTime, degBelief);</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">		if (Reporter.reportsBeliefsShort()) {</span>
+<span class="nc" id="L527">			beliefCounter.add(simID, tx, simTime, degBelief);</span>
 		}
-<span class="nc" id="L409">	}</span>
+<span class="nc" id="L529">	}</span>
 	
 	
 	/**
@@ -414,8 +534,8 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	 * @param errorMsg The custom error message.
 	 */
 	public static void addErrorEntry(String errorMsg) {
-<span class="nc" id="L417">		errorLog.add(errorMsg);</span>
-<span class="nc" id="L418">	}</span>
+<span class="nc" id="L537">		errorLog.add(errorMsg);</span>
+<span class="nc" id="L538">	}</span>
 		
 	/**
 	 * Adds an entry to the execution time log with information about the simulation run time.
@@ -433,8 +553,8 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 			long numScheduled,
 			long numProcessed
 			) {
-<span class="nc" id="L436">		execTimeLog.add(simID + &quot;,&quot; + simTime + &quot;,&quot; + sysStartTime + &quot;,&quot; + sysEndTime + &quot;,&quot; + numScheduled + &quot;,&quot; + numProcessed);</span>
-<span class="nc" id="L437">	}</span>
+<span class="nc" id="L556">		execTimeLog.add(simID + &quot;,&quot; + simTime + &quot;,&quot; + sysStartTime + &quot;,&quot; + sysEndTime + &quot;,&quot; + numScheduled + &quot;,&quot; + numProcessed);</span>
+<span class="nc" id="L557">	}</span>
 	
 	
 	
@@ -459,16 +579,16 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      * not by overriding this method.
      */
 	public static void flushAll() {
-<span class="nc" id="L462">		flushEvtReport();</span>
-<span class="nc" id="L463">		flushInputReport();</span>
-<span class="nc" id="L464">		flushNodeReport();</span>
-<span class="nc" id="L465">		flushNetworkReport();</span>
-<span class="nc" id="L466">		flushBeliefReport();</span>
-<span class="nc" id="L467">		flushErrorReport();</span>
-<span class="nc" id="L468">		flushConfig();</span>
-<span class="nc" id="L469">		flushExecTimeReport();</span>
-<span class="nc" id="L470">		flushCustomReports();</span>
-<span class="nc" id="L471">	}</span>
+<span class="nc" id="L582">		flushEvtReport();</span>
+<span class="nc" id="L583">		flushInputReport();</span>
+<span class="nc" id="L584">		flushNodeReport();</span>
+<span class="nc" id="L585">		flushNetworkReport();</span>
+<span class="nc" id="L586">		flushBeliefReport();</span>
+<span class="nc" id="L587">		flushErrorReport();</span>
+<span class="nc" id="L588">		flushConfig();</span>
+<span class="nc" id="L589">		flushExecTimeReport();</span>
+<span class="nc" id="L590">		flushCustomReports();</span>
+<span class="nc" id="L591">	}</span>
 	
     /**
      * Flushes any custom or extension-specific reports defined outside the core reporting system.
@@ -481,82 +601,82 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
      * own flushing behavior for additional report types.
      */
 	public static void flushCustomReports() {
-<span class="nc" id="L484">	}</span>
+<span class="nc" id="L604">	}</span>
 
 	
 	/**
 	 * Save reporter's event log to file. File name is &quot;EventLog - [Simulation Date Time].csv&quot;
 	 */
 	public static void flushEvtReport() {
-<span class="nc bnc" id="L491" title="All 2 branches missed.">		if (Reporter.reportEvents) {</span>
+<span class="nc bnc" id="L611" title="All 2 branches missed.">		if (Reporter.reportEvents) {</span>
 			FileWriter writer;
 			try {
-<span class="nc" id="L494">				writer = new FileWriter(path + &quot;EventLog - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc bnc" id="L495" title="All 2 branches missed.">				for(String str: eventLog) {</span>
-<span class="nc" id="L496">					  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L497">					}</span>
-<span class="nc" id="L498">				writer.close();</span>
-<span class="nc" id="L499">			} catch (IOException e) {</span>
-<span class="nc" id="L500">				e.printStackTrace();</span>
-<span class="nc" id="L501">			}</span>
+<span class="nc" id="L614">				writer = new FileWriter(path + &quot;EventLog - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L615" title="All 2 branches missed.">				for(String str: eventLog) {</span>
+<span class="nc" id="L616">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L617">					}</span>
+<span class="nc" id="L618">				writer.close();</span>
+<span class="nc" id="L619">			} catch (IOException e) {</span>
+<span class="nc" id="L620">				e.printStackTrace();</span>
+<span class="nc" id="L621">			}</span>
 		}
-<span class="nc" id="L503">	}</span>
+<span class="nc" id="L623">	}</span>
 	
 	/**
 	 * Save reporter's transaction log to file. File name is &quot;Input - [Simulation Date Time].csv&quot;
 	 */
 	public static void flushInputReport() {
-<span class="nc bnc" id="L509" title="All 2 branches missed.">		if (Reporter.reportTransactions) {</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">		if (Reporter.reportTransactions) {</span>
 			FileWriter writer;
 			try {
-<span class="nc" id="L512">				writer = new FileWriter(path + &quot;Input - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc bnc" id="L513" title="All 2 branches missed.">				for(String str: inputTxLog) {</span>
-<span class="nc" id="L514">					  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L515">					}</span>
-<span class="nc" id="L516">				writer.close();</span>
-<span class="nc" id="L517">			} catch (IOException e) {</span>
-<span class="nc" id="L518">				e.printStackTrace();</span>
-<span class="nc" id="L519">			} </span>
+<span class="nc" id="L632">				writer = new FileWriter(path + &quot;Input - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L633" title="All 2 branches missed.">				for(String str: inputTxLog) {</span>
+<span class="nc" id="L634">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L635">					}</span>
+<span class="nc" id="L636">				writer.close();</span>
+<span class="nc" id="L637">			} catch (IOException e) {</span>
+<span class="nc" id="L638">				e.printStackTrace();</span>
+<span class="nc" id="L639">			} </span>
 		}
-<span class="nc" id="L521">	}</span>
+<span class="nc" id="L641">	}</span>
 	
 	
 	/**
 	 * Save reporter's node log to file. File name is &quot;Nodes - [Simulation Date Time].csv&quot;
 	 */
 	public static void flushNodeReport() {
-<span class="nc bnc" id="L528" title="All 2 branches missed.">		if (Reporter.reportNodes) {</span>
+<span class="nc bnc" id="L648" title="All 2 branches missed.">		if (Reporter.reportNodes) {</span>
 			FileWriter writer;
 			try {
-<span class="nc" id="L531">				writer = new FileWriter(path + &quot;Nodes - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc bnc" id="L532" title="All 2 branches missed.">				for(String str: nodeLog) {</span>
-<span class="nc" id="L533">					  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L534">					}</span>
-<span class="nc" id="L535">				writer.close();</span>
-<span class="nc" id="L536">			} catch (IOException e) {</span>
-<span class="nc" id="L537">				e.printStackTrace();</span>
-<span class="nc" id="L538">			}</span>
+<span class="nc" id="L651">				writer = new FileWriter(path + &quot;Nodes - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L652" title="All 2 branches missed.">				for(String str: nodeLog) {</span>
+<span class="nc" id="L653">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L654">					}</span>
+<span class="nc" id="L655">				writer.close();</span>
+<span class="nc" id="L656">			} catch (IOException e) {</span>
+<span class="nc" id="L657">				e.printStackTrace();</span>
+<span class="nc" id="L658">			}</span>
 		}
-<span class="nc" id="L540">	}</span>
+<span class="nc" id="L660">	}</span>
 	
 	
 	/**
 	 * Save reporter's network log to file. File name is &quot;NetLog - [Simulation Date Time].csv&quot;
 	 */
 	public static void flushNetworkReport() {
-<span class="nc bnc" id="L547" title="All 2 branches missed.">		if (Reporter.reportNetEvents) {</span>
+<span class="nc bnc" id="L667" title="All 2 branches missed.">		if (Reporter.reportNetEvents) {</span>
 			FileWriter writer;
 			try {
-<span class="nc" id="L550">				writer = new FileWriter(path + &quot;NetLog - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc bnc" id="L551" title="All 2 branches missed.">				for(String str: netLog) {</span>
-<span class="nc" id="L552">					  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L553">					}</span>
-<span class="nc" id="L554">				writer.close();</span>
-<span class="nc" id="L555">			} catch (IOException e) {</span>
-<span class="nc" id="L556">				e.printStackTrace();</span>
-<span class="nc" id="L557">			}</span>
+<span class="nc" id="L670">				writer = new FileWriter(path + &quot;NetLog - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L671" title="All 2 branches missed.">				for(String str: netLog) {</span>
+<span class="nc" id="L672">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L673">					}</span>
+<span class="nc" id="L674">				writer.close();</span>
+<span class="nc" id="L675">			} catch (IOException e) {</span>
+<span class="nc" id="L676">				e.printStackTrace();</span>
+<span class="nc" id="L677">			}</span>
 		}
-<span class="nc" id="L559">	}</span>
+<span class="nc" id="L679">	}</span>
 	
 	
 	/**
@@ -565,31 +685,31 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	public static void flushBeliefReport() {
 		FileWriter writer;
 		
-<span class="nc bnc" id="L568" title="All 2 branches missed.">		if (Reporter.reportBeliefs) {</span>
+<span class="nc bnc" id="L688" title="All 2 branches missed.">		if (Reporter.reportBeliefs) {</span>
 			try {
-<span class="nc" id="L570">				writer = new FileWriter(path + &quot;BeliefLog - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc bnc" id="L571" title="All 2 branches missed.">				for(String str: beliefLog) {</span>
-<span class="nc" id="L572">					  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L573">					}</span>
-<span class="nc" id="L574">				writer.close();</span>
-<span class="nc" id="L575">			} catch (IOException e) {</span>
-<span class="nc" id="L576">				e.printStackTrace();</span>
-<span class="nc" id="L577">			}</span>
+<span class="nc" id="L690">				writer = new FileWriter(path + &quot;BeliefLog - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L691" title="All 2 branches missed.">				for(String str: beliefLog) {</span>
+<span class="nc" id="L692">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L693">					}</span>
+<span class="nc" id="L694">				writer.close();</span>
+<span class="nc" id="L695">			} catch (IOException e) {</span>
+<span class="nc" id="L696">				e.printStackTrace();</span>
+<span class="nc" id="L697">			}</span>
 		}
 
-<span class="nc bnc" id="L580" title="All 2 branches missed.">		if (Reporter.reportBeliefsShort) {</span>
+<span class="nc bnc" id="L700" title="All 2 branches missed.">		if (Reporter.reportBeliefsShort) {</span>
 			try {
-<span class="nc" id="L582">				writer = new FileWriter(path + &quot;BeliefLogShort - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc" id="L583">				writer.write(&quot;SimID, Transaction ID, Time (ms from start), Belief\n&quot;);</span>
-<span class="nc bnc" id="L584" title="All 2 branches missed.">				for(String str: beliefCounter.getEntries()) {</span>
-<span class="nc" id="L585">					  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L586">				}</span>
-<span class="nc" id="L587">				writer.close();</span>
-<span class="nc" id="L588">			} catch (IOException e) {</span>
-<span class="nc" id="L589">				e.printStackTrace();</span>
-<span class="nc" id="L590">			}</span>
+<span class="nc" id="L702">				writer = new FileWriter(path + &quot;BeliefLogShort - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc" id="L703">				writer.write(&quot;SimID, Transaction ID, Time (ms from start), Belief\n&quot;);</span>
+<span class="nc bnc" id="L704" title="All 2 branches missed.">				for(String str: beliefCounter.getEntries()) {</span>
+<span class="nc" id="L705">					  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L706">				}</span>
+<span class="nc" id="L707">				writer.close();</span>
+<span class="nc" id="L708">			} catch (IOException e) {</span>
+<span class="nc" id="L709">				e.printStackTrace();</span>
+<span class="nc" id="L710">			}</span>
 		}
-<span class="nc" id="L592">	}</span>
+<span class="nc" id="L712">	}</span>
 	
 	
 	/**
@@ -597,21 +717,21 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	 */
 	public static void flushErrorReport() {
 		FileWriter writer;
-<span class="nc" id="L600">		boolean errorsExist = false;</span>
+<span class="nc" id="L720">		boolean errorsExist = false;</span>
 		try {
-<span class="nc" id="L602">			writer = new FileWriter(path + &quot;ErrorLog - &quot; + runId + &quot;.txt&quot;);</span>
-<span class="nc bnc" id="L603" title="All 2 branches missed.">			for(String str: errorLog) {</span>
-<span class="nc" id="L604">				writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L605">				errorsExist = true;</span>
-<span class="nc" id="L606">			}</span>
-<span class="nc" id="L607">			writer.close();</span>
-<span class="nc bnc" id="L608" title="All 2 branches missed.">			if (errorsExist) {</span>
-<span class="nc" id="L609">				System.err.println(&quot;    Errors were produced. Please check &quot; + path + &quot;ErrorLog - &quot; + runId + &quot;.txt&quot;);</span>
+<span class="nc" id="L722">			writer = new FileWriter(path + &quot;ErrorLog - &quot; + runId + &quot;.txt&quot;);</span>
+<span class="nc bnc" id="L723" title="All 2 branches missed.">			for(String str: errorLog) {</span>
+<span class="nc" id="L724">				writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L725">				errorsExist = true;</span>
+<span class="nc" id="L726">			}</span>
+<span class="nc" id="L727">			writer.close();</span>
+<span class="nc bnc" id="L728" title="All 2 branches missed.">			if (errorsExist) {</span>
+<span class="nc" id="L729">				System.err.println(&quot;    Errors were produced. Please check &quot; + path + &quot;ErrorLog - &quot; + runId + &quot;.txt&quot;);</span>
 			}
-<span class="nc" id="L611">		} catch (IOException e) {</span>
-<span class="nc" id="L612">			e.printStackTrace();</span>
-<span class="nc" id="L613">		}</span>
-<span class="nc" id="L614">	}</span>
+<span class="nc" id="L731">		} catch (IOException e) {</span>
+<span class="nc" id="L732">			e.printStackTrace();</span>
+<span class="nc" id="L733">		}</span>
+<span class="nc" id="L734">	}</span>
 	
 	/**
 	 * Save reporter's execution time log to file. File name is &quot;RunTime - [Simulation Date Time].csv&quot;
@@ -619,15 +739,15 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	public static void flushExecTimeReport() {
 		FileWriter writer;
 		try {
-<span class="nc" id="L622">			writer = new FileWriter(path + &quot;RunTime - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc bnc" id="L623" title="All 2 branches missed.">			for(String str: execTimeLog) {</span>
-<span class="nc" id="L624">				  writer.write(str + System.lineSeparator());</span>
-<span class="nc" id="L625">				}</span>
-<span class="nc" id="L626">			writer.close();</span>
-<span class="nc" id="L627">		} catch (IOException e) {</span>
-<span class="nc" id="L628">			e.printStackTrace();</span>
-<span class="nc" id="L629">		}</span>
-<span class="nc" id="L630">	}</span>
+<span class="nc" id="L742">			writer = new FileWriter(path + &quot;RunTime - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc bnc" id="L743" title="All 2 branches missed.">			for(String str: execTimeLog) {</span>
+<span class="nc" id="L744">				  writer.write(str + System.lineSeparator());</span>
+<span class="nc" id="L745">				}</span>
+<span class="nc" id="L746">			writer.close();</span>
+<span class="nc" id="L747">		} catch (IOException e) {</span>
+<span class="nc" id="L748">			e.printStackTrace();</span>
+<span class="nc" id="L749">		}</span>
+<span class="nc" id="L750">	}</span>
 	
 	
 	/**
@@ -636,14 +756,14 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
 	public static void flushConfig() {
 		FileWriter writer;
 		try {
-<span class="nc" id="L639">			writer = new FileWriter(path + &quot;Config - &quot; + runId + &quot;.csv&quot;);</span>
-<span class="nc" id="L640">			writer.write(&quot;Key, Value&quot; + System.lineSeparator());</span>
-<span class="nc" id="L641">			writer.write(Config.printPropertiesToString());</span>
-<span class="nc" id="L642">			writer.close();</span>
-<span class="nc" id="L643">		} catch (IOException e) {</span>
-<span class="nc" id="L644">			e.printStackTrace();</span>
-<span class="nc" id="L645">		} </span>
-<span class="nc" id="L646">	}</span>
+<span class="nc" id="L759">			writer = new FileWriter(path + &quot;Config - &quot; + runId + &quot;.csv&quot;);</span>
+<span class="nc" id="L760">			writer.write(&quot;Key, Value&quot; + System.lineSeparator());</span>
+<span class="nc" id="L761">			writer.write(Config.printPropertiesToString());</span>
+<span class="nc" id="L762">			writer.close();</span>
+<span class="nc" id="L763">		} catch (IOException e) {</span>
+<span class="nc" id="L764">			e.printStackTrace();</span>
+<span class="nc" id="L765">		} </span>
+<span class="nc" id="L766">	}</span>
 	
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

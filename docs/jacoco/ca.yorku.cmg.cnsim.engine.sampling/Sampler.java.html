@@ -11,102 +11,258 @@ import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
  */
 
 /**
- * Acts as a container of different kinds of Samplers and offers some basic 
- * sampling methods. There are three different kinds of Samplers accessed through 
+ * Acts as a container of different kinds of Samplers and offers some basic
+ * sampling methods. There are three different kinds of Samplers accessed through
  * this: a transaction sampler, a node sampler and a network sampler.
  * 
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
- * 
+ * @see AbstractTransactionSampler
+ * @see AbstractNodeSampler
+ * @see AbstractNetworkSampler
+ * @since 0.1
  */
-<span class="fc" id="L21">public class Sampler {</span>
+<span class="fc" id="L24">public class Sampler {</span>
+	// ================================
+	// FIELDS
+	// ================================
+	/** The transaction sampler for generating transaction workloads. */
 	AbstractTransactionSampler transactionSampler;
+
+	/** The node sampler for generating node configurations. */
 	AbstractNodeSampler nodeSampler;
+
+	/** The network sampler for generating network topologies. */
 	AbstractNetworkSampler networkSampler;
-	
-	
+
+	// ================================
+	// MAIN PUBLIC METHODS
+	// ================================
+
 	/*
 	 * B A S E L I N E   S A M P L I N G   R O U T I N E S  
 	 */
-	
+
 	/**
      * Calculates a random interval following the Poisson distribution.
-     *
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ requires lambda &gt;= 0;
+	 *   //@ requires random != null;
+	 *   //@ ensures \result &gt;= 0;
+	 * }&lt;/pre&gt;
+	 *
      * @param lambda The parameter of the Poisson distribution (lambda greater or equal to 0). To be used for arrival rates.
-     * @return The random interval following the Poisson distribution.
-     * @throws ArithmeticException if the provided lambda value is less than 0.
+	 * @param random the {@linkplain Random} number generator to use
+     * @return The random interval following the Poisson distribution
+	 * @throws ArithmeticException if {@code lambda &lt; 0}
+	 * @throws NullPointerException if {@code random} is null
      */
     public double getPoissonInterval(float lambda, Random random) {
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    	if(lambda &lt; 0)</span>
-<span class="nc" id="L40">    		throw new ArithmeticException(&quot;lambda &lt; 0&quot;);</span>
-<span class="fc" id="L41">		double p = random.nextDouble();</span>
-<span class="pc bpc" id="L42" title="1 of 2 branches missed.">		while (p == 0.0){</span>
-<span class="nc" id="L43">			p = random.nextDouble();</span>
+<span class="fc" id="L62">		getPoissonInterval_pre(lambda, random);</span>
+
+<span class="fc" id="L64">		double p = random.nextDouble();</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		while (p == 0.0){</span>
+<span class="nc" id="L66">			p = random.nextDouble();</span>
 		}
-<span class="fc" id="L45">        return (double) (Math.log(1-p)/(-lambda));</span>
+<span class="fc" id="L68">		double result = Math.log(1 - p) / (-lambda);</span>
+
+<span class="fc" id="L70">		getPoissonInterval_post(result);</span>
+
+<span class="fc" id="L72">        return result;</span>
     }
     
     
     /**
-     * Generates a random value following the Gaussian distribution (normal distribution), 
-     * truncated to ensure it is positive
+     * Generates a random value following the Gaussian distribution (normal distribution).
+     * The result is always positive using absolute value. 
      *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ requires deviation &gt;= 0;
+	 *   //@ requires random != null;
+	 *   //@ ensures \result &gt;=0;
+	 * }&lt;/pre&gt;
+	 *
      * @param mean  The mean value of the distribution.
      * @param deviation The standard deviation of the distribution (deviation greater or equal to 0).
-     * @return The generated random value following the Gaussian distribution.
-     * @throws ArithmeticException if the provided deviation value is less than 0.
+	 * @param random The {@linkplain Random} number generator to use
+	 * @return The generated random value following the Gaussian distribution. If negative, the absolute value is returned.
+	 * @throws ArithmeticException if {@code deviation &lt; 0}
+	 * @throws NullPointerException if {@code random} is null
      */
-    public float getGaussian(float mean, float deviation, Random random) {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">    	if(deviation &lt; 0)</span>
-<span class="nc" id="L60">    		throw new ArithmeticException(&quot;Standard deviation &lt; 0&quot;);</span>
-<span class="nc" id="L61">    	float gaussianValue = mean + (float) random.nextGaussian() * deviation;</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">    	while(gaussianValue &lt;= 0) {</span>
-<span class="nc" id="L63">    		gaussianValue = mean + (float) random.nextGaussian() * deviation;</span>
-    	}
-<span class="nc" id="L65">    	return gaussianValue;</span>
+    public float getGaussianPos(float mean, float deviation, Random random) {
+<span class="fc" id="L95">		getGaussian_pre(mean, deviation, random);</span>
+
+<span class="fc" id="L97">    	float gaussianValue = Math.abs(mean + (float) random.nextGaussian() * deviation);</span>
+
+<span class="fc" id="L99">		getGaussian_post(gaussianValue);</span>
+<span class="fc" id="L100">    	return gaussianValue;</span>
     }
-		
+
+        
     
     
-    /*
-     *
-     * S E T T E R S   A N D  G E T T E R S
-     * 
-     */
+	/**
+	 * Generates a random value following the Gaussian distribution (normal distribution),
+	 * truncated to ensure it is positive, using {@linkplain this.getGaussian()}
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ requires deviation &gt;= 0;
+	 *   //@ requires mean &gt;= 0
+	 *   //@ requires random != null;
+	 *   //@ ensures \result &gt; 0;
+	 * }&lt;/pre&gt;
+	 *
+	 * @param mean  The mean value of the distribution.
+	 * @param deviation The standard deviation of the distribution (deviation greater or equal to 0).
+	 * @param random The {@linkplain Random} number generator to use
+	 * @return The generated random value following the Gaussian distribution.
+	 * @throws ArithmeticException if {@code deviation &lt; 0 || mean &lt; 0 }
+	 * @throws NullPointerException if {@code random} is null
+	 */
+	public float getPositiveGaussian(float mean, float deviation, Random random) {
+<span class="fc" id="L126">		getPositiveGaussian_pre(mean, deviation, random);</span>
+<span class="fc" id="L127">		return getGaussianPos(mean, deviation, random);</span>
+	}
     
-    /*
-     * Transaction Sampler
-     */
-  
+	// ================================
+	// SETTERS AND GETTERS
+	// ================================
+
+	/**
+	 * Returns the transaction sampler.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ ensures \result == this.transactionSampler;
+	 * }&lt;/pre&gt;
+	 *
+	 * @return the {@linkplain AbstractTransactionSampler} instance
+	 */
 	public AbstractTransactionSampler getTransactionSampler() {
-<span class="nc" id="L81">		return transactionSampler;</span>
+<span class="fc" id="L145">		return transactionSampler;</span>
 	}
+
+
+	/**
+	 * Sets the transaction sampler.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ ensures this.transactionSampler == txSampler;
+	 * }&lt;/pre&gt;
+	 *
+	 * @param txSampler the {@linkplain AbstractTransactionSampler} to set
+	 */
 	public void setTransactionSampler(AbstractTransactionSampler txSampler) {
-<span class="nc" id="L84">		this.transactionSampler = txSampler;</span>
-<span class="nc" id="L85">	}</span>
+<span class="fc" id="L160">		this.transactionSampler = txSampler;</span>
+<span class="fc" id="L161">	}</span>
 
 	
-    /*
-     * Node Sampler
-     */
-	
+	/**
+	 * Returns the node sampler.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ ensures \result == this.nodeSampler;
+	 * }&lt;/pre&gt;
+	 *
+	 * @return the {@linkplain AbstractNodeSampler} instance
+	 */
 	public AbstractNodeSampler getNodeSampler() {
-<span class="nc" id="L93">		return nodeSampler;</span>
+<span class="fc" id="L175">		return nodeSampler;</span>
 	}
+
+	/**
+	 * Sets the node sampler.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ ensures this.nodeSampler == nodeSampler;
+	 * }&lt;/pre&gt;
+	 *
+	 * @param nodeSampler the {@linkplain AbstractNodeSampler} to set
+	 */
 	public void setNodeSampler(AbstractNodeSampler nodeSampler) {
-<span class="nc" id="L96">		this.nodeSampler = nodeSampler;</span>
-<span class="nc" id="L97">	}</span>
+<span class="fc" id="L189">		this.nodeSampler = nodeSampler;</span>
+<span class="fc" id="L190">	}</span>
 
-    /*
-     * Network Sampler
-     */
-
+	/**
+	 * Returns the network sampler.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ ensures \result == this.networkSampler;
+	 * }&lt;/pre&gt;
+	 *
+	 * @return the {@linkplain AbstractNetworkSampler} instance
+	 */
 	public AbstractNetworkSampler getNetworkSampler() {
-<span class="nc" id="L104">		return networkSampler;</span>
+<span class="fc" id="L203">		return networkSampler;</span>
 	}
+
+	/**
+	 * Sets the network sampler.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;{@code
+	 *   //@ ensures this.networkSampler == netSampler;
+	 * }&lt;/pre&gt;
+	 *
+	 * @param netSampler the {@linkplain AbstractNetworkSampler} to set
+	 */
 	public void setNetworkSampler(AbstractNetworkSampler netSampler) {
-<span class="nc" id="L107">		this.networkSampler = netSampler;</span>
-<span class="nc" id="L108">	}</span>
+<span class="fc" id="L217">		this.networkSampler = netSampler;</span>
+<span class="fc" id="L218">	}</span>
     
-	
+	// ================================
+	// VALIDATOR METHODS
+	// ================================
+
+	private static void requirePostcondition(boolean condition, String message) {
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">		if (!condition) {</span>
+<span class="nc" id="L226">			throw new IllegalStateException(message);</span>
+		}
+<span class="fc" id="L228">	}</span>
+
+	private void getPoissonInterval_pre(float lambda, Random random) {
+<span class="fc bfc" id="L231" title="All 2 branches covered.">		if (lambda &lt; 0) {</span>
+<span class="fc" id="L232">			throw new ArithmeticException(&quot;lambda &lt; 0&quot;);</span>
+		}
+<span class="fc bfc" id="L234" title="All 2 branches covered.">		if (random == null) {</span>
+<span class="fc" id="L235">			throw new NullPointerException(&quot;random cannot be null&quot;);</span>
+		}
+<span class="fc" id="L237">	}</span>
+
+	private void getPoissonInterval_post(double result) {
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">		requirePostcondition(</span>
+			result &gt;= 0,
+			&quot;Postcondition violated: result must be non-negative&quot;
+		);
+<span class="fc" id="L244">	}</span>
+
+	private void getGaussian_pre(float mean, float deviation, Random random) {
+<span class="fc bfc" id="L247" title="All 2 branches covered.">		if (deviation &lt; 0) {</span>
+<span class="fc" id="L248">			throw new ArithmeticException(&quot;Standard deviation &lt; 0&quot;);</span>
+		}
+<span class="fc bfc" id="L250" title="All 2 branches covered.">		if (random == null) {</span>
+<span class="fc" id="L251">			throw new NullPointerException(&quot;random cannot be null&quot;);</span>
+		}
+<span class="fc" id="L253">	}</span>
+
+	private void getGaussian_post(float result) {
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		requirePostcondition(</span>
+			result &gt;= 0,
+			&quot;Postcondition violated: result must be positive&quot;
+		);
+<span class="fc" id="L260">	}</span>
+
+	private void getPositiveGaussian_pre(float mean, float deviation, Random random) {
+<span class="fc bfc" id="L263" title="All 2 branches covered.">		if (mean &lt; 0) {</span>
+<span class="fc" id="L264">			throw new ArithmeticException(&quot;mean must be positive&quot;);</span>
+		}
+<span class="fc" id="L266">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

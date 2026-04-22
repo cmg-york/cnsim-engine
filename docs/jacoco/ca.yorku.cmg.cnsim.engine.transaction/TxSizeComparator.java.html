@@ -2,14 +2,38 @@
 
 import java.util.Comparator;
 
-<span class="nc" id="L5">public class TxSizeComparator implements Comparator&lt;Transaction&gt;{</span>
+<span class="fc" id="L5">public class TxSizeComparator implements Comparator&lt;Transaction&gt;{</span>
 
+	/**
+	 * Compares the size of Transaction t1 to Transaction t2.
+	 * Returns 1 if size of t1 &gt; t2; 0 if t1 == t2; or -1 if t1 &lt; t2.
+	 *
+	 * &lt;p&gt;&lt;b&gt;JML Contract:&lt;/b&gt;&lt;/p&gt;
+	 * &lt;pre&gt;
+	 *     //@ requires t1 != null;
+	 *     //@ requires t2 != null;
+	 * &lt;/pre&gt;
+	 * @param t1 the first Transaction to be compared.
+	 * @param t2 the second Transaction to be compared.
+	 * @return 1 if size of t1 &gt; t2; 0 if t1 == t2; or -1 if t1 &lt; t2&lt;/&gt;
+	 */
 	@Override
 	public int compare(Transaction t1, Transaction t2) {
-<span class="nc bnc" id="L9" title="All 2 branches missed.">			if(t1.getSize() &gt;= t2.getSize())</span>
-<span class="nc" id="L10">				return 1;</span>
-			else
-<span class="nc" id="L12">				return -1;</span>
+<span class="fc" id="L22">		compare_pre(t1,t2);</span>
+
+<span class="fc bfc" id="L24" title="All 2 branches covered.">		if(t1.getSize() &gt; t2.getSize())</span>
+<span class="fc" id="L25">			return 1;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">		else if (t1.getSize() == t2.getSize())</span>
+<span class="fc" id="L27">			return 0;</span>
+		else
+<span class="fc" id="L29">			return -1;</span>
 	}
+
+	// Private helper method to check precondition for {@linkplain compare}
+	private void compare_pre(Transaction t1, Transaction t2) {
+<span class="fc bfc" id="L34" title="All 4 branches covered.">		if (t1 == null || t2 == null) {</span>
+<span class="fc" id="L35">			throw new NullPointerException(&quot;Input Transaction objects can not be null&quot;);</span>
+		}
+<span class="fc" id="L37">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

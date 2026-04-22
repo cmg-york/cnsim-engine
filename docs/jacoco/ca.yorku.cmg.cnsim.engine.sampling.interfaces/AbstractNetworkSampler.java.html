@@ -25,7 +25,7 @@ public abstract class AbstractNetworkSampler implements ISowable {
     protected Sampler sampler;
 
     /** Random number generator */
-<span class="nc" id="L28">    protected Random random = new Random();</span>
+<span class="pc" id="L28">    protected Random random = new Random();</span>
 
     /** Seed used to initialize the random generator */
     protected long randomSeed;
@@ -47,9 +47,9 @@ public abstract class AbstractNetworkSampler implements ISowable {
      * Loads configuration values from {@linkplain Config}.
      * &lt;/p&gt;
      */
-<span class="nc" id="L50">    public AbstractNetworkSampler() {</span>
-<span class="nc" id="L51">    	LoadConfig();</span>
-<span class="nc" id="L52">    }</span>
+<span class="fc" id="L50">    public AbstractNetworkSampler() {</span>
+//    	LoadConfig();
+<span class="fc" id="L52">    }</span>
     
      
     /**
@@ -114,10 +114,10 @@ public abstract class AbstractNetworkSampler implements ISowable {
      * @throws ArithmeticException if the provided value is less than 0
      */
 	public void setNetThroughputMean(float netThroughputMean) {
-<span class="nc bnc" id="L117" title="All 2 branches missed.">    	if(netThroughputMean &lt; 0)</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">    	if(netThroughputMean &lt; 0)</span>
 <span class="nc" id="L118">    		throw new ArithmeticException(&quot;Network Throughput Mean &lt; 0&quot;);</span>
-<span class="nc" id="L119">        this.netThroughputMean = netThroughputMean;</span>
-<span class="nc" id="L120">    }</span>
+<span class="fc" id="L119">        this.netThroughputMean = netThroughputMean;</span>
+<span class="fc" id="L120">    }</span>
 
     /**
      * Returns the standard deviation of node-to-node throughput in bits per second (bps).
@@ -135,10 +135,10 @@ public abstract class AbstractNetworkSampler implements ISowable {
      * @throws ArithmeticException if the provided value is less than 0
      */
 	public void setNetThroughputSD(float netThroughputSD) {
-<span class="nc bnc" id="L138" title="All 2 branches missed.">    	if(netThroughputSD &lt; 0)</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">    	if(netThroughputSD &lt; 0)</span>
 <span class="nc" id="L139">    		throw new ArithmeticException(&quot;Network Throughput Standard Deviation &lt; 0&quot;);</span>
-<span class="nc" id="L140">        this.netThroughputSD = netThroughputSD;</span>
-<span class="nc" id="L141">    }</span>
+<span class="fc" id="L140">        this.netThroughputSD = netThroughputSD;</span>
+<span class="fc" id="L141">    }</span>
 
     
 

@@ -54,7 +54,7 @@ public class Event_Report_BeliefReport extends Event {
 <span class="nc bnc" id="L54" title="All 2 branches missed.">		for (INode n : sim.getNodeSet().getNodes()) {</span>
 <span class="nc" id="L55">			n.event_PrintBeliefReport(sampleTx,this.getTime());</span>
 <span class="nc" id="L56">		}</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (Reporter.reportsEvents()) {</span>
+<span class="nc bnc" id="L57" title="All 4 branches missed.">        if (Reporter.reportsEvents() &amp;&amp; Reporter.reportsBeliefEvents()) {</span>
 <span class="nc" id="L58">	        Reporter.addEvent(</span>
 <span class="nc" id="L59">	        		sim.getSimID(),</span>
 <span class="nc" id="L60">	        		getEvtID(), </span>

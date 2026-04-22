@@ -67,7 +67,7 @@ public class Event_TransactionPropagation extends Event {
     public void happen(Simulation sim) {
 <span class="nc" id="L68">        super.happen(sim);</span>
 <span class="nc" id="L69">        node.event_NodeReceivesPropagatedTransaction(trans, getTime());</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (Reporter.reportsEvents()) {</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        if (Reporter.reportsEvents() &amp;&amp; Reporter.reportsTransactionPropagationEvents()) {</span>
 <span class="nc" id="L71">	        Reporter.addEvent(</span>
 <span class="nc" id="L72">	        		sim.getSimID(),</span>
 <span class="nc" id="L73">	        		getEvtID(), </span>
