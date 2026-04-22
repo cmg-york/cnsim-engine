@@ -98,13 +98,26 @@ public class Reporter {
 	protected static boolean reportEvents;
 	protected static boolean reportBeliefEvents;
 	protected static boolean reportTransactions;
+	protected static boolean reportSampleTransactionsOnly;
 	protected static boolean reportNodes;
 	protected static boolean reportNetEvents;
 	protected static boolean reportBeliefs;
 	protected static boolean reportBeliefsShort;
+	protected static boolean reportFinalBeliefShort;
 
+	protected static boolean enablePeriodicReports;
+	protected static boolean enableTimeAdvancementReports;
 
-
+	protected static boolean[] eventReports = new boolean[EventReports.values().length];
+	
+	static enum EventReports {
+		ContainerArrival,
+		ContainerValidation,
+		NewTransactionArrival,
+		TransactionPropagation,
+		Report_BeliefReport,
+		SeedUpdate
+	}
 
 	
 	
@@ -153,39 +166,91 @@ public class Reporter {
 	
 	
 	
-	
 	// -----------------------------------------------------------------
+	// S E T T E R S 
 	// Methods to enable/disable or query report categories
 	// -----------------------------------------------------------------
 	
+
+	// REPORTS IN THE EventLog FILE
 	
 	public static void reportEvents(boolean reportEvents) {
 		Reporter.reportEvents = reportEvents;
 	}
+	
+	public static void reportContainerArrivalEvents(boolean setting) {
+		eventReports[EventReports.ContainerArrival.ordinal()] = setting;
+	}
 
-	public static void reportBeliefEvents(boolean reportBeliefEvents) {
-		Reporter.reportBeliefEvents = reportBeliefEvents;
+	public static void reportContainerValidationEvents(boolean setting) {
+		eventReports[EventReports.ContainerValidation.ordinal()] = setting;
 	}
 	
+	public static void reportNewTransactionArrivalEvents(boolean setting) {
+		eventReports[EventReports.NewTransactionArrival.ordinal()] = setting;
+	}
+	
+	public static void reportTransactionPropagationEvents(boolean setting) {
+		eventReports[EventReports.TransactionPropagation.ordinal()] = setting;
+	}
+
+	public static void reportBeliefEvents(boolean setting) {
+		eventReports[EventReports.Report_BeliefReport.ordinal()] = setting;
+	}
+
+	public static void reportSeedUpdateEvents(boolean setting) {
+		eventReports[EventReports.SeedUpdate.ordinal()] = setting;
+	}
+	
+	
+	// OTHER FILES
+	
+	
+	//Input File
 	public static void reportTransactions(boolean reportTransactions) {
 		Reporter.reportTransactions = reportTransactions;
 	}
 
+	public static void reportSampleTransactionsOnly(boolean reportSampleTransactionsOnly) {
+		Reporter.reportSampleTransactionsOnly = reportSampleTransactionsOnly;
+	}
+	
+	//Nodes File
 	public static void reportNodes(boolean reportNodes) {
 		Reporter.reportNodes = reportNodes;
 	}
 
+	//NetLog File
 	public static void reportNetEvents(boolean reportNetEvents) {
 		Reporter.reportNetEvents = reportNetEvents;
 	}
 
+	//BeliefLog
 	public static void reportBeliefs(boolean reportBeliefs) {
 		Reporter.reportBeliefs = reportBeliefs;
 	}
 
+	//BeliefLogShort
 	public static void reportBeliefsShort(boolean reportBeliefsShort) {
 		Reporter.reportBeliefsShort = reportBeliefsShort;
 	}
+
+	
+	// Misc Reports
+	public static void enablePeriodicReport(boolean setting) {
+		Reporter.enablePeriodicReports = setting;
+	}
+
+	public static void enableTimeAdvancementReports(boolean setting) {
+		Reporter.enableTimeAdvancementReports = setting;
+	}
+	
+	
+	
+	// ----------------------
+	// G E T T E R S 
+	// ----------------------
+	
 	
 	  /**
      * Returns whether general events are being logged.
@@ -196,44 +261,51 @@ public class Reporter {
         return Reporter.reportEvents;
     }
 
-	  /**
-     * Returns whether belief events specifically are being logged in the events log.
-     *
-     * @return {@code true} if event reporting is enabled, {@code false} otherwise
-     */
-    public static boolean reportsBeliefEvents() {
-        return Reporter.reportBeliefEvents;
-    }
+	public static boolean reportsContainerArrivalEvents() {
+		return eventReports[EventReports.ContainerArrival.ordinal()];
+	}
+
+	public static boolean reportsContainerValidationEvents() {
+		return eventReports[EventReports.ContainerValidation.ordinal()];
+	}
+	
+	public static boolean reportsNewTransactionArrivalEvents() {
+		return eventReports[EventReports.NewTransactionArrival.ordinal()];
+	}
+	
+	public static boolean reportsTransactionPropagationEvents() {
+		return eventReports[EventReports.TransactionPropagation.ordinal()];
+	}
+
+	public static boolean reportsBeliefEvents() {
+		return eventReports[EventReports.Report_BeliefReport.ordinal()];
+	}
+
+	public static boolean reportsSeedUpdateEvents() {
+		return eventReports[EventReports.SeedUpdate.ordinal()];
+	}
+	
     
     
-    /**
-     * Returns whether transaction events are being logged.
-     *
-     * @return {@code true} if transaction reporting is enabled, {@code false} otherwise
-     */
     public static boolean reportsTransactions() {
         return Reporter.reportTransactions;
     }
 
-    /**
-     * Returns whether node events are being logged.
-     *
-     * @return {@code true} if node reporting is enabled, {@code false} otherwise
-     */
+    public static boolean reportsSampleTransactionsOnly() {
+        return Reporter.reportSampleTransactionsOnly;
+    }
+
+    
+
+    
     public static boolean reportsNodeEvents() {
         return Reporter.reportNodes;
     }
 
-    /**
-     * Returns whether network events are being logged.
-     *
-     * @return {@code true} if network event reporting is enabled, {@code false} otherwise
-     */
     public static boolean reportsNetEvents() {
         return Reporter.reportNetEvents;
     }
-	
-	
+		
 	public static boolean reportsBeliefs() {
 		return Reporter.reportBeliefs;
 	}
@@ -241,6 +313,14 @@ public class Reporter {
 	public static boolean reportsBeliefsShort() {
 		return Reporter.reportBeliefsShort;
 	}
+
+	public static boolean allowsPeriodicReports() {
+		return enablePeriodicReports;
+	}
+
+	public static boolean allowsTimeAdvancementReports() {
+		return enableTimeAdvancementReports;
+	}	
 	
 	
 	
@@ -339,15 +419,40 @@ public class Reporter {
      * @param dependencies a string of the form {txID1,txID2,...} specifying the transactions on which the current transaction depends. -1 if the transaction has no dependencies.
      */
 	public static void addTx(int simID, long txID, float size, float value, int nodeID, long simTime, int conflictID, String dependencies) {
-		if (Reporter.reportTransactions)
-			inputTxLog.add(simID + "," +
-					txID + "," + 
-					size + "," +
-					value + "," +
-					nodeID  + "," +
-					simTime  + "," +
-					conflictID + "," +
-					dependencies);
+		if (Reporter.reportTransactions) {
+			
+			if (Reporter.reportSampleTransactionsOnly) {
+				if (contains(
+						Config.parseStringToArray(
+								Config.getPropertyString("workload.sampleTransaction")),txID)) {
+					inputTxLog.add(simID + "," +
+							txID + "," + 
+							size + "," +
+							value + "," +
+							nodeID  + "," +
+							simTime  + "," +
+							conflictID + "," +
+							dependencies);
+				}
+			} else { 
+				inputTxLog.add(simID + "," +
+						txID + "," + 
+						size + "," +
+						value + "," +
+						nodeID  + "," +
+						simTime  + "," +
+						conflictID + "," +
+						dependencies);
+			}
+		} 
+	}
+	
+	
+	private static boolean contains(long[] arr, long value) {
+	    for (long v : arr) {
+	        if (v == value) return true;
+	    }
+	    return false;
 	}
 	
 	 /**

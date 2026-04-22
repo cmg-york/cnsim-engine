@@ -1,19 +1,35 @@
 # Consensus Network Simulator - Simulation Engine (CNSim-Engine)
 
 CNSim-Engine is the object-oriented framework that lies at the core of CNSim, a toolset for simulating blockchain consensus networks. The engine offers a set of abstractions, objects, and routines for quickly developing and running event-driven simulators of individual consensus networks. As such it is meant to be used as a library of *instantiating projects* to use in order to analyze specific protocols.
+
 ## Installation
-At this stage, the easiest way to access the CNSim-Engine assets is through:
-1. Downloading the JAR to your local project,
-2. Adding it to the project instantiating the framework. For a maven project, assuming the JAR is named `cnsim-engine-0.0.1-SNAPSHOT.jar` and is placed under the `/lib` directory of the instantiating project, the following dependency can be added inside the dependencies:
+At this stage, the easiest way to instantiate CNSim-Engine assets is through installation to your local Maven repository:
+
+1. In the `cnsim-engine` directory just do:
+
 ```
-<dependency>
-	<groupId>ca.yorku.cmg.cnsim</groupId>
-	<artifactId>cnsim-engine</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<scope>system</scope>
-	<systemPath>${project.basedir}/lib/cnsim-engine-0.0.1-SNAPSHOT.jar</systemPath>
-</dependency>
+mvn install
 ```
+
+this will compile and install the library to your local Maven repo.
+
+2. In your instantiating code then (e.g. `cnsim-bitcoin`) just add this to your `pom.xml`
+
+```
+<dependencies>
+
+  ...
+
+  <dependency>
+    <groupId>ca.yorku.cmg</groupId>
+    <artifactId>cnsim-engine</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+  </dependency>
+
+</dependencies>
+```
+
+Ensure that the version is the same as in the `pom.xml` at the root of this repository.
 
 ## Documentation
 * A conceptual overview of CNSim-Engine can be found here \[under construction\].

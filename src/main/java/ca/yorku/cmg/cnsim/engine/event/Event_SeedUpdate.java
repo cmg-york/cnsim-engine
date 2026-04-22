@@ -61,7 +61,7 @@ public class Event_SeedUpdate extends Event {
     public void happen(Simulation sim) {
         super.happen(sim);
         sampler.updateSeed();
-        if (Reporter.reportsEvents()) {
+        if (Reporter.reportsEvents()  && Reporter.reportsSeedUpdateEvents()) {
 	        Reporter.addEvent(
 	        		sim.getSimID(),
 	        		this.getEvtID(), 

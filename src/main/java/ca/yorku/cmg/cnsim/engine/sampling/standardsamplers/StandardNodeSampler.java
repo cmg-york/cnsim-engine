@@ -167,7 +167,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
 	 */
 	@Override
 	public float getNextNodeElectricPower() {
-		return (sampler.getGaussian(nodeElectricPowerMean, nodeElectricPowerSD, getRandom()));
+		return (sampler.getGaussianPos(nodeElectricPowerMean, nodeElectricPowerSD, getRandom()));
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
 	 */
 	@Override
 	public float getNextNodeHashPower() {
-		return (sampler.getGaussian(nodeHashPowerMean, nodeHashPowerSD, getRandom()));
+		return (sampler.getGaussianPos(nodeHashPowerMean, nodeHashPowerSD, getRandom()));
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class StandardNodeSampler extends AbstractNodeSampler {
 	 */
 	@Override
 	public float getNextNodeElectricityCost() {
-		return (sampler.getGaussian(nodeElectricCostMean, nodeElectricCostSD, getRandom()));
+		return (sampler.getGaussianPos(nodeElectricCostMean, nodeElectricCostSD, getRandom()));
 	}
 
 

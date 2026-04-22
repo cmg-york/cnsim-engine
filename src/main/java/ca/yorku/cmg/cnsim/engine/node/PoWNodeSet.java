@@ -3,6 +3,7 @@ package ca.yorku.cmg.cnsim.engine.node;
 import java.util.ArrayList;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
 
 /**
@@ -97,7 +98,14 @@ public class PoWNodeSet extends NodeSet {
 				IMiner miner = (IMiner) n;
 				if (Reporter.reportsNodeEvents()) {
 					Reporter.addNode(Simulation.currentSimulationID, miner.getID(), miner.getHashPower(), miner.getElectricPower(), miner.getElectricityCost(), miner.getTotalCycles());
-				}				
+				}
+				
+				if (Reporter.reportsBeliefs() || Reporter.reportsBeliefsShort()) {
+					n.event_PrintBeliefReport(
+							Config.parseStringToArray(Config.getPropertyString("workload.sampleTransaction")),
+							Simulation.currTime);
+				}
+				
 			} else {
 				throw new IllegalStateException("Node in PoWNodeSet is not an IMiner instance.");
 			}

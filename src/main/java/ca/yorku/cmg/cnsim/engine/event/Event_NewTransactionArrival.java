@@ -71,7 +71,7 @@ public class Event_NewTransactionArrival extends Event {
         node.event_NodeReceivesClientTransaction(transaction, getTime());
         
         
-        if (Reporter.reportsEvents()) {
+        if (Reporter.reportsEvents() && Reporter.reportsNewTransactionArrivalEvents()) {
 	        Reporter.addEvent(
 	        		sim.getSimID(),
 	        		getEvtID(), 

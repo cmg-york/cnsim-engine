@@ -148,7 +148,7 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
      */
     @Override
     public float getNextTransactionFeeValue() {
-        return(sampler.getGaussian(txValueMean, txValueSD, random));
+        return(sampler.getGaussianPos(txValueMean, txValueSD, random));
     }
 
     /**
@@ -171,7 +171,7 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
     	int tries = 0;
     	
     	do {
-    		result = (long) sampler.getGaussian(txSizeMean, txSizeSD, random);
+    		result = (long) sampler.getGaussianPos(txSizeMean, txSizeSD, random);
     		tries++;
     	} while ((result < minSize) && (tries < maxTries));
     	
