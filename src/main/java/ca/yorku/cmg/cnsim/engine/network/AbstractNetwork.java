@@ -145,7 +145,7 @@ public abstract class AbstractNetwork {
         getTransmissionTimeByThroughput_pre(throughput, size);
 
         long result;
-        if (throughput == 0) {
+        if (Math.abs(throughput) < 1e-6f) {
             result = NOT_CONNECTED;
         } else {
             float ms = (size * BITS_PER_BYTE * MS_PER_SECOND) / throughput;
@@ -182,7 +182,7 @@ public abstract class AbstractNetwork {
 			throw new ArithmeticException("Destination < 0");
 		float throughput = Net[origin][destination];
 		
-		if (throughput<=0) {
+		if (throughput < 0) {
 			throw new RuntimeException("Negative throughput from node " + origin + " to node " + destination + ": " + throughput);
 		}
 		
