@@ -106,7 +106,7 @@ public abstract class SimulatorFactory {
 						(Config.hasProperty("net.sampler.seed.updateSeed") ? Config.getPropertyBoolean("net.sampler.seed.updateSeed") : null),
 						s.getSampler(),s
 						)
-				);
+		);
 	}
 
     /**

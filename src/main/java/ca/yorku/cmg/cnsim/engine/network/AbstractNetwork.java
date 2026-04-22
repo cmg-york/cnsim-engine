@@ -119,7 +119,13 @@ public abstract class AbstractNetwork {
 			throw new ArithmeticException("Origin < 0");
 		if(destination < 0)
 			throw new ArithmeticException("Destination < 0");
-		return Net[origin][destination];
+		float throughput = Net[origin][destination];
+		
+		if (throughput<=0) {
+			throw new RuntimeException("Negative throughput from node " + origin + " to node " + destination + ": " + throughput);
+		}
+		
+		return throughput;
 	}
 
     /**

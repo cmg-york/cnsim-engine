@@ -15,7 +15,11 @@ public class StandardNetworkSampler extends AbstractNetworkSampler {
      */
     @Override
     public float getNextConnectionThroughput() {
-        return (sampler.getGaussian(netThroughputMean, netThroughputSD, random));
+    	float result = sampler.getGaussianPos(netThroughputMean, netThroughputSD, random);
+    	if (result <= 0) {
+    		throw new ArithmeticException("getGaussianPos gives " + result + " with mean " + netThroughputMean + " and sd " + netThroughputSD);
+    	}
+        return (result);
     }
 
 
