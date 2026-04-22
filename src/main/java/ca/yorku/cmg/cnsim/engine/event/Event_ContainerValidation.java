@@ -84,8 +84,7 @@ public class Event_ContainerValidation extends Event {
             		this.getClass().getSimpleName() + status, 
             		node.getID(), 
             		container.getID(),
-            		//TODO: add the pool content here
-	        		""
+	        		container.printIDs(";")
             		);
         }
     }
