@@ -1,6 +1,7 @@
 package ca.yorku.cmg.cnsim.engine.sampling.factories;
 
 import ca.yorku.cmg.cnsim.engine.Simulation;
+import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractNetworkSampler;
 import ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardNetworkSampler;
@@ -48,6 +49,10 @@ public class NetworkSamplerFactory {
 		if (seed != null) {
 			netSampler.setSeed(seed + (seedFlag ? sim.getSimID() : 0));
 		}
+		
+        netSampler.setNetThroughputMean(Config.getPropertyFloat("net.throughputMean"));
+        netSampler.setNetThroughputSD(Config.getPropertyFloat("net.throughputSD"));
+		
 		return(netSampler);
     }
 }
