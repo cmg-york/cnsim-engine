@@ -3,7 +3,7 @@
 CNSim-Engine is the object-oriented framework that lies at the core of CNSim, a toolset for simulating blockchain consensus networks. The engine offers a set of abstractions, objects, and routines for quickly developing and running event-driven simulators of individual consensus networks. As such it is meant to be used as a library of *instantiating projects* to use in order to analyze specific protocols.
 
 ## Installation
-At this stage, the easiest way to instantiate CNSim-Engine assets is through installation to local Maven repository:
+At this stage, the easiest way to instantiate CNSim-Engine assets is through installation to your local Maven repository:
 
 1. In the `cnsim-engine` directory just do:
 
@@ -13,7 +13,7 @@ mvn install
 
 this will compile and install the library to your local Maven repo.
 
-2. In your instantiating code then (e.g. `cnsin-bitcoin`) just add this to your `pom.xml`
+2. In your instantiating code then (e.g. `cnsim-bitcoin`) just add this to your `pom.xml`
 
 ```
 <dependencies>
