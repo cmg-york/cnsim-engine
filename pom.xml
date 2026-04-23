@@ -8,8 +8,7 @@
   <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>CNSim Engine</name>
-  <description>A simulation engine for consensus networks</description>
-  <!-- FIXME change it to the project's website -->
+  <description>A simulation engine for consensus networks. Use the links on the left for documention.</description>
   <url>http://cmg-yorku.github.io/cnsim-engine</url>
   
   <developers>

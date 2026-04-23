@@ -32,9 +32,8 @@ this will compile and install the library to your local Maven repo.
 Ensure that the version is the same as in the `pom.xml` at the root of this repository.
 
 ## Documentation
-* A conceptual overview of CNSim-Engine can be found here \[under construction\].
-* A complete example of how CNSim has been instantiated to simulate Bitcoin can be found here \[under construction \].
-* Complete API reference can be found here \[under construction \].
+* Markdown documentation viewable on GitHub can be found under [src/site/markdown/documention](src/site/markdown/documentation).
+* Complete html documents including JavaDocs can be found under `docs/index.html` - repo needs to be cloned for these to be viewed locally.
 
 ## Clarification on License
 LGPL license adoption is intended to allow reuse of the framework for instantiating both proprietary and open-source (of any license) consensus protocol simulators. You can, for example create a proprietary tool for simulating a popular consensus protocol using this library a derivative of which you can maintain and distribute. 
