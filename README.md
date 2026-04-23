@@ -1,6 +1,6 @@
 ![CNSim-Engine Logo](src/site/resources/images/logo.png)
 
-# Consensus Network Simulator - Simulation Engine (CNSim-Engine)
+# Consensus Network Simulator - Simulation Engine
 
 CNSim-Engine is the object-oriented framework that lies at the core of CNSim, a toolset for simulating blockchain consensus networks. The engine offers a set of abstractions, objects, and routines for quickly developing and running event-driven simulators of individual consensus networks. As such it is meant to be used as a library of *instantiating projects* to use in order to analyze specific protocols.
 
