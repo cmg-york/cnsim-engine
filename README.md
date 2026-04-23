@@ -1,4 +1,4 @@
-!\[CNSim-Engine Logo](src/site/resources/images/logo.png)
+![CNSim-Engine Logo](src/site/resources/images/logo.png)
 
 # Consensus Network Simulator - Simulation Engine (CNSim-Engine)
 
