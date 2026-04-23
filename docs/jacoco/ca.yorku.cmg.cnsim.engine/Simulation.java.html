@@ -139,11 +139,11 @@ public class Simulation {
 <span class="nc bnc" id="L139" title="All 2 branches missed.">		for (Transaction t : ts.getTransactions()) {</span>
 <span class="nc bnc" id="L140" title="All 2 branches missed.">			if (t.getNodeID() == -1) {</span>
 <span class="nc" id="L141">				e = new Event_NewTransactionArrival(t, this.net.getNodeSet().pickRandomNode(), t.getCreationTime());</span>
-<span class="nc" id="L142">			} else {</span>
+			} else {
 <span class="nc" id="L143">				e = new Event_NewTransactionArrival(t, this.net.getNodeSet().pickSpecificNode(t.getNodeID()), t.getCreationTime());</span>
 			}
 <span class="nc" id="L145">	        this.schedule(e);</span>
-		}
+<span class="nc" id="L146">		}</span>
 <span class="nc" id="L147">		this.totalqueuedTransactions += ts.getCount();</span>
 <span class="nc" id="L148">	}</span>
 
@@ -266,7 +266,7 @@ public class Simulation {
 	 * @return The NodeSet object representing the set of nodes in the network.
 	 */
 	public NodeSet getNodeSet() {
-<span class="fc" id="L269">	    return(this.net.getNodeSet());</span>
+<span class="nc" id="L269">	    return(this.net.getNodeSet());</span>
 	}
 
 

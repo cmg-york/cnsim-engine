@@ -71,18 +71,18 @@ import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 	public void addNodeSampler(Simulation s) {
 		try {
 <span class="nc" id="L73">			s.getSampler().setNodeSampler(</span>
-<span class="nc" id="L74">					new NodeSamplerFactory().getSampler</span>
-					(
+					new NodeSamplerFactory().getSampler
+<span class="nc" id="L75">					(</span>
 <span class="nc" id="L76">							Config.getPropertyString(&quot;node.sampler.file&quot;),</span>
 <span class="nc" id="L77">							Config.getPropertyString(&quot;node.sampler.seed&quot;),</span>
 <span class="nc" id="L78">							Config.getPropertyString(&quot;node.sampler.seedUpdateTimes&quot;),</span>
 <span class="nc" id="L79">							Config.getPropertyString(&quot;node.sampler.updateSeedFlags&quot;),</span>
 <span class="nc" id="L80">							s.getSampler(),</span>
-<span class="nc" id="L81">							s)</span>
+							s)
 					);
 <span class="nc" id="L83">		} catch (Exception e) {</span>
 <span class="nc" id="L84">			e.printStackTrace();</span>
-		}
+<span class="nc" id="L85">		}</span>
 <span class="nc" id="L86">	}</span>
 
     /**
@@ -99,9 +99,9 @@ import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
      */
 	public void addNetworkSampler(Simulation s) {
 <span class="nc" id="L101">		s.getSampler().setNetworkSampler</span>
-		(
-<span class="nc" id="L103">				new NetworkSamplerFactory().getNetworkSampler</span>
-				(
+<span class="nc" id="L102">		(</span>
+				new NetworkSamplerFactory().getNetworkSampler
+<span class="nc" id="L104">				(</span>
 <span class="nc bnc" id="L105" title="All 2 branches missed.">						(Config.hasProperty(&quot;net.sampler.seed&quot;) ? Config.getPropertyLong(&quot;net.sampler.seed&quot;) : null),</span>
 <span class="nc bnc" id="L106" title="All 2 branches missed.">						(Config.hasProperty(&quot;net.sampler.seed.updateSeed&quot;) ? Config.getPropertyBoolean(&quot;net.sampler.seed.updateSeed&quot;) : null),</span>
 <span class="nc" id="L107">						s.getSampler(),s</span>
@@ -123,17 +123,17 @@ import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 	public void addTransactionSampler(Simulation s) {
 		try {
 <span class="nc" id="L125">			s.getSampler().setTransactionSampler</span>
-			(
-<span class="nc" id="L127">					new TransactionSamplerFactory().getSampler</span>
-					(
+<span class="nc" id="L126">			(</span>
+					new TransactionSamplerFactory().getSampler
+<span class="nc" id="L128">					(</span>
 <span class="nc" id="L129">							Config.getPropertyString(&quot;workload.sampler.file&quot;),</span>
 <span class="nc" id="L130">							s.getSampler(),</span>
-<span class="nc" id="L131">							s</span>
+							s
 							)
 					);
 <span class="nc" id="L134">		} catch (Exception e) {</span>
 <span class="nc" id="L135">			e.printStackTrace();</span>
-		}
+<span class="nc" id="L136">		}</span>
 <span class="nc" id="L137">	}</span>
 	
 	/** 
@@ -166,13 +166,13 @@ import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 <span class="nc" id="L166">				net = new FileBasedEndToEndNetwork(ns, netFilePath);</span>
 <span class="nc" id="L167">			} catch (Exception e) {</span>
 <span class="nc" id="L168">				e.printStackTrace();</span>
-			}
-<span class="nc" id="L170">		} else {</span>
+<span class="nc" id="L169">			}</span>
+		} else {
 			try {
 <span class="nc" id="L172">				net = new RandomEndToEndNetwork(ns, s.getSampler());</span>
 <span class="nc" id="L173">			} catch (Exception e) {</span>
 <span class="nc" id="L174">				e.printStackTrace();</span>
-			}
+<span class="nc" id="L175">			}</span>
 		}
 <span class="nc" id="L177">		s.setNetwork(net);</span>
 <span class="nc" id="L178">	}</span>
@@ -191,7 +191,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 <span class="nc" id="L191">			ts.appendTransactions(Config.getPropertyLong(&quot;workload.numTransactions&quot;));</span>
 <span class="nc" id="L192">		} catch (Exception e) {</span>
 <span class="nc" id="L193">			e.printStackTrace();</span>
-		}
+<span class="nc" id="L194">		}</span>
 <span class="nc" id="L195">		s.schedule(ts);</span>
 		
 		//Keep also a pointer to the workload.
@@ -237,7 +237,7 @@ import ca.yorku.cmg.cnsim.engine.transaction.TxDependencyRegistry;
 <span class="nc" id="L237">			} else {</span>
 <span class="nc" id="L238">				registry.neutralize();</span>
 			}
-<span class="nc" id="L240">		} else {</span>
+		} else {
 <span class="nc" id="L241">			registry.neutralize();</span>
 		}
 <span class="nc" id="L243">	}</span>

@@ -49,14 +49,14 @@ import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 <span class="nc" id="L49">				net = new FileBasedEndToEndNetwork(ns, netFilePath);</span>
 <span class="nc" id="L50">			} catch (Exception e) {</span>
 <span class="nc" id="L51">				e.printStackTrace();</span>
-			}
-<span class="nc" id="L53">		} else {</span>
+<span class="nc" id="L52">			}</span>
+		} else {
 			try {
 <span class="nc" id="L55">				net = new RandomEndToEndNetwork(ns, sampler);</span>
 <span class="nc" id="L56">				Debug.p(&quot;Creating random network.&quot;);</span>
 <span class="nc" id="L57">			} catch (Exception e) {</span>
 <span class="nc" id="L58">				e.printStackTrace();</span>
-			}
+<span class="nc" id="L59">			}</span>
 		}
 		
 <span class="nc" id="L62">		return net;</span>

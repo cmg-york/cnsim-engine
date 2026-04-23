@@ -17,7 +17,7 @@ import ca.yorku.cmg.cnsim.engine.reporter.Reporter;
  * @author Sotirios Liaskos for the Conceptual Modeling Group @ York University
  * @since 0.1
  */
-public abstract class AbstractNetwork {
+<span class="fc" id="L20">public abstract class AbstractNetwork {</span>
 
     // ================================
     // CONSTANTS
@@ -30,7 +30,7 @@ public abstract class AbstractNetwork {
     private static final float BITS_PER_BYTE = 8f;
 
     /** Seconds-to-milliseconds conversion factor. */
-<span class="fc" id="L33">    private static final float MS_PER_SECOND = 1000f;</span>
+    private static final float MS_PER_SECOND = 1000f;
 
     // ================================
     // FIELDS
@@ -147,7 +147,7 @@ public abstract class AbstractNetwork {
         long result;
 <span class="fc bfc" id="L148" title="All 2 branches covered.">        if (Math.abs(throughput) &lt; 1e-6f) {</span>
 <span class="fc" id="L149">            result = NOT_CONNECTED;</span>
-<span class="fc" id="L150">        } else {</span>
+        } else {
 <span class="fc" id="L151">            float ms = (size * BITS_PER_BYTE * MS_PER_SECOND) / throughput;</span>
 <span class="fc" id="L152">            result = Math.round(ms);</span>
         }
@@ -344,7 +344,7 @@ public abstract class AbstractNetwork {
 
     private static void getTransmissionTimeByNodes_post(long result) {
 <span class="pc bpc" id="L346" title="1 of 4 branches missed.">        assert result == NOT_CONNECTED || result &gt;= 0</span>
-<span class="nc" id="L347">                : &quot;Postcondition violated: result must be -1 or non-negative&quot;;</span>
+                : &quot;Postcondition violated: result must be -1 or non-negative&quot;;
 <span class="fc" id="L348">    }</span>
 
     private static void getTransmissionTimeByThroughput_pre(float throughput, float size) {
@@ -380,7 +380,7 @@ public abstract class AbstractNetwork {
             float result
     ) {
 <span class="nc bnc" id="L382" title="All 2 branches missed.">        assert result == net.Net[origin][destination]</span>
-<span class="nc" id="L383">                : &quot;Postcondition violated: result must equal Net[origin][destination]&quot;;</span>
+                : &quot;Postcondition violated: result must equal Net[origin][destination]&quot;;
 <span class="nc" id="L384">    }</span>
 
     private static void setThroughput_pre(int origin, int destination, float throughput) {
@@ -402,7 +402,7 @@ public abstract class AbstractNetwork {
             float throughput
     ) {
 <span class="pc bpc" id="L404" title="1 of 2 branches missed.">        assert net.Net[origin][destination] == throughput</span>
-<span class="nc" id="L405">                : &quot;Postcondition violated: Net[origin][destination] must equal throughput&quot;;</span>
+                : &quot;Postcondition violated: Net[origin][destination] must equal throughput&quot;;
 <span class="fc" id="L406">    }</span>
 
     private static void getAvgTroughput_post(float result) {

@@ -34,11 +34,13 @@
 
         <menu name="Documentation">
             <item name="Conceptual Overview" href="documentation/overview.html"/>
-            <item name="Architecture: Main Loop" href="documentation/main.html"/>
             <item name="Architecture: Events" href="documentation/events.html"/>
+			<item name="Architecture: Transactions" href="documentation/transactions.html"/>
+			<item name="Architecture: Network" href="documentation/network.html"/>
+            <item name="Architecture: Nodes" href="documentation/nodes.html"/>
             <item name="Architecture: Samplers" href="documentation/samplers.html"/>
-            <item name="Architecture: Nodes and Behaviors" href="documentation/nodes.html"/>
             <item name="Architecture: Reporting" href="documentation/reporting.html"/>
+			<item name="Architecture: Configuration" href="documentation/configuration.html"/>
             <item name="Units of Measurement" href="documentation/units.html"/>
         </menu>
         <menu name="API Reference">

@@ -146,7 +146,7 @@ public abstract class Node implements INode {
 <span class="fc bfc" id="L146" title="All 4 branches covered.">		if ((networkInterfaceBusyUntil == -1) || (networkInterfaceBusyUntil &lt; currTime )) {</span>
 			//Uninitalized or last transmission ended in the past.
 <span class="fc" id="L148">			returnTime = currTime + transDuration;</span>
-<span class="fc" id="L149">		} else { </span>
+		} else { 
 			//Last transmission ends at networkInterfaceBusyUntil
 <span class="fc" id="L151">			returnTime = networkInterfaceBusyUntil + transDuration;</span>
 		}
@@ -197,7 +197,7 @@ public abstract class Node implements INode {
 <span class="nc" id="L197">	            sim.schedule(e);</span>
 <span class="nc" id="L198">	            setNetworkInterfaceBusyUntil(scheduleTime);</span>
 	        }
-	    }
+<span class="nc" id="L200">	    }</span>
 <span class="nc" id="L201">	}</span>
 	
 	/**
@@ -226,7 +226,7 @@ public abstract class Node implements INode {
 <span class="nc" id="L226">	            sim.schedule(e);</span>
 <span class="nc" id="L227">	            setNetworkInterfaceBusyUntil(scheduleTime);</span>
 	        }
-	    }
+<span class="nc" id="L229">	    }</span>
 <span class="nc" id="L230">	}</span>
 
 	
