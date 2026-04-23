@@ -8,6 +8,7 @@ CNSim-Engine is the object-oriented framework that lies at the core of CNSim, a 
 
 At this stage, the easiest way to instantiate CNSim-Engine assets is through installation to your local Maven repository:
 
+0. Have the latest versions of `maven`, `git` and `Java` (version used: 21) installed in your system.
 1. In the `cnsim-engine` directory just do:
 
 ```
@@ -20,15 +21,12 @@ this will compile and install the library to your local Maven repo.
 
 ```
 <dependencies>
-
   ...
-
   <dependency>
     <groupId>ca.yorku.cmg</groupId>
     <artifactId>cnsim-engine</artifactId>
     <version>0.0.2-SNAPSHOT</version>
   </dependency>
-
 </dependencies>
 ```
 
@@ -36,7 +34,7 @@ Ensure that the version is the same as in the `pom.xml` at the root of this repo
 
 ## Documentation
 
-* Markdown documentation viewable on GitHub can be found under [src/site/markdown/documention](src/site/markdown/documentation).
+* Markdown documentation viewable on GitHub can be found under [src/site/markdown/documentation](src/site/markdown/documentation).
 * Complete html documents including JavaDocs can be found under `docs/index.html` - repo needs to be cloned for these to be viewed locally.
 
 ## Clarification on License

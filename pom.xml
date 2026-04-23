@@ -7,8 +7,8 @@
   <artifactId>cnsim-engine</artifactId>
   <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>CNSim Engine</name>
-  <description>A simulation engine for consensus networks. Use the links on the left for documention.</description>
+  <name>CNSim Engine (cnsim-engine)</name>
+  <description>A simulation engine for consensus networks. Use the links on the left for documentation.</description>
   <url>http://cmg-yorku.github.io/cnsim-engine</url>
   
   <developers>

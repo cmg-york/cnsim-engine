@@ -5,20 +5,12 @@ This folder contains the sources of all custom documentation written for cnsim-e
 # TOC
 
 [Conceptual Overview](overview.md)
-
 [Architecture: Events](events.md)
-
 [Architecture: Transactions](transactions.md)
-
 [Architecture: Network](network.md)
-
-[Architecture: Samplers](samplers.md)
-
 [Architecture: Nodes and Behaviors](nodes.md)
-
+[Architecture: Samplers](samplers.md)
 [Architecture: Reporting](reporting.md)
-
 [Architecture: Configuration](configuration.md)
-
 [Units of Measurement](units.md)
 
