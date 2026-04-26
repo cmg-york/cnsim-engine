@@ -2,7 +2,6 @@ package ca.yorku.cmg.cnsim.engine.sampling.interfaces;
 
 import java.util.Random;
 
-import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
 
@@ -41,14 +40,15 @@ public abstract class AbstractNetworkSampler implements ISowable {
     // CONSTRUCTORS
     // -----------------------------------------------------------------
 
-    /**
-     * Default constructor.
+   /**
+     * Default no-arg constructor.
      * <p>
-     * Loads configuration values from {@linkplain Config}.
+     * Fields {@code netThroughputMean} and {@code netThroughputSD} remain at their default
+     * values (0). The creating factory is responsible for configuring them via the
+     * corresponding setters before use.
      * </p>
      */
-    public AbstractNetworkSampler() {
-//    	LoadConfig();
+    protected AbstractNetworkSampler() {
     }
     
      
@@ -60,10 +60,7 @@ public abstract class AbstractNetworkSampler implements ISowable {
      * @param sampler           The {@linkplain Sampler} to use for generating random samples
      * @throws ArithmeticException if any of the provided values are less than 0
      */
-    public AbstractNetworkSampler(float netThroughputMean, 
-    		float netThroughputSD,
-    		Sampler sampler) {
-
+    public AbstractNetworkSampler(float netThroughputMean, float netThroughputSD, Sampler sampler) {
         if(netThroughputMean < 0)
     		throw new ArithmeticException("Network Throughput Mean < 0");
         this.netThroughputMean = netThroughputMean;
@@ -71,6 +68,7 @@ public abstract class AbstractNetworkSampler implements ISowable {
     		throw new ArithmeticException("Network Throughput Standard Deviation < 0");
         this.netThroughputSD = netThroughputSD;
 
+        this.sampler = sampler;
     }
     
     
@@ -188,20 +186,4 @@ public abstract class AbstractNetworkSampler implements ISowable {
     	randomSeed = seed;
     	random.setSeed(seed);
     }
-    
-    
-    /**
-    * Loads network configuration from {@linkplain Config}.
-    * <p>
-    * Sets {@code netThroughputMean} and {@code netThroughputSD} from configuration properties:
-    * <ul>
-    *     <li>{@code net.throughputMean}</li>
-    *     <li>{@code net.throughputSD}</li>
-    * </ul>
-    */
-    public void LoadConfig() {
-        this.setNetThroughputMean(Config.getPropertyFloat("net.throughputMean"));
-        this.setNetThroughputSD(Config.getPropertyFloat("net.throughputSD"));
-    }
-    
 }

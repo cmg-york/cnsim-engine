@@ -3,7 +3,6 @@ package ca.yorku.cmg.cnsim.engine.sampling.interfaces;
 import java.util.BitSet;
 import java.util.Random;
 
-import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 
 /*
@@ -39,7 +38,6 @@ public abstract class AbstractTransactionSampler implements ISowable {
     protected AbstractTransactionSampler(){
    		this.random = new Random();
    		random.setSeed(randomSeed);
-   		LoadConfig();
     }
     
     
@@ -133,26 +131,6 @@ public abstract class AbstractTransactionSampler implements ISowable {
      * Enable seed updating 
      */
     public abstract boolean seedUpdateEnabled();
-	
-
-	
-    // -----------------------------------------------------------------
-    // CONFIGURATION
-    // -----------------------------------------------------------------
-
-    /**
-     * Loads configuration values from {@linkplain Config} for transaction sampling.
-     */
-    public void LoadConfig() {
-        this.setTxArrivalIntervalRate(Config.getPropertyFloat("workload.lambda")); 
-        this.setTxSizeMean(Config.getPropertyFloat("workload.txSizeMean"));
-        this.setTxSizeSD(Config.getPropertyFloat("workload.txSizeSD"));
-        this.setTxFeeValueMean(Config.getPropertyFloat("workload.txFeeValueMean"));
-        this.setTxFeeValueSD(Config.getPropertyFloat("workload.txFeeValueSD"));
-    }
-
-	
-    
     
     /*
      * 

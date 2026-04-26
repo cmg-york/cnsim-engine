@@ -2,7 +2,6 @@ package ca.yorku.cmg.cnsim.engine;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
-import ca.yorku.cmg.cnsim.engine.config.ConfigInitializer;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.sampling.standardsamplers.StandardTransactionSampler;
 
@@ -30,19 +28,9 @@ class StandardTransactionSamplerTest {
 	
 	@BeforeEach
 	void setUp() throws Exception {
-		String[] args = {"-c", "src/test/resources/application.properties"};
-		//String[] args = {"-c", "application.properties"};
-        try{
-            ConfigInitializer.initialize(args);
-        } catch (IOException e){
-            e.printStackTrace();
-            System.exit(1);
-        }
 		s0 = new Sampler();
-
 		s = new StandardTransactionSampler(s0, simID);
-		
-		s.nailConfig(123, false, 15);
+		s.configureSeed(123, false, 15);
 	}
 
 	@Test
@@ -76,7 +64,7 @@ class StandardTransactionSamplerTest {
 		flag = true;
 		switchTx = 15;
 
-		s.nailConfig(initSeed, flag, switchTx);
+		s.configureSeed(initSeed, flag, switchTx);
 	
 		for (rounds=1;rounds<=30;rounds++) {
 			s.setTxArrivalIntervalRate(lambda);

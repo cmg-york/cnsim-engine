@@ -44,8 +44,11 @@ public class NetworkSamplerFactory {
 	 * @return an initialized {@linkplain AbstractNetworkSampler} ready for use in the simulation
 	 */
 	public AbstractNetworkSampler getNetworkSampler(Long seed, boolean seedFlag, Sampler outerSampler, Simulation sim) {
-		AbstractNetworkSampler netSampler;
-		netSampler = new StandardNetworkSampler(outerSampler);
+		AbstractNetworkSampler netSampler = new StandardNetworkSampler(outerSampler);
+
+		netSampler.setNetThroughputMean(Config.getPropertyFloat("net.throughputMean"));
+        netSampler.setNetThroughputSD(Config.getPropertyFloat("net.throughputSD"));
+
 		if (seed != null) {
 			netSampler.setSeed(seed + (seedFlag ? sim.getSimID() : 0));
 		}

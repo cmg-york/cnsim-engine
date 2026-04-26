@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import ca.yorku.cmg.cnsim.engine.Debug;
-import ca.yorku.cmg.cnsim.engine.config.Config;
 import ca.yorku.cmg.cnsim.engine.sampling.Sampler;
 import ca.yorku.cmg.cnsim.engine.sampling.interfaces.AbstractTransactionSampler;
 import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
@@ -31,7 +30,10 @@ import ca.yorku.cmg.cnsim.engine.transaction.Transaction;
  */
 public class StandardTransactionSampler extends AbstractTransactionSampler {
 	    
-	
+    // ================================
+    // FIELDS
+    // ================================
+
     /** Simulation ID for reproducible seed updates */
     private int simID;
 
@@ -53,16 +55,13 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
     // CONSTRUCTORS
     // -----------------------------------------------------------------
 
-    
     /**
      * Constructs a StandardTransactionSampler with the specified {@linkplain Sampler}.
-     * Loads configuration from {@linkplain Config}.
      *
-     * @param s the Sampler instance to use for generating random samples
+     * @param s the {@linkplain Sampler} instance to use for generating random samples
      */
     public StandardTransactionSampler(Sampler s) {
     	this.sampler = s;
-    	LoadConfig();
     }
 	    
     /**
@@ -306,42 +305,18 @@ public class StandardTransactionSampler extends AbstractTransactionSampler {
 
         return deps;
     }
-    
-    
-    
-    /**
-     * Loads configuration values from {@linkplain Config} for transaction sampling.
-     * Initializes seed update settings and current/initial seeds.
-     */
-    @Override
-    public void LoadConfig() {
-    	super.LoadConfig();
-    	this.seedUpdateEnabled = (Config.hasProperty("workload.sampler.seed.updateSeed") ? Config.getPropertyBoolean("workload.sampler.seed.updateSeed") : false);
-    	this.seedSwitchTx = (Config.hasProperty("workload.sampler.seed.updateTransaction") ? Config.getPropertyLong("workload.sampler.seed.updateTransaction") : 0);
-    	this.currentSeed = (Config.hasProperty("workload.sampler.seed") ? Config.getPropertyLong("workload.sampler.seed") : 0);
-    	this.initialSeed = this.currentSeed;
-    }
 
-    
-    
-    // -----------------------------------------------------------------
-    // TESING RELATED METHODS
-    // -----------------------------------------------------------------
-
-    
-    
     /**
-     * Sets seed-related configuration for testing purposes.
+     * Configures the seed update behaviour of this sampler.
      *
-     * @param initSeed initial seed value
-     * @param seedUpdateEnabled whether seed updates are enabled
-     * @param seedSwitchTx transaction ID at which seed should switch
+     * @param initialSeed        the initial seed value
+     * @param seedUpdateEnabled  whether seed updates are enabled
+     * @param seedSwitchTx       transaction ID at which seed should switch
      */
-    public void nailConfig(long initSeed, boolean seedUpdateEnabled, long seedSwitchTx) {
-    	this.seedUpdateEnabled = seedUpdateEnabled;
-    	this.seedSwitchTx = seedSwitchTx;
-    	this.currentSeed = initSeed;
-    	this.initialSeed = this.currentSeed;
+    public void configureSeed(long initialSeed, boolean seedUpdateEnabled, long seedSwitchTx) {
+        this.initialSeed = initialSeed;
+        this.currentSeed = initialSeed;
+        this.seedUpdateEnabled = seedUpdateEnabled;
+        this.seedSwitchTx = seedSwitchTx;
     }
-
 }
